@@ -1,0 +1,283 @@
+---
+title: "Process Signals and Core Dumps"
+date: '2023-09-06'
+categories:
+  - Operating Systems
+  - Kubernetes
+  - Go
+description: |
+  Why core dumps silently disappear when a Go binary runs as PID 1 in a container.
+image: "./media/01.webp"
+---
+
+## Context
+
+Our REST service was crashing in production with `SIGSEGV` and `SIGABRT` signals. We had [core-dump-handler](https://github.com/IBM/core-dump-handler) [@coredumphandler] deployed — a daemonset that sets `kernel.core_pattern`, watches the output directory, and uploads core dumps to S3. It was working correctly and uploading dumps from other workloads.
+
+But for this service: no dumps. Ever.
+
+The pipeline was healthy — the problem was upstream of it. Somewhere between the crash and the collection point, the signal was being suppressed. What follows is a systematic investigation into *where* and *why*.
+
+
+## Background
+
+### Interrupts, exceptions, and signals
+
+To understand why core dumps can silently disappear, we need to understand how the kernel communicates with hardware and with processes:
+
+```shell
+Hardware     --> Kernel     : interrupts
+Process      --> Kernel     : traps (system calls)
+CPU fault    --> Kernel     : exceptions
+Kernel       --> Process    : signals
+Process      --> Process    : signals (via kernel)
+```
+
+**Interrupts** are how hardware talks to the kernel. When a hardware device needs the kernel's attention — a disk controller completed an I/O request, a network card received a packet, a timer chip fired — it sends a hardware interrupt to the CPU. The CPU pauses whatever it was executing, saves its context, and jumps to the kernel's interrupt service routine for that device [@gregg2020systems]. The kernel processes the event (moves data from the network buffer, marks the I/O as complete, schedules the next process) and returns control. Gregg treats interrupt analysis as a key part of performance work because handling interrupts consumes CPU cycles, and high interrupt rates (especially from network I/O) can become a measurable overhead.
+
+**Traps** are how processes talk to the kernel. When a userspace 
+process needs the kernel to do something — read a file, allocate 
+memory, open a socket — it executes a system call, which triggers 
+a trap. This is an intentional, synchronous transfer of control 
+from userspace to kernel space.
+
+**Exceptions** are how the CPU reports faults to the kernel. When the CPU encounters a problem during instruction execution — an invalid memory address, a division by zero — it raises an exception (sometimes called a fault). This is similar in mechanism to a trap (control transfers to the kernel), but it is unintentional — the process did not ask for it. The kernel examines the exception and decides what to do. Some exceptions are routine: a page fault means the page is on disk, so the kernel loads it and resumes the process. Others are fatal: an access to genuinely invalid memory means the process has a bug.
+
+**Signals** are how the kernel talks to processes [@signal7]. When the kernel needs to notify a userspace process about something, it delivers a signal. Signals are the kernel's outbound notification mechanism. They can be triggered by several things: the kernel translating a fatal CPU exception into a notification (`SIGSEGV` from a bad memory access), the kernel reporting a state change (`SIGCHLD` when a child process exits, `SIGPIPE` on a broken pipe), or one process explicitly asking the kernel to notify another (`kill()` system call sending `SIGTERM`).
+
+The `SIGSEGV` at the center of our investigation is an example of the first category: the CPU's memory management unit detects an invalid access, raises an exception, and the kernel delivers `SIGSEGV` to the offending process. What happens next depends on whether the process has registered a handler for that signal.
+
+Each signal has a default action [@kerrisk2010linux]: ignore, terminate, stop, or terminate with core dump. The signals relevant here:
+
+| Signal    | Default action       | Origin |
+|-----------|----------------------|--------|
+| `SIGSEGV` | Terminate + core dump | CPU exception: invalid memory access |
+| `SIGABRT` | Terminate + core dump | Software: explicit abort |
+| `SIGBUS`  | Terminate + core dump | CPU exception: misaligned memory access |
+| `SIGKILL` | Terminate (forced)    | Kernel/process: cannot be caught |
+
+A process can install a custom signal handler to override the default action — catching `SIGSEGV` to log a traceback and exit cleanly, for example. If it does, the OS never sees the termination as an abnormal crash, and no core dump is written. This distinction — between the OS observing an *abnormal termination* versus a *clean exit* — turns out to be central to the problem.
+
+### Core dumps
+
+When a process terminates abnormally and the OS determines a core dump should be written, it saves the process state — memory, registers, open file descriptors, stack — to a file [@core5]. The destination is controlled by `sysctl kernel.core_pattern`.
+
+core-dump-handler runs as a privileged daemonset and sets `kernel.core_pattern` to a helper binary. When the OS writes a dump, the helper picks it up, uploads it to S3, and removes it from disk.
+
+```{mermaid}
+flowchart LR
+  crash["process crash<br/>(unhandled signal)"]
+  kernel["kernel<br/>kernel.core_pattern"]
+  handler["core-dump-handler<br/>writes to disk"]
+  s3["S3 upload"]
+
+  crash --> kernel --> handler --> s3
+```
+
+If no dump appears in S3, something in that chain is broken. Our investigation needed to determine *which link* was failing.
+
+### Signals in containers and Kubernetes
+
+Containers introduce an additional layer of signal handling that does not exist in bare-metal or VM deployments.
+
+In a standard Linux system, PID 1 is the init process (`systemd`, `sysvinit`, etc.), which is purpose-built to handle signals correctly and reap orphaned child processes. Inside a container, whatever process is defined as the entrypoint becomes PID 1 — even if it has no awareness of those responsibilities.
+
+Kubernetes adds another consideration. When a container's entrypoint exits or crashes, Kubernetes detects the unhealthy state and sends `SIGKILL` to clean up the container. The window between the crash and the forced kill is narrow — often too narrow for the OS to write a core dump, even when the dump mechanism is correctly configured.
+
+With this background established, we designed a series of experiments to isolate the root cause.
+
+
+## Investigation
+
+core-dump-handler passed its own [verification test](https://github.com/IBM/core-dump-handler/tree/main/charts/core-dump-handler#verifying-the-chart-installation) and was producing uploads for other workloads. The problem was isolated to this service.
+
+To reproduce the conditions systematically, we sent `SIGSEGV` directly to the target process inside the container and observed whether a core dump was produced. Each experiment varied one factor — PID position, Go runtime configuration — to isolate the root cause.
+
+
+## Experiments
+
+### Experiment 1 — Signal delivered to a non-PID-1 process
+
+**Hypothesis:** a non-PID-1 process receiving `SIGSEGV` with default handling will produce a core dump.
+
+**Setup:** the Go binary runs as PID 1; a `/bin/bash` session runs as PID 16.
+
+```bash
+USER       PID STAT COMMAND
+rest         1 Ssl  /go/bin/rest-binary
+rest        16 Ss   /bin/bash
+```
+
+```bash
+kill -s SIGSEGV 16
+# command terminated with exit code 139
+```
+
+Exit code 139 = `128 + SIGSEGV(11)`. The process terminated with the signal, the OS wrote a core dump, and core-dump-handler uploaded it.
+
+**Result:** core dump produced. This confirms the OS-level mechanism and core-dump-handler are functioning correctly.
+
+
+### Experiment 2 — Signal delivered to PID 1 (Go binary as init)
+
+**Hypothesis:** PID 1 will behave differently when receiving the same signal.
+
+**Setup:** the Go binary runs as PID 1.
+
+```bash
+kill -s SIGSEGV 1
+# command terminated with exit code 137
+```
+
+Exit code 137 = `128 + SIGKILL(9)`. The signal did not terminate the process directly — Kubernetes detected the crash and killed the container with `SIGKILL`. No dump was written.
+
+**Result:** no core dump. This revealed the first piece of the puzzle. The Linux kernel treats PID 1 differently from all other processes: **signals with default action `terminate` are silently dropped if PID 1 has not explicitly registered a handler for them** [@kerrisk2010linux]. This is a safety mechanism to prevent the init process from being killed by accident. For any other PID, an unhandled `SIGSEGV` terminates the process and produces a core dump. For PID 1, it is silently discarded.
+
+```{mermaid}
+flowchart TD
+  subgraph bare["Bare process — PID > 1"]
+    s1["SIGSEGV received"]
+    s2["no handler registered"]
+    s3["kernel writes core dump"]
+    s4["core-dump-handler uploads"]
+    s1 --> s2 --> s3 --> s4
+  end
+
+  subgraph pid1["Container — PID 1"]
+    p1["SIGSEGV received"]
+    p2["kernel: PID 1, no handler<br/>signal dropped silently"]
+    p3["K8s detects crash → SIGKILL"]
+    p4["container terminated<br/>no dump written"]
+    p1 --> p2 --> p3 --> p4
+  end
+```
+
+At this point, the fix seemed straightforward: ensure the Go binary does not run as PID 1. But the next experiment revealed a second, independent layer of suppression.
+
+
+
+### Experiment 3 — Go binary as non-PID-1, default runtime configuration
+
+**Hypothesis:** with the Go binary running as a child process (not PID 1), the signal should reach the OS dump mechanism.
+
+**Setup:** a shell script runs as PID 1; the Go binary starts as PID 8.
+
+```bash
+USER       PID STAT COMMAND
+rest         1 Ss   /bin/bash -c ./init.sh
+rest         8 Sl   /go/bin/rest-binary
+```
+
+```bash
+kill -s SIGSEGV 8 && echo $?
+# 0
+# command terminated with exit code 137
+```
+
+`kill` returned 0 — the signal was delivered. But the container exited with 137, not 139. The Go runtime intercepted `SIGSEGV`, printed a goroutine traceback, and called `os.Exit` — a clean exit from the kernel's perspective. The OS never observed an abnormal termination and produced no dump.
+
+**Result:** no core dump. This was the less obvious finding. Even with the PID 1 problem eliminated, the **Go runtime's default signal handling masks the crash from the OS** [@goruntime]. The runtime catches the signal, handles it internally, and performs a clean shutdown — which means the kernel never sees the abnormal termination that would trigger a core dump. From the OS perspective, the process exited normally.
+
+
+### Experiment 4 — Go binary as non-PID-1, `GOTRACEBACK=crash`
+
+**Hypothesis:** setting `GOTRACEBACK=crash` will cause the Go runtime to re-raise the signal as `SIGABRT`, allowing the OS to produce a core dump.
+
+The Go runtime exposes `GOTRACEBACK` to control its behavior on fatal errors [@goruntime]. The `crash` value changes how it terminates:
+
+> *"crash is like 'system' but crashes in an operating system-specific manner instead of exiting. For example, on Unix systems, the crash raises SIGABRT to trigger a core dump."*
+> — [Go runtime docs](https://pkg.go.dev/runtime)
+
+**Setup:** Go binary as non-PID-1, `GOTRACEBACK=crash` set in the environment.
+
+```bash
+env | grep GOTRACEBACK
+# GOTRACEBACK=crash
+
+kill -s SIGSEGV 8
+# command terminated with exit code 137
+# [INFO core_dump_agent] Uploading: /var/mnt/core-dump-handler/cores/6d3008ea-...-dump-....zip
+```
+
+The Go runtime caught `SIGSEGV`, raised `SIGABRT`, and the OS wrote the core dump before Kubernetes could kill the container.
+
+**Result:** core dump produced. `GOTRACEBACK=crash` is a necessary condition — but is it sufficient on its own?
+
+
+### Experiment 5 — Go binary as PID 1, `GOTRACEBACK=crash`
+
+**Hypothesis:** even with `GOTRACEBACK=crash`, PID 1 signal semantics will prevent the dump.
+
+**Setup:** Go binary as PID 1, `GOTRACEBACK=crash` set.
+
+```bash
+env | grep GOTRACEBACK
+# GOTRACEBACK=crash
+
+kill -s SIGSEGV 1
+# command terminated with exit code 137
+```
+
+No upload. Compared to experiment 4, the container was killed immediately — Kubernetes reacted before the dump could be written. With the binary as PID 1, the timing window collapses.
+
+**Result:** no core dump. `GOTRACEBACK=crash` alone is not sufficient when the binary runs as PID 1.
+
+
+## Results
+
+| Experiment | PID position | `GOTRACEBACK` | Core dump |
+|---|---|---|---|
+| 1 | non-PID-1 (`/bin/bash`) | default | produced |
+| 2 | PID 1 | default | suppressed |
+| 3 | non-PID-1 (Go binary) | default | suppressed |
+| 4 | non-PID-1 (Go binary) | `crash` | produced |
+| 5 | PID 1 (Go binary) | `crash` | suppressed |
+
+Two independent conditions must both be true for a core dump to be produced:
+
+1. The Go runtime must re-raise the signal as `SIGABRT` (`GOTRACEBACK=crash`)
+2. The binary must not be running as PID 1
+
+Neither condition alone is sufficient. Experiment 3 shows that solving only the PID problem fails (the Go runtime still intercepts the signal). Experiment 5 shows that solving only the Go runtime problem fails (PID 1 semantics still suppress the dump). Both layers must be addressed together.
+
+
+## Solutions
+
+Google's best practices for building containers [@googlecontainers] covers this class of problem in detail. Three approaches exist.
+
+**Register signal handlers in the binary.** Explicitly handle `SIGSEGV` and `SIGABRT` in application code. The binary can run as PID 1 but takes responsibility for forwarding signals to the OS dump mechanism. Requires changes to application code.
+
+**Enable process namespace sharing in Kubernetes.**
+
+```yaml
+spec:
+  shareProcessNamespace: true
+```
+
+All containers in the pod share a single PID namespace. The kubelet's pause container owns PID 1; the application binary runs as a normal child process. Tested and confirmed working.
+
+**Use a specialized init system.** Run a minimal init like [tini](https://github.com/krallin/tini) [@tini] as PID 1, which correctly handles signals and reaps child processes:
+
+```dockerfile
+ENTRYPOINT ["/tini", "--"]
+CMD ["/go/bin/your-binary"]
+```
+
+The binary runs as a child of tini, inheriting normal signal semantics.
+
+All three solutions address condition 2 (PID position). Condition 1 (`GOTRACEBACK=crash`) must still be set regardless of which approach is chosen.
+
+
+## Takeaway
+
+The missing core dumps were caused by two independent layers of signal interception stacking against each other: the Go runtime catching `SIGSEGV` before the OS could act on it, and PID 1 kernel semantics preventing the OS dump mechanism from firing even when the runtime was configured to re-raise the signal. Neither issue alone was the full cause — both had to be addressed together.
+
+This is a useful reminder that the chain from event to observable artifact can be longer than we assume. A crash is not a core dump. A core dump is not an upload. Each link in the chain — the runtime, the kernel, the container orchestrator, the collection pipeline — can independently suppress the signal we depend on. When debugging missing telemetry, it is worth tracing the full path from source to storage, rather than assuming that the absence of data means the event did not occur [@gregg2020systems].
+
+When debugging missing core dumps in containerized Go services, check both conditions: runtime signal behavior and PID 1 semantics.
+
+
+## References
+
+::: {#refs}
+:::

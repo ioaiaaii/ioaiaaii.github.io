@@ -1,0 +1,43 @@
+\section*{Executing on Real Quantum Computer}
+
+The code was executed on ibm\_brisbane due to immediate availability, but the results were wrong Fig. \ref{brisbane_counts} . FakeSherbrooke was more reliable during experiments Fig. \ref{fakeshercounts}, and I executed my circuit on a ibm\_sherbrooke backend, but with noticeable noise. During all Assignments, I've noticed that Brisbane is not responding reliably in more complex circuits, while Sherbrooke provides less noisy results. Exporting Operations metrics, I can observe that Brisbane has fewer operations after transpilation, which may explain the more noisy results.
+
+\begin{figure}[H]
+    \centering
+    \caption{Results/Counts}     
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{exercise2/cvgmc6r8w2g0008emdr0__measure__counts.png}
+        \caption*{ibm\_brisbane}
+    \end{minipage}
+    \label{brisbane_counts}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \caption{Results/Counts}     
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{exercise2/14cb2810-04ac-4a8c-bad4-ae2ee9804568__measure__counts.png}
+        \caption*{FakeSherbrooke}
+    \end{minipage}
+    \label{fakeshercounts}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \caption{Operations}     
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{exercise2/ibm_brisbane__operations.png}
+        \caption*{ibm\_brisbane}
+        \label{FakeSherbrooke_result}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{exercise2/ibm_sherbrooke__operations.png}
+        \caption*{ibm\_sherbrooke}  
+        \label{FakeSherbrooke_result_without}        
+    \end{minipage}
+\end{figure}

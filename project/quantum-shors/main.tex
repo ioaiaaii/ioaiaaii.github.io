@@ -1,0 +1,71 @@
+% Document Class
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{amsfonts}
+\usepackage{pgfplots}
+\usepackage{caption}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{float} % for image rendering along with text
+
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+    pdfpagemode=FullScreen,
+    }
+
+% python
+\usepackage{minted}
+\usemintedstyle{vs}
+\usepackage{listings}
+\setminted[python]{
+    fontsize=\footnotesize, % Sets the font size for the code
+    bgcolor=gray!5, % Sets the background color to a lighter gray
+    breaklines=true, % Enables line breaks within the code block
+    linenos=false, % Line numbers (set to true if you want line numbers)
+}
+
+% Plots
+\pgfplotsset{compat=1.17}
+
+% Quantum Circuits
+\usepackage{tkz-euclide} % Provides easier way to handle angles
+\usepackage{tikz}
+\usetikzlibrary{quantikz2}
+\usepackage{quantikz}
+% Set global styles for your circuit elements
+\tikzset{
+    operator/.append style={draw=White},  % Make the operator boxes borderless (or white border)
+    gg label/.append style={color=White}, % Group labels in white (effectively invisible)
+    meter/.append style={draw=White}      % Make meter borders white (or invisible)
+}
+
+% Title
+\title{Shor’s Algorithm}
+\author{Ioannis Savvaidis}
+\date{}
+
+% Document
+\begin{document}
+
+\newenvironment{statement}[2][Statement]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\maketitle
+
+
+\input{exercise1/exercise1}
+\vspace{15cm} % Adds 1 centimeter of vertical space
+
+\input{exercise2/exercise2}
+\input{exercise3/exercise3}
+
+\end{document}

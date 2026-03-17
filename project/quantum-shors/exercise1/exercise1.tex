@@ -1,0 +1,258 @@
+\section{General Analysis of Shor's Algorithm}
+
+\begin{flushleft}
+
+Shor's algorithm provides a methodology to factor a prime integer in polynomial time.
+Factoring in classical computers is a Non-Polynomial Problem but has not yet been classified as NP-complete. Shor's algorithm consists of classical and quantum computation steps composed of number theory and quantum phase estimation techniques. Its best-known application is breaking the RSA Cryptosystem, but with a qubit number barrier. As it has been proved, the algorithm needs at least twice the number of qubits required to encode the random big integer prime of the system. This means that for an RSA2048-produced integer prime with 2048 bits, the algorithm needs at least 4096 qubits.
+
+The lower computational cost of breaking the RSA system is to find the period of a modular exponent function and apply it to $gcd$ functions to construct the two factors of the prime integer. These two factors lead to retrieving the private key.
+
+\subsubsection{RSA Components in a nutshell}
+\begin{itemize}
+    \item \( p, q \): Two large prime numbers.
+    \item \( N = p \times q \): The modulus used in both the public and private keys.
+    \item \( d \): Private exponent, random integer prime to $(p - 1) \times (q - 1)$
+    \item \( e \): Public exponent given by:
+    \[
+    d \times e \equiv 1 \ (\text{mod} \ (p - 1) \times (q - 1))
+    \]
+    \item Public key: \( (e, N) \)
+    \item Private key: \( (d, N) \)
+    \item Encryption: Given message \( M \), $C = M^e \mod N$
+    \item Decryption: Given ciphertext \( C \),$M = C^d \mod N$
+\end{itemize}
+
+Shor's Algorithm has only one quantum computational part, which is to find the period using the Quantum Phase Estimation by applying the modular exponent function as an Oracle.
+
+\subsubsection{Modular exponent function}
+\[
+f(x) = a^x mod N
+\]
+$a$ a random chosen number where $2<a<N$ and $gcd(a,N)=1$
+
+$x \in \mathbb{N}_0 = \{0, 1, 2, 3, \dots\}$
+
+\subsubsection{Period finding}
+
+For each $x$ (in decimal), the function $f$ is being evaluated until $f(x)=1$, then the non-zero iteration $x$, is the period. The period of $f$, denoted with $r$, and it is the first non-zero integer that:
+\[
+f(r) = a^r mod N = 1 \tag{1}
+\]
+
+\subsubsection{Quantum Phase Estimation(QPE)}
+
+QPE (Fig. \ref{qpe_circ}), extends the Phase-kickback phenomenon and provides an algorithm to calculate a Unitary Operator in high accuracy. It consists of two registers, usually with different names, but we'll keep \textit{control} and \textit{target} for simplicity. If the Control Register has $m$-qubits and the target register has $n$-qubits, the Unitary Operator (U) is a controlled-Unitary operator (CU) controlled by control qubits and acting on all target register qubits. The appliance needs a convention on how the quantum register represents the bits. Qiskit ecosystem has an inverted convention, which we will use here for simplicity. Thus, the most significant bit (MSB) is represented by the least significant register number e.g. for a 5-bit number, x\_4 is represented by qubit q\_0, and x\_0 by qubit q\_4.
+
+\begin{figure}[H]
+\begin{quantikz}[thin lines,color=Black,background color=NavyBlue]
+\lstick[4]{$|0\rangle^{\otimes m}$} & \gate{H} & \ctrl{4}                   & \qw          & \dots    & \qw       & \gate[4]{QFT^\dagger} & \meter{} \\
+                                    & \gate{H} & \qw                        & \ctrl{3}     & \dots    & \qw       & \qw                   & \meter{} \\
+                                    & \dots      & \qw                       & \qw          & \ctrl{2} & \dots     & \qw                   & \meter{} \\
+                                    & \gate{H} & \qw                     & \qw          & \qw      & \ctrl{1}  & \qw                    & \meter{} \\
+\lstick{$\ket{1}$}                  & \qw      & \gate[3]{CU^{2^{0}}_0}  & \gate[3]{CU^{2^{1}}_1} & \gate[3]{CU^{2^{...}}_{\dots}} & \gate[3]{CU^{2^{m-1}}_{m-1}} & \qw & \qw \\
+\lstick[2]{$|0\rangle^{\otimes n-1}$} & \qw & \qw & \qw & \qw & \qw & \qw & \qw \\
+                                     & \qw & \qw & \qw & \qw & \qw & \qw & \qw \\
+\end{quantikz}
+\caption{QPE Circuit in Qiskit Convention}
+\label{qpe_circ}
+\end{figure}
+\vspace{0.5cm} % Adds 1 centimeter of vertical space
+
+
+
+If $x_{[10]}$ is a x in decimal state and $x_{[2]}$ the binary, represented by control register with m-bits, then:
+
+\[
+\ x_{[10]}= 2^{m-1}x_{m-1}+2^{m-2}x_{m-2}...+ 2^{0}x_{0}
+\]
+The binary expansion of $m$, relative to the control register state, is:
+\[
+\ x_{[2]} = x_{m-1}x_{m-2}...x_{0}
+\]
+
+The unitary operator is creating an eigenvector of the applied state vector:
+
+\[
+U|\psi\rangle = e^{2\pi i \theta}|\psi\rangle
+\]
+
+The phase $\theta$ controls the eigenvalue and has a value of 0 to 1 range.
+
+The unitary operator U application is proportional to the number of control register qubits, and the target is all target register qubits.
+
+for each $j \in \{0..m-1\}$:
+
+\[
+CU^{2^j}_j
+\]
+
+For 1 control qubit $m=1$, the control version of U:
+
+\begin{flalign*}
+&CU^{2^0}_0|+\rangle|\psi\rangle = \frac{1}{\sqrt{2^m}}CU^{2^0}_0 \left(|0\rangle|\psi\rangle + |1\rangle|\psi\rangle\right) = \frac{1}{\sqrt{2}} \left(CU^{2^0}_0|0\rangle|\psi\rangle + CU^{2^0}_0|1\rangle|\psi\rangle\right)&\\
+&=\frac{1}{\sqrt{2}} \left(|0\rangle|\psi\rangle + |1\rangle U^{2^0}_0|\psi\rangle\right)=\frac{1}{\sqrt{2}} \left(|0\rangle|\psi\rangle + |1\rangle e^{2\pi i \theta 2^0}|\psi\rangle\right) &\\
+&=\frac{1}{\sqrt{2}} \left[(|0\rangle + e^{2\pi i \theta 2^0}|1\rangle) |\psi\rangle\right]
+\end{flalign*}
+
+This is the phase kickback since the global phase of the target qubit, controlled by the U operator, is transferred back to the relative phase of the control qubit.
+\vspace{0.5cm} % Adds 1 centimeter of vertical space
+
+Generalizing the equation to m-bits summation, the control register's state after CU applications will be:
+
+\[
+|\psi_1\rangle= H^{\otimes m}|0\rangle \otimes |1\rangle|0\rangle^{\otimes{n-1}}
+\]
+
+\[
+|\psi_2\rangle=\frac{1}{\sqrt{2^m}}\sum_{k \in \{0,2^m-1\}} e^{2\pi i \theta k} |k\rangle
+\]
+
+\vspace{0.5cm} % Adds 1 centimeter of vertical space
+
+Applying the inversed QFT $(QFT \dagger)$, will convert the phase into control register's state, and we can measure it:
+\[
+|\psi_3\rangle=QFT^\dagger|\psi_2\rangle= |2^m \theta\rangle \tag{2}
+\]
+
+\subsection{Simulate Shor's Algorithm in Qiskit}
+
+Shor circuit uses the QPE circuit in Fig. \ref{qpe_circ}, for period finding upon control register measurement. After the measurement, post-processing is performed to factor the given prime integer using the founded period. To describe the algorithm, we will use $N=15$, as the prime integer we need to factor. The most critical part is to create the Oracle Circuit, which I found confusing when I tried to apply the QPE-separated CU oracles. I made a tool to perform a few calculations before oracle design, in order to select the number $a$ for the modular exponent function. Since this number dictates the period, it has direct impact on circuit complexity. I found it easier to work with $a=4$ due to function outputs, which made it easier to construct the circuit. This tool is nothing special, and many qiskit examples having similar tools.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{exercise1/modular_exponent.png}
+    \caption{}
+    \label{fig:mod_exp}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{exercise1/mod_exe1.png}
+    \caption{}
+    \label{fig:mod_exp2}
+\end{figure}
+
+Along with the period, we calculate the needed qubits for Control register (m) and for target (n) with:
+\[
+n=\log_2 N, 
+m = 2n
+\]
+
+To construct the multiple Controlled Oracles, we need to construct the first instance with $j=0$, and detect the output. 
+In Shor's Algorith, the U operator is :
+
+\[
+U_{a,N}|y\rangle=|a y \mod N \rangle
+\]
+
+In our case, $N=15$ and we chose $a=4$:
+\[
+U_{4,15}|y\rangle=|4 y \mod 15 \rangle
+\]
+
+We will choose fewer qubits for this example.
+We have m=n=4, U is unitary, and QPE starts the target register in $|1\rangle$, therefore:
+\[
+U_{4,15}^{2^0}|y\rangle=U_{4,15}|y\rangle=|4 y \mod 15 \rangle
+\]
+\[
+U_{4,15}^{2^1}|y\rangle=U_{4,15}^{2}|y\rangle=|4^2 y \mod 15 \rangle
+\]
+\[
+U_{4,15}^{2^2}|y\rangle=U_{4,15}^{4}|y\rangle=|4^4 y \mod 15 \rangle
+\]
+\[
+U_{4,15}^{2^3}|y\rangle=U_{4,15}^{8}|y\rangle=|4^8 y \mod 15 \rangle
+\]
+
+As depicted in Fig. \ref{fig:mod_exp2}, the first non-zero x with f=1, is 2, therefor r=2.
+\[
+f(1)=4
+\]
+\[
+f(2)=1
+\]
+
+Applying the Oracles, we can observe the state changes needed to construct the circuit:
+\[
+U_{4,15}|1\rangle=|4\rangle
+\]
+\[
+U_{4,15}^{2}|1\rangle=U_{4,15}(U_{4,15}|1\rangle)=U_{4,15}|4\rangle=|1\rangle
+\]
+\[
+U_{4,15}^{4}|1\rangle=U_{4,15}^{2}(U_{4,15}^{2}|1\rangle)=U_{4,15}^{2}|1\rangle=|1\rangle
+\]
+\[
+U_{4,15}^{8}|1\rangle=U_{4,15}^{4}(U_{4,15}^{4}|1\rangle)=|1\rangle
+\]
+\end{flushleft}
+
+Only the first Oracle application is transforming the following states:
+
+\[
+U_{4,15}: |1\rangle \xrightarrow[]{} |4\rangle
+\]
+\[
+U_{4,15}: |4\rangle \xrightarrow[]{} |1\rangle
+\]
+
+The other Oracle appliances do not change state. Hence, the decision of $a=4$, consulting the Fig. \ref{fig:ora}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{exercise1/oracles.png}
+    \caption{}
+    \label{fig:ora}
+\end{figure}
+
+The circuit was simulated with Qiskit and executed using the ideal simulator. Fig. \ref{fig:qiskit_circ} depicts the circuit, and Fig. \ref{fig:qiskit_oracles} shows the 4 Oracle appliances. The SWAP of target\_0 and target\_2 qubits of the target register covers the state transitions, and for all other applications, the multiplied execution of SWAP reverts the state to the beginning.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{exercise1/circ.png}
+    \caption{Shor Circuit in Qiskit}
+    \label{fig:qiskit_circ}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \caption{Oracles}
+    \label{fig:qiskit_oracles}    
+    \begin{minipage}{0.12\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{exercise1/CU^1.png}
+        \caption*{$CU$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.15\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{exercise1/CU^2.png}
+        \caption*{$CU^2$}  
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.22\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{exercise1/CU^4.png}
+        \caption*{$CU^4$}  
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.4\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{exercise1/CU^8.png}
+        \caption*{$CU^8$}  
+    \end{minipage}     
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{exercise1/dist.png}
+    \caption{Ideal Simulator Results}
+    \label{fig:qiskit_dist}
+\end{figure}
+
+
+

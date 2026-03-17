@@ -1,0 +1,78 @@
+\section*{Post-processing}
+\begin{flushleft}
+
+Post-processing of the Shor's Circuit results Fig. \ref{fig:qiskit_dist}, for a=4 and N=15, is the final step of Shor's Algorithm. From the ideal simulator, the measurement results were the states $|0000\rangle$ and $|1000\rangle$, with almost equal probability.
+
+From equation (2), we know that the final state of the circuit will be:
+\[
+|2^m \phi\rangle
+\]
+
+Since we have 2 peaks, we can denote the final measurement as $l$, with:
+
+\[
+l_0 = [0000]_2 = [0]_{10}
+\]
+
+\[
+l_1 = [1000]_2 = [1*2^4 + 0*2^3 + 0*2^1 + 0*2^0] = [8]_{10}
+\]
+
+and:
+\[
+l_i=2^m\phi_i, i \in \{0,1\}
+\]
+Therefore:
+
+\[
+\phi_0=0
+\]
+\[
+\phi_1=8/2^4=1/2
+\]
+
+The period is encoded in the phase $\phi$, as:
+
+\[
+\phi = s/r
+\]
+\vspace{5cm}
+
+Using continuous fractions to detect $r$
+
+\[
+\phi_0=\frac{s_0}{r_0} \xrightarrow{} \frac{0}{0}=\frac{s_0}{r_0}
+\]
+
+\[
+\phi_1=\frac{s_1}{r_1} \xrightarrow{} \frac{1}{2}=\frac{s_1}{r_1}
+\]
+
+Therefore, we have two results:
+\[
+r_0=0, r_1=2
+\]
+
+Checking equation (1), to find the period:
+
+The first solution of $r_0$ is not acceptable; thus we'll evaluate only $r_1$
+\[
+f(r_1) = a^{r_1} mod N = 4^2 mod 15 = 1
+\]
+
+Since f(2) = 1, we know that $r=2$.
+
+Condition checking:
+\[
+4^{2/2} mod 15 = 4 \neq  \pm 1
+\]
+
+Factoring N, into two primes:
+\[
+p=gcd(r-1,N) = 3
+\]
+
+\[
+q=gcd(r+1,N) = 5
+\]
+\end{flushleft}
