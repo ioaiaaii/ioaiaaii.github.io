@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>Emil Hvitfeldt&#39;s blog</title>
+<link>https://ioaiaaii.net/blog.html</link>
+<atom:link href="https://ioaiaaii.net/blog.xml" rel="self" type="application/rss+xml"/>
+<description>Ioannis Savvaidis — projects, notes, and blog</description>
+<generator>quarto-1.8.25</generator>
+<lastBuildDate>Wed, 19 Jul 2017 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Analysing useR!2017 schedule data</title>
+  <link>https://ioaiaaii.net/post/2017-07-20-analysing-user-2017-schedule-data/</link>
+  <description><![CDATA[ I enjoyed my first useR! conference so very much, so it is only natural thing for me was to explore the schedule to create some visualizations. ]]></description>
+  <category>tidytext</category>
+  <guid>https://ioaiaaii.net/post/2017-07-20-analysing-user-2017-schedule-data/</guid>
+  <pubDate>Wed, 19 Jul 2017 21:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.net/post/2017-07-20-analysing-user-2017-schedule-data/featured.webp" medium="image" type="image/webp"/>
+</item>
+<item>
+  <title>Repetition in musicals with tidytext</title>
+  <link>https://ioaiaaii.net/post/2017-06-05-repetition-in-musicals-with-tidytext/</link>
+  <description><![CDATA[ A project looking at repetition in song lyrics. Using {rvest} to perform web scraping (now outdated) to fetch lyrics from genius.com. ]]></description>
+  <category>tidytext</category>
+  <guid>https://ioaiaaii.net/post/2017-06-05-repetition-in-musicals-with-tidytext/</guid>
+  <pubDate>Sun, 04 Jun 2017 21:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.net/post/2017-06-05-repetition-in-musicals-with-tidytext/featured.webp" medium="image" type="image/webp"/>
+</item>
+<item>
+  <title>2017 World Press Freedom Index with emojis</title>
+  <link>https://ioaiaaii.net/post/2017-04-26-2017-world-press-freedom-index-with-emojis/</link>
+  <description><![CDATA[ A first (now outclassed) attempt at using emojis in ggplot2. This post combines the hadley/emo package and data from the 2017 World Press Freedom Index. ]]></description>
+  <category>ggplot2</category>
+  <category>emoji</category>
+  <guid>https://ioaiaaii.net/post/2017-04-26-2017-world-press-freedom-index-with-emojis/</guid>
+  <pubDate>Tue, 25 Apr 2017 21:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.net/post/2017-04-26-2017-world-press-freedom-index-with-emojis/featured.webp" medium="image" type="image/webp"/>
+</item>
+</channel>
+</rss>
+m="image" type="image/webp"/>
+</item>
+</channel>
+</rss>

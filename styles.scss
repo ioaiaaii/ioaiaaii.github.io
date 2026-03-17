@@ -1,0 +1,126 @@
+/*-- scss:mixins --*/
+
+@mixin btn-inverse {
+  transition-delay: 0s;
+  transition-duration: 0.15s;
+  transition-property: color;
+  transition-timing-function: ease-in;
+
+  &:hover {
+    background-color: $theme-blue;
+    color: rgb(250, 249, 240);
+  }
+}
+
+/*-- scss:defaults --*/
+
+$theme-lightblue: #ffffff;
+$theme-darkblue: #080808;
+$theme-blue: #1700e4;
+
+// Base document colors
+$body-bg: $theme-lightblue;
+$body-color: $theme-darkblue;
+$link-color: $theme-blue;
+$link-hover-color: darken(saturate($link-color, 50%), 15%);
+
+// // Typography ------------------------------------------------------------------
+$font-size-base: 1rem;
+$line-height-base: 1.7;
+
+// Navigation ------------------------------------------------------------------
+$navbar-bg: $theme-lightblue;
+$navbar-fg: $theme-blue;
+
+.menu-text {
+  display: block;
+  position: relative;
+  text-transform: uppercase;
+  border-bottom: unset;
+  font-weight: 600;
+  font-size: large;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0.1em;
+    background-color: $theme-blue;
+    transition: opacity 300ms, transform 300ms;
+    opacity: 1;
+    transform: scale(0);
+    transform-origin: center;
+  }
+  &:hover::after,
+  &:focus::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// code blocks -----------------------------------------------------------------
+
+$btn-code-copy-color-active: $theme-blue;
+$code-block-border-left-size: 4.5px;
+
+/*-- scss:rules --*/
+
+@media screen and (min-width: 60em) {
+  .main {
+    display: flex
+  }
+
+  .left {
+    width: 50%;
+  }
+
+  .right {
+    width: 50%;
+  }
+}
+
+.page-item.active .page-link {
+  background-color: $theme-blue;
+  border-color: $theme-blue;
+}
+
+// blog ------------------------------------------------------------------------
+
+div.quarto-post .listing-categories .listing-category,
+.quarto-title .quarto-categories .quarto-category {
+  color: $theme-blue;
+  border: solid 1px $theme-blue;
+
+  @include btn-inverse;
+}
+
+.quarto-listing-category-title {
+  color: $theme-blue;
+}
+
+// project ---------------------------------------------------------------------
+
+.quarto-listing-container-grid:has(.quarto-grid-item:hover) .quarto-grid-item:not(:hover) {
+  filter: brightness(95%);
+}
+
+.quarto-grid-item {
+  transition: all 0.25s;
+
+  &:hover {
+    border-color: $theme-blue;
+    box-shadow: 0 12px 16px rgba($theme-blue, 0.2);
+  }
+
+  p.card-img-top>img {
+    object-fit: contain;
+  }
+}
+
+.quarto-grid-item .listing-categories .listing-category {
+  color: $theme-blue;
+  border-color: $theme-blue;
+
+  @include btn-inverse;
+}

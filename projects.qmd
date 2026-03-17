@@ -1,0 +1,13 @@
+---
+pagetitle: ioaiaaii – Projects
+listing:
+  contents: project
+  sort: "date desc"
+  type: grid
+  categories: true
+  feed:
+    title: "ioaiaaii's projects"
+    type: partial  
+page-layout: full
+title-block-banner: true
+---

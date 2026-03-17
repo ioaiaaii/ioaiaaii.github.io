@@ -1,0 +1,46 @@
+project:
+  type: website
+
+execute:
+  freeze: auto
+
+website:
+  site-url: "https://ioaiaaii.github.io/"
+  description: "Ioannis Savvaidis"
+
+  open-graph: true
+  navbar:
+    left:
+      - text: "ioaiaaii"
+        href: index.qmd
+    right:
+      - text: "Technical Notes"
+        href: notes.qmd
+      - text: "Projects"
+        href: projects.qmd
+format:
+  html:
+    toc: true
+    theme:
+      - styles.scss
+    html-math-method: mathjax
+    code-block-border-left: "#31BAE9"
+    code-fold: false
+    grid:
+      margin-width: 300px 
+    mermaid:
+      theme: neutral
+    include-in-header:
+      text: |
+        <script>
+        window.MathJax = {
+          tex: {
+            macros: {
+              ket: ["|#1\\rangle", 1],
+              bra: ["\\langle #1|", 1],
+              braket: ["\\langle #1|#2\\rangle", 2]
+            }
+          }
+        };
+        </script>
+    
