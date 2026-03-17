@@ -1,0 +1,28 @@
+# Quarto build output
+/_site/
+/.quarto/
+/site_libs/
+
+# Quarto intermediate files
+*.html.md
+*.html.html
+*-listing.json
+*.feed-partial-staged
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+**/*.quarto_ipynb
+
+# LaTeX build artifacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
