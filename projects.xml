@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>ioaiaaii&#39;s projects</title>
+<link>https://ioaiaaii.github.io/projects.html</link>
+<atom:link href="https://ioaiaaii.github.io/projects.xml" rel="self" type="application/rss+xml"/>
+<description>Ioannis Savvaidis</description>
+<generator>quarto-1.8.25</generator>
+<lastBuildDate>Tue, 14 Jan 2025 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>ioaiaaii.net</title>
+  <link>https://ioaiaaii.github.io/project/cloud-iaiaiiaa/</link>
+  <description><![CDATA[ Deliberately over-engineered personal website — because a static page wouldn’t be any fun. ]]></description>
+  <category>Go</category>
+  <category>Vue.js</category>
+  <category>Clean Architecture</category>
+  <category>Observability</category>
+  <category>CI/CD</category>
+  <category>Kubernetes</category>
+  <guid>https://ioaiaaii.github.io/project/cloud-iaiaiiaa/</guid>
+  <pubDate>Tue, 14 Jan 2025 22:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.github.io/project/cloud-iaiaiiaa/media/arch.webp" medium="image" type="image/webp"/>
+</item>
+<item>
+  <title>micro-infra</title>
+  <link>https://ioaiaaii.github.io/project/cloud-micro-infra/</link>
+  <description><![CDATA[ A lightweight, production-grade, Kubernetes platform on GKE — fully automated from cluster provisioning to workload delivery. ]]></description>
+  <category>Cloud Computing</category>
+  <category>IaC</category>
+  <category>Kubernetes</category>
+  <category>GitOps</category>
+  <category>Observability</category>
+  <category>Security</category>
+  <guid>https://ioaiaaii.github.io/project/cloud-micro-infra/</guid>
+  <pubDate>Tue, 19 Nov 2024 22:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.github.io/project/cloud-micro-infra/media/logo.webp" medium="image" type="image/webp"/>
+</item>
+<item>
+  <title>repo-operator</title>
+  <link>https://ioaiaaii.github.io/project/cloud-repo-operator/</link>
+  <description><![CDATA[ A modular, hermetic repository management tool for Docker-based Makefile workflows. ]]></description>
+  <category>Cloud Computing</category>
+  <category>Hermetic Builds</category>
+  <category>Makefile</category>
+  <guid>https://ioaiaaii.github.io/project/cloud-repo-operator/</guid>
+  <pubDate>Tue, 29 Oct 2024 22:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.github.io/project/cloud-repo-operator/media/logo.webp" medium="image" type="image/webp"/>
+</item>
+<item>
+  <title>Shor’s Algorithm</title>
+  <link>https://ioaiaaii.github.io/project/quantum-shors/</link>
+  <description><![CDATA[ Exploring Shor’s algorithm through Qiskit. This post visualizes the algorithm’s circuit and its measurements, demonstrating how quantum states can be used to factor large integers. ]]></description>
+  <category>Quantum Computing</category>
+  <category>Qiskit</category>
+  <guid>https://ioaiaaii.github.io/project/quantum-shors/</guid>
+  <pubDate>Mon, 09 Oct 2023 21:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.github.io/project/quantum-shors/media/01.webp" medium="image" type="image/webp"/>
+</item>
+<item>
+  <title>Grover’s Algorithm</title>
+  <link>https://ioaiaaii.github.io/project/quantum-grovers-algorithm/</link>
+  <description><![CDATA[ Exploring Grover’s algorithm through Qiskit. This post visualizes the algorithm’s circuit and its measurements, demonstrating how quantum states can be used to search an unstructured database. ]]></description>
+  <category>Quantum Computing</category>
+  <category>Qiskit</category>
+  <guid>https://ioaiaaii.github.io/project/quantum-grovers-algorithm/</guid>
+  <pubDate>Fri, 29 Sep 2023 21:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.github.io/project/quantum-grovers-algorithm/media/01.webp" medium="image" type="image/webp"/>
+</item>
+<item>
+  <title>Deutsch’s Algorithm</title>
+  <link>https://ioaiaaii.github.io/project/quantum-deutschs-algorithm/</link>
+  <description><![CDATA[ Analysis and implementation of Deutsch’s Algorithm with Qiskit. ]]></description>
+  <category>Quantum Computing</category>
+  <category>Qiskit</category>
+  <guid>https://ioaiaaii.github.io/project/quantum-deutschs-algorithm/</guid>
+  <pubDate>Tue, 29 Aug 2023 21:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.github.io/project/quantum-deutschs-algorithm/media/08.webp" medium="image" type="image/webp"/>
+</item>
+</channel>
+</rss>

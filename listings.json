@@ -1,0 +1,23 @@
+[
+  {
+    "listing": "/projects.html",
+    "items": [
+      "/project/cloud-iaiaiiaa/index.html",
+      "/project/cloud-micro-infra/index.html",
+      "/project/cloud-repo-operator/index.html",
+      "/project/quantum-shors/index.html",
+      "/project/quantum-grovers-algorithm/index.html",
+      "/project/quantum-deutschs-algorithm/index.html"
+    ]
+  },
+  {
+    "listing": "/notes.html",
+    "items": [
+      "/notes/quantum-teleportation/index.html",
+      "/notes/computing/index.html",
+      "/notes/uncomp/index.html",
+      "/notes/pid1-dump/index.html",
+      "/notes/observability/index.html"
+    ]
+  }
+]

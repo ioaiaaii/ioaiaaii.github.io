@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-01-15">
+<meta name="description" content="What observability actually means, why it’s not just monitoring.">
+
+<title>Observability: A subtle introduction</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e881a7107a3c9fd9d1c05d0bcc2eba8d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+window.MathJax = {
+  tex: {
+    macros: {
+      ket: ["|#1\\rangle", 1],
+      bra: ["\\langle #1|", 1],
+      braket: ["\\langle #1|#2\\rangle", 2]
+    }
+  }
+};
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="Observability: A subtle introduction">
+<meta property="og:description" content="What observability actually means, why it’s not just monitoring.">
+<meta property="og:image" content="https://ioaiaaii.github.io/notes/observability/media/superset.webp">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">ioaiaaii</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../notes.html"> 
+<span class="menu-text">Technical Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Projects</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#observability-in-control-theory" id="toc-observability-in-control-theory" class="nav-link active" data-scroll-target="#observability-in-control-theory">Observability in Control Theory</a></li>
+  <li><a href="#the-distinction-that-matters" id="toc-the-distinction-that-matters" class="nav-link" data-scroll-target="#the-distinction-that-matters">The distinction that matters</a></li>
+  <li><a href="#epistemic-categories-of-observability" id="toc-epistemic-categories-of-observability" class="nav-link" data-scroll-target="#epistemic-categories-of-observability">Epistemic categories of observability</a>
+  <ul class="collapse">
+  <li><a href="#a-note-on-cardinality" id="toc-a-note-on-cardinality" class="nav-link" data-scroll-target="#a-note-on-cardinality">A note on cardinality</a></li>
+  </ul></li>
+  <li><a href="#white-box-black-box-and-synthetic-monitoring" id="toc-white-box-black-box-and-synthetic-monitoring" class="nav-link" data-scroll-target="#white-box-black-box-and-synthetic-monitoring">White-box, black-box, and synthetic monitoring</a></li>
+  <li><a href="#telemetry-data" id="toc-telemetry-data" class="nav-link" data-scroll-target="#telemetry-data">Telemetry Data</a>
+  <ul class="collapse">
+  <li><a href="#metrics" id="toc-metrics" class="nav-link" data-scroll-target="#metrics">Metrics</a></li>
+  <li><a href="#events" id="toc-events" class="nav-link" data-scroll-target="#events">Events</a></li>
+  <li><a href="#logs" id="toc-logs" class="nav-link" data-scroll-target="#logs">Logs</a></li>
+  <li><a href="#traces" id="toc-traces" class="nav-link" data-scroll-target="#traces">Traces</a></li>
+  <li><a href="#profiling" id="toc-profiling" class="nav-link" data-scroll-target="#profiling">Profiling</a></li>
+  </ul></li>
+  <li><a href="#instrumentation" id="toc-instrumentation" class="nav-link" data-scroll-target="#instrumentation">Instrumentation</a>
+  <ul class="collapse">
+  <li><a href="#opentelemetry-as-the-industry-standard" id="toc-opentelemetry-as-the-industry-standard" class="nav-link" data-scroll-target="#opentelemetry-as-the-industry-standard">OpenTelemetry as the industry standard</a></li>
+  </ul></li>
+  <li><a href="#exemplars-connecting-metrics-to-traces" id="toc-exemplars-connecting-metrics-to-traces" class="nav-link" data-scroll-target="#exemplars-connecting-metrics-to-traces">Exemplars: connecting metrics to traces</a></li>
+  <li><a href="#monitoring-methodologies" id="toc-monitoring-methodologies" class="nav-link" data-scroll-target="#monitoring-methodologies">Monitoring methodologies</a>
+  <ul class="collapse">
+  <li><a href="#the-blame-someone-else-anti-method" id="toc-the-blame-someone-else-anti-method" class="nav-link" data-scroll-target="#the-blame-someone-else-anti-method">The blame-someone-else anti-method</a></li>
+  <li><a href="#two-directions-of-analysis-resources-and-workloads" id="toc-two-directions-of-analysis-resources-and-workloads" class="nav-link" data-scroll-target="#two-directions-of-analysis-resources-and-workloads">Two directions of analysis: resources and workloads</a></li>
+  <li><a href="#use-resource-oriented-analysis" id="toc-use-resource-oriented-analysis" class="nav-link" data-scroll-target="#use-resource-oriented-analysis">USE: resource-oriented analysis</a></li>
+  <li><a href="#red-workload-oriented-analysis" id="toc-red-workload-oriented-analysis" class="nav-link" data-scroll-target="#red-workload-oriented-analysis">RED: workload-oriented analysis</a></li>
+  <li><a href="#golden-signals-the-unified-view" id="toc-golden-signals-the-unified-view" class="nav-link" data-scroll-target="#golden-signals-the-unified-view">Golden Signals: the unified view</a></li>
+  <li><a href="#resource-to-service-service-to-resource" id="toc-resource-to-service-service-to-resource" class="nav-link" data-scroll-target="#resource-to-service-service-to-resource">Resource-to-service, service-to-resource</a></li>
+  </ul></li>
+  <li><a href="#service-levels-sli-slo-sla" id="toc-service-levels-sli-slo-sla" class="nav-link" data-scroll-target="#service-levels-sli-slo-sla">Service levels: SLI, SLO, SLA</a>
+  <ul class="collapse">
+  <li><a href="#sli-service-level-indicator" id="toc-sli-service-level-indicator" class="nav-link" data-scroll-target="#sli-service-level-indicator">SLI (Service Level Indicator)</a></li>
+  <li><a href="#slo-service-level-objective" id="toc-slo-service-level-objective" class="nav-link" data-scroll-target="#slo-service-level-objective">SLO (Service Level Objective)</a></li>
+  <li><a href="#sla-service-level-agreement" id="toc-sla-service-level-agreement" class="nav-link" data-scroll-target="#sla-service-level-agreement">SLA (Service Level Agreement)</a></li>
+  <li><a href="#error-budgets-making-reliability-a-resource" id="toc-error-budgets-making-reliability-a-resource" class="nav-link" data-scroll-target="#error-budgets-making-reliability-a-resource">Error budgets: making reliability a resource</a></li>
+  <li><a href="#multi-window-multi-burn-rate-alerting" id="toc-multi-window-multi-burn-rate-alerting" class="nav-link" data-scroll-target="#multi-window-multi-burn-rate-alerting">Multi-window, multi-burn-rate alerting</a></li>
+  </ul></li>
+  <li><a href="#common-challenges" id="toc-common-challenges" class="nav-link" data-scroll-target="#common-challenges">Common challenges</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Observability: A subtle introduction</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">SRE</div>
+    <div class="quarto-category">Observability</div>
+    <div class="quarto-category">Distributed Systems</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    <p>What observability actually means, why it’s not just monitoring.</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 15, 2023</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">March 15, 2026</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>It’s 3:00 AM. A phone rings, PagerDuty calls and starts speaking with a robot voice, spelling the alert name: <em>“SLO burn rate page — payment service error budget exhausted”</em>.</p>
+<p>The on-call engineer opens the workstation, VPN connection, Grafana, half-asleep. The error rate panel is red. Requests are failing.</p>
+<p>So, the intuitive question is: <em>what</em> is failing? The payment service, we know that. But <em>which</em> part of the payment service? The database? The cache? The third-party payment provider? The load balancer? The network?</p>
+<p><em>Why</em>? (All looked good earlier though, what happened!)</p>
+<p>This is where the distinction between monitoring and observability stops being academic. We need to find a cause we never predicted — and we need to find it now, because every minute is lost revenue. Also, we need to write that Postmortem with clear timeline, RCA, and action items. We can’t just say “the payment service is broken” — we need to know <em>why</em> and <em>what</em> to fix.</p>
+<p>Yeah, this can be difficult, and it requires a shift in mindset. We need to think about observability not just as a set of tools, but as a fundamental property of our systems.</p>
+<section id="observability-in-control-theory" class="level2">
+<h2 class="anchored" data-anchor-id="observability-in-control-theory">Observability in Control Theory</h2>
+<p>The term <em>observability</em> did not originate in software engineering. It comes from control theory, introduced by Rudolf Kálmán in 1960 as a formal property of linear dynamical systems <span class="citation" data-cites="majors2022observability"><a href="#ref-majors2022observability" role="doc-biblioref">[1]</a></span>. A system is <em>observable</em> if and only if its complete internal state can be reconstructed from its external outputs over a finite time interval <span class="citation" data-cites="kalman1960contributions"><a href="#ref-kalman1960contributions" role="doc-biblioref">[2]</a></span>. Mathematically, for a linear time-invariant system described by state matrix <span class="math inline">\(A\)</span> and output matrix <span class="math inline">\(C\)</span>, the system is observable when the <strong>observability matrix</strong></p>
+<p><span class="math display">\[
+\mathcal{O} = \begin{bmatrix} C \\ CA \\ CA^2 \\ \vdots \\ CA^{n-1} \end{bmatrix}
+\]</span></p>
+<p>has full rank, its rows are linearly independent and span the entire <a href="https://en.wikipedia.org/wiki/State-space_representation">state-space</a>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Refreshing the foundations
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Several concepts in SRE and observability — observability itself, cardinality, signal independence, sampling — trace their roots to linear algebra, control theory, and information theory. If these connections feel rusty, <em>Essential Mathematics for Quantum Computing</em> <span class="citation" data-cites="woody2022quantum"><a href="#ref-woody2022quantum" role="doc-biblioref">[3]</a></span> is a surprisingly good refresher.</p>
+</div>
+</div>
+<p>In state-space, there is the notion of <a href="https://en.wikipedia.org/wiki/Controllability">Controllability</a>, along with Observability. A system is <em>controllable</em> if we can drive it from any initial state to any desired final state within finite time, using appropriate inputs. The duality between controllability and observability is a fundamental principle in control theory: a system is controllable if and only if its dual system is observable.</p>
+<p>This duality maps loosely to our domain: observability lets us <em>understand</em> the system’s state, and the actions we take based on that understanding — scaling, rollbacks, feature flags, config changes — are the control inputs that make it <em>controllable</em>.</p>
+<p>This mathematical framing carries a useful intuition into our domain. A distributed system is “observable” (and moreover <em>controllable</em>) to the degree that we can determine what is happening <em>inside</em> it purely from what it emits <em>outside</em> — its telemetry. The more independent dimensions of information we capture (and the higher the cardinality within each dimension), the more of the system’s internal state we can reconstruct. We will return to the connection between cardinality and linear independence shortly.</p>
+<p>In practice, software systems are far more complex than linear dynamical systems — they are non-linear, non-deterministic, and constantly changing. We cannot achieve perfect observability in the Kálmán sense, but the principle remains:</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Design systems that emit enough information to reason about their internal state.</p>
+</div>
+</div>
+</section>
+<section id="the-distinction-that-matters" class="level2">
+<h2 class="anchored" data-anchor-id="the-distinction-that-matters">The distinction that matters</h2>
+<p><strong>Monitoring</strong> is the practice of collecting, displaying, and alerting on <em>known</em> signals — dashboards for failures we anticipated, alerts for conditions we already understand <span class="citation" data-cites="beyer2016sre"><a href="#ref-beyer2016sre" role="doc-biblioref">[4]</a></span>.</p>
+<p><strong>Observability</strong> is a property of the system itself: the degree to which we can reason about its internal state from external outputs, without deploying new instrumentation or running new queries <span class="citation" data-cites="majors2022observability"><a href="#ref-majors2022observability" role="doc-biblioref">[1]</a></span>.</p>
+<p>The practical difference is sharp. Monitoring told us the payment service is failing. Observability is what lets us discover — at 3:00 AM, without shipping an instrumentation patch — that requests from mobile clients in Europe fail only when the user signed up after our last migration, because a database connection pool in <code>eu-west-1</code> saturates under a specific join pattern that the migration introduced.</p>
+<p>No dashboard was built for that. No alert anticipated it. But if our system is observable, the data to find it is already there.</p>
+<p>Observability is a superset of monitoring. We need both.</p>
+<div id="fig-observability" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-observability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./media/superset.webp" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption>Observability Superset</figcaption>
+</figure>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-observability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="epistemic-categories-of-observability" class="level2">
+<h2 class="anchored" data-anchor-id="epistemic-categories-of-observability">Epistemic categories of observability</h2>
+<p>Understanding what observability is <em>for</em> requires a framework for reasoning about knowledge gaps. The <strong>Johari Window</strong> <span class="citation" data-cites="luft1955johari"><a href="#ref-luft1955johari" role="doc-biblioref">[5]</a></span>, originally developed in psychology by Joseph Luft and Harrington Ingham in 1955, provides exactly this. It classifies knowledge along two axes — <em>what we know</em> and <em>what we are aware of</em> — producing four epistemic categories:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Aware</strong></th>
+<th><strong>Not aware</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Know</strong></td>
+<td>Known-knowns</td>
+<td>Unknown-knowns</td>
+</tr>
+<tr class="even">
+<td><strong>Don’t know</strong></td>
+<td>Known-unknowns</td>
+<td>Unknown-unknowns</td>
+</tr>
+</tbody>
+</table>
+<p>In our domain, these map directly to different observability challenges <span class="citation" data-cites="gregg2020systems"><a href="#ref-gregg2020systems" role="doc-biblioref">[6]</a></span>:</p>
+<p><strong>Known-knowns</strong> are things we track and understand. Error rate is 2%. CPU is at 60%. Standard monitoring handles these well — they are the dashboards we already built.</p>
+<p><strong>Known-unknowns</strong> are things we know we can’t see yet. “CPU is high but we don’t know which service.” We handle these by extending our monitoring — adding a dashboard, writing an alert.</p>
+<p><strong>Unknown-knowns</strong> are things we have the data for but don’t realize. The telemetry that would explain the outage is already being collected, but it’s buried in an unqueried label or a log field nobody thought to filter on. This is more common than most teams admit — the answer was <em>right there</em>, but nobody knew to look.</p>
+<p><strong>Unknown-unknowns</strong> are things we don’t know we don’t know. That payment failure from our 3:00 AM incident — a specific client type, region, signup cohort, and time window intersecting to produce errors — is an unknown-unknown. No pre-defined alert catches it. No dashboard was built for it.</p>
+<p>Monitoring handles the first two categories. Observability targets the last two — and especially the unknown-unknowns. It requires instrumentation rich enough to let us ask <em>arbitrary</em> questions after the fact, not just the ones we thought of in advance. This capability is sometimes called <em>Explorability</em> <span class="citation" data-cites="pi2024observability"><a href="#ref-pi2024observability" role="doc-biblioref">[7]</a></span>: the ability to interactively navigate telemetry data without knowing in advance what we are looking for.</p>
+<p>The technical requirement for explorability is <strong>high-cardinality, high-dimensionality</strong> data: many unique values per field (user IDs, request IDs, build versions) across many fields simultaneously. This is what makes exploratory debugging possible — and it’s also what makes observability expensive, a tension we will return to.</p>
+<section id="a-note-on-cardinality" class="level3">
+<h3 class="anchored" data-anchor-id="a-note-on-cardinality">A note on cardinality</h3>
+<p>The concept of cardinality deserves a brief digression, because it connects the mathematical origins of observability to the practical challenges of running an observable system.</p>
+<p>In linear algebra, we say a set of vectors is <a href="https://en.wikipedia.org/wiki/Linear_independence">linearly independent</a> if no vector in the set can be expressed as a linear combination of the others. The maximum number of linearly independent vectors in a space defines its <strong>dimension</strong> — the number of independent directions we need to describe any point. If our measurement vectors are not independent (say, we track both <code>total_requests</code> and <code>successful_requests + failed_requests</code>), we gain no new information from the redundant signal.</p>
+<p>In observability, <strong>cardinality</strong> refers to the number of unique values a given label (which translates to a dimension) can take. A label like <code>status_code</code> has low cardinality (a few hundred values at most). A label like <code>user_id</code> has high cardinality (potentially millions). When we combine multiple and extremely high-cardinality labels — user ID × request ID × region × build version — the number of unique time series explodes combinatorially.</p>
+<p>This is the fundamental trade-off of observability. High-cardinality and high-dimensionality data is what makes unknown-unknown debugging possible — each independent dimension is like an independent vector in our observability matrix, expanding the space of internal states we can reconstruct. But it is also what makes observability <em>expensive</em>, because every unique combination of labels creates a new time series that must be stored and indexed. The art of observability engineering is finding the <em>right balance</em>: enough independent dimensions to diagnose novel failures, without generating so many time series that the system becomes noise, costly and unqueryable.</p>
+</section>
+</section>
+<section id="white-box-black-box-and-synthetic-monitoring" class="level2">
+<h2 class="anchored" data-anchor-id="white-box-black-box-and-synthetic-monitoring">White-box, black-box, and synthetic monitoring</h2>
+<p>Before diving into telemetry signals, it is worth establishing a foundational distinction in <em>how</em> we observe systems.</p>
+<p><strong>White-box monitoring</strong> examines the internal state of a system using data it emits itself — metrics exposed by application code, structured log entries, distributed traces. It is based on <em>instrumentation</em>: code we write (or inject) to make the system’s behavior visible. White-box monitoring excels at diagnosing <em>why</em> something is broken, because it has access to internal context like queue depths, error types, and code-level latency breakdowns <span class="citation" data-cites="beyer2016sre"><a href="#ref-beyer2016sre" role="doc-biblioref">[4]</a></span>.</p>
+<p><strong>Black-box monitoring</strong> tests externally visible behavior without any knowledge of internals — probing the system the way a user would. An HTTP health check, a TCP port probe, or a DNS lookup test are all black-box. Black-box monitoring excels at detecting <em>that</em> something is broken, especially failures that internal metrics might miss (a load balancer routing to a dead backend, a DNS resolution failure, a TLS certificate expiry). As the Google SRE Book notes, black-box monitoring is symptom-oriented and represents active problems rather than predicted ones <span class="citation" data-cites="beyer2016sre"><a href="#ref-beyer2016sre" role="doc-biblioref">[4]</a></span>.</p>
+<p><strong>Synthetic monitoring</strong> is a specialized form of black-box monitoring where we generate <em>artificial</em> traffic that mimics real user behavior. Synthetic checks run continuously from multiple geographic locations, executing scripted user journeys — logging in, searching, completing a checkout — against production or staging environments. They serve two purposes: first, they detect problems before real users encounter them (especially valuable for low-traffic services where real user signal is sparse); second, they provide a baseline measurement of performance from the user’s perspective, independent of internal metrics.</p>
+<p>In practice, a mature observability strategy combines all three. Synthetic monitoring and black-box probes tell us whether the system is working <em>for users</em>. White-box instrumentation tells us <em>why</em> when it isn’t.</p>
+</section>
+<section id="telemetry-data" class="level2">
+<h2 class="anchored" data-anchor-id="telemetry-data">Telemetry Data</h2>
+<p>Every observable system emits signals — structured data that, taken together, make its internal behavior visible from the outside. There are several ways to classify these signals. The industry has broadly converged on four primary types, often called <strong>MELT</strong> (Metrics, Events, Logs, Traces). The more conventional framing groups three of these — metrics, logs, and traces — as the “three pillars of observability.” The origins of both terms are difficult to trace, but they are widely referenced across the observability space.</p>
+<p>The pillars framing has been useful, though it carries a subtle limitation: treating the signals as independent pillars can lead teams toward isolated data stores that are difficult to correlate.</p>
+<p>How many times have we checked logs in one system, metrics in another, and traces in a third — context-switching between tools to reconstruct a single incident (and probably forgetting to save that screenshot or export that log)?</p>
+<p>Charity Majors explores this tension in what she calls “Observability 2.0” <span class="citation" data-cites="majors2024obs2"><a href="#ref-majors2024obs2" role="doc-biblioref">[8]</a></span> — a model built on arbitrarily-wide structured events from which metrics, logs, and traces can be <em>derived</em>, rather than stored separately. Grafana Labs has proposed moving “from pillars to rings,” with deep cross-signal correlation built in rather than bolted on <span class="citation" data-cites="grafana2025pillars"><a href="#ref-grafana2025pillars" role="doc-biblioref">[9]</a></span>. OpenTelemetry co-founder Ted Young reframed the signals as “three strands of a braid.” We do not need to pick a specific path, but the direction is clear: the value is not in the individual signals but in how they connect.</p>
+<p>In the sections that follow, we examine the most important signals individually.</p>
+<section id="metrics" class="level3">
+<h3 class="anchored" data-anchor-id="metrics">Metrics</h3>
+<p>A metric is a numeric measurement of a system’s behavior over time. This definition is deceptively simple — understanding what constitutes a <em>useful</em> metric requires understanding how metrics relate to the physical resources they measure.</p>
+<p><strong>Statistics form a metric.</strong> A raw metric is rarely a single number. It is a <em>summary statistic</em> computed over a population of observations. When we say “p99 latency is 200ms,” we are describing the 99th percentile of a distribution of individual request latencies — a statistical aggregation that discards the individual data points. The choice of statistic (mean, median, percentile, max, standard deviation) determines what the metric reveals and what it hides. Averages hide outliers. Percentiles reveal tail behavior. Histograms preserve the full distribution at the cost of higher storage.</p>
+<p>The Prometheus data model — now effectively an industry standard — defines three fundamental metric types.</p>
+<p>A <strong>counter</strong> is a monotonically increasing value that only goes up. Total HTTP requests, total bytes sent, total errors. Counters are almost always consumed as <em>rates</em> — <code>rate(http_requests_total[5m])</code> gives us requests per second. The raw counter value is rarely meaningful on its own.</p>
+<p>A <strong>gauge</strong> is a value that can go up or down. Current CPU utilization, memory usage, queue depth, active connections. Gauges represent a snapshot of current state, unlike counters which represent cumulative totals.</p>
+<p>A <strong>histogram</strong> records observations (like request latency) in configurable buckets, preserving distributional information. A histogram exposes multiple time series: cumulative counters for each bucket (<code>_bucket</code>), a total sum of observed values (<code>_sum</code>), and a count of observations (<code>_count</code>). This allows computing arbitrary percentiles at query time using functions like <code>histogram_quantile()</code>.</p>
+<pre><code># HELP http_request_duration_seconds Request latency histogram
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_bucket{le="0.05"} 24054
+http_request_duration_seconds_bucket{le="0.1"}  33444
+http_request_duration_seconds_bucket{le="0.5"}  100392
+http_request_duration_seconds_bucket{le="1.0"}  129389
+http_request_duration_seconds_bucket{le="+Inf"} 133988
+http_request_duration_seconds_sum 53845.99
+http_request_duration_seconds_count 133988</code></pre>
+<p><strong>Metrics in operating systems.</strong> The concept of system metrics long predates distributed systems. The Unix <code>sar</code> (System Activity Report) tool, part of the <code>sysstat</code> package, has been collecting CPU, memory, disk, and network metrics using <code>/proc</code> filesystem. Modern Prometheus node exporters collect fundamentally the same data that <code>sar</code> has tracked for decades — we have simply added labels, dimensional indexing, and remote storage to a practice that is older than most of the engineers using it.</p>
+<p><strong>Time-based and capacity-based metrics.</strong> Brendan Gregg’s <em>Systems Performance</em> <span class="citation" data-cites="gregg2020systems"><a href="#ref-gregg2020systems" role="doc-biblioref">[6]</a></span> draws an important distinction between two categories of resource metrics. <em>Time-based metrics</em> express utilization as the proportion of time a resource is busy — a CPU that is busy 60% of the time has 60% utilization. <em>Capacity-based metrics</em> express utilization as the proportion of capacity consumed — a disk that is 70% full. The distinction matters because they saturate differently: a CPU at 100% time-based utilization is a bottleneck (all requests queue), while a disk at 100% capacity-based utilization is a hard failure (no more writes).</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Time-based utilization is often linked with resource <em>saturation</em>, and capacity-based with <em>pressure</em>.</p>
+</div>
+</div>
+<p>Aggregation enables efficient storage and fast queries at the cost of detail. Managing that trade-off means being deliberate about what we keep: filtering unnecessary metrics, labels, pre-computing expensive queries with recording rules, and treating cardinality as a resource to be budgeted.</p>
+</section>
+<section id="events" class="level3">
+<h3 class="anchored" data-anchor-id="events">Events</h3>
+<p>An event is a discrete record of something that happened at a specific point in time — a deployment, a configuration change, an auto-scaling action, an alert firing. Events differ from metrics (which are continuous numeric signals) and from logs (which record granular operational detail). Events capture <em>state transitions</em> and <em>notable occurrences</em> that provide context for interpreting other signals. When we see a latency spike on a dashboard, an overlaid deployment event marker often provides the explanation immediately.</p>
+<p>Events are lightweight to produce and store, but their value depends entirely on discipline — if deployment events or config change annotations are not consistently emitted across all services, the correlation that makes them useful never materializes.</p>
+</section>
+<section id="logs" class="level3">
+<h3 class="anchored" data-anchor-id="logs">Logs</h3>
+<p>A log is a timestamped, immutable record of a discrete occurrence within the system. Logs provide the richest context for debugging a specific moment — they can include error messages, stack traces, request parameters, and arbitrary key-value context.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"severity"</span><span class="fu">:</span> <span class="st">"ERROR"</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"message"</span><span class="fu">:</span> <span class="st">"upstream timeout"</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"trace_id"</span><span class="fu">:</span> <span class="st">"abc123def456"</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"span_id"</span><span class="fu">:</span> <span class="st">"789ghi"</span><span class="fu">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"service"</span><span class="fu">:</span> <span class="st">"payment-gateway"</span><span class="fu">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"httpRequest"</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">"requestMethod"</span><span class="fu">:</span> <span class="st">"GET"</span><span class="fu">,</span> <span class="dt">"latency"</span><span class="fu">:</span> <span class="st">"2.3s"</span> <span class="fu">},</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"user_id"</span><span class="fu">:</span> <span class="st">"u_98234"</span><span class="fu">,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"region"</span><span class="fu">:</span> <span class="st">"eu-west-1"</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The critical requirement for logs to contribute to observability is <strong>structure</strong>. Unstructured text logs (<code>printf</code>-style) are nearly useless at scale — they cannot be efficiently queried, filtered, or correlated. Machine-parseable structured logs (JSON) with consistent fields, trace/span IDs, and adherence to semantic conventions (such as those defined by OpenTelemetry) are the minimum for an observable system.</p>
+<p>Logs provide the richest context of any signal, at the highest storage cost. Not every operation deserves a log line — an INFO entry for every successful request is noise that we pay to store, index, and ignore.</p>
+</section>
+<section id="traces" class="level3">
+<h3 class="anchored" data-anchor-id="traces">Traces</h3>
+<p>A trace is a record of a request’s journey through a distributed system, composed of individual <em>spans</em> that represent operations within or across services. Each span records a start time, duration, status, and arbitrary attributes. Spans are linked together via parent-child relationships, forming a tree (or more precisely, a directed acyclic graph) that represents the full execution path.</p>
+<p><strong>Tracing in operating systems.</strong> Like metrics, the concept of tracing predates distributed systems. The Unix <code>strace</code> utility traces system calls made by a process — every <code>read()</code>, <code>write()</code>, <code>open()</code>, and <code>connect()</code> is recorded with arguments, return values, and timing. <code>strace</code> gives us a complete picture of how a process interacts with the kernel, making it an invaluable debugging tool for single-process problems. Tools like <code>dtrace</code> and <code>perf</code> extend this capability to kernel-level and hardware-level tracing. Distributed tracing extends the same idea across process and network boundaries: instead of tracing syscalls within one process, we trace <em>requests</em> across many services.</p>
+<p>What makes distributed tracing work is <strong>context propagation</strong>. The W3C Trace Context specification <span class="citation" data-cites="w3ctrace"><a href="#ref-w3ctrace" role="doc-biblioref">[10]</a></span> defines a standard <code>traceparent</code> header format (<code>version-trace_id-span_id-trace_flags</code>) that carries tracing identity across service boundaries in HTTP headers. Without propagation, there are no <em>distributed</em> traces — just isolated spans. This context also flows into logs (enabling trace-log correlation) and metrics (enabling exemplars, which we discuss in a later section).</p>
+<p>Traces are essential for understanding request flow across service boundaries, but collecting every single one is rarely necessary or affordable. Sampling deliberately at a defined rate, and adjusting it when needed balances visibility with cost.</p>
+</section>
+<section id="profiling" class="level3">
+<h3 class="anchored" data-anchor-id="profiling">Profiling</h3>
+<p>Profiling is code-level runtime analysis: which functions consume CPU time, how memory is allocated and freed, where threads contend on locks, and how garbage collection affects latency. Where traces show <em>which service</em> is slow, profiling shows <em>which code path</em> in that service is responsible.</p>
+<p>Like metrics and tracing, profiling has deep roots in operating systems. The Unix <code>prof</code> and <code>gprof</code> tools have provided function-level CPU profiling since the 1980s. The Linux <code>perf</code> subsystem extends this with hardware performance counter access — sampling the instruction pointer at regular intervals to build a statistical picture of where CPU time is spent. Brendan Gregg’s <strong>flamegraph</strong> visualization <span class="citation" data-cites="gregg2020systems"><a href="#ref-gregg2020systems" role="doc-biblioref">[6]</a></span>, which transforms stack trace samples into a hierarchical, interactive chart of function call time, has become the de facto standard for reading profiling data.</p>
+<p>Continuous profiling — running profilers in production with low overhead (typically 1–5%) — is increasingly treated as a fourth observability signal. Rather than profiling only during development or in response to a known problem, continuous profiling captures runtime behavior <em>all the time</em>, making it possible to compare a slow period against a healthy baseline after the fact. It bridges the gap between “this span took 800ms” (trace) and “the <code>parseJSON</code> function in the serialization layer consumed 650ms of that due to excessive allocation” (profile). In the Grafana stack, Pyroscope provides this capability, and trace-to-profile linking allows jumping directly from a slow span to the flamegraph of that code path.</p>
+</section>
+</section>
+<section id="instrumentation" class="level2">
+<h2 class="anchored" data-anchor-id="instrumentation">Instrumentation</h2>
+<p>Instrumentation is the practice of adding code (or injecting mechanisms) into a system so that it emits the signals shown in <a href="#fig-observability" class="quarto-xref">Figure&nbsp;1</a>. In other words, it is the process of making a system’s behavior visible by capturing context at meaningful points in its execution.</p>
+<p>Instrumentation comes in several forms:</p>
+<p><strong>Manual instrumentation</strong> means writing explicit code to create spans, record metrics, and emit structured logs at meaningful points in our application. This gives us the most control, richest domain-level context and operational insights.</p>
+<p><strong>Automatic instrumentation</strong> uses libraries or agents to capture telemetry without modifying application code. Most language runtimes have auto-instrumentation packages that intercept HTTP clients, database drivers, and messaging libraries to generate spans and metrics automatically. The benefit is instant coverage with zero code changes, while the limitation is that automatic instrumentation captures only <em>framework-level</em> context (HTTP method, URL, status code) and misses <em>domain-level</em> context (user tier, order value, feature flag state).</p>
+<p><strong>eBPF-based instrumentation</strong> is a newer approach that operates at the kernel level. Tools like Grafana Beyla <span class="citation" data-cites="grafanabeyla"><a href="#ref-grafanabeyla" role="doc-biblioref">[11]</a></span> attach eBPF programs to Linux kernel functions to capture HTTP and gRPC traffic without any code changes or even language-specific agents. This shifts instrumentation from an application team responsibility to a platform team capability. The trade-off is that eBPF captures request-level metrics and traces (the RED signals discussed later) but cannot access application-level context or structured logs.</p>
+<p>In practice, we need eBPF or automatic instrumentation for baseline coverage across all services, and manual instrumentation in critical code paths where domain-specific context matters most.</p>
+<section id="opentelemetry-as-the-industry-standard" class="level3">
+<h3 class="anchored" data-anchor-id="opentelemetry-as-the-industry-standard">OpenTelemetry as the industry standard</h3>
+<p><strong>OpenTelemetry</strong> (OTel) has emerged as the dominant standard framework for instrumentation. It is the second-most-active CNCF project after Kubernetes, reached 1.0 stable specification across traces, metrics, and logs by mid-2025 <span class="citation" data-cites="otel2025stability"><a href="#ref-otel2025stability" role="doc-biblioref">[12]</a></span>, and the vast majority of organizations building new observability infrastructure now invest in it <span class="citation" data-cites="grafana2025predictions"><a href="#ref-grafana2025predictions" role="doc-biblioref">[13]</a></span>.</p>
+<p>OTel provides a vendor-neutral <strong>API</strong> (defining <em>what</em> to instrument) and <strong>SDK</strong> (implementing <em>how</em> — sampling, batching, exporting). This separation means libraries can instrument against the API without coupling to a specific backend. The <strong>OTel Collector</strong> serves as a universal telemetry pipeline — receiving data in any format, processing it (batching, filtering, sampling, attribute enrichment), and exporting to one or more backends through a simple architecture of <em>receivers</em>, <em>processors</em>, and <em>exporters</em>.</p>
+<p>The practical consequence is <strong>instrument once, export anywhere</strong>. Teams adopt OTel as their instrumentation layer and gain the freedom to switch, combine, or migrate backends as a configuration change rather than a re-instrumentation project.</p>
+</section>
+</section>
+<section id="exemplars-connecting-metrics-to-traces" class="level2">
+<h2 class="anchored" data-anchor-id="exemplars-connecting-metrics-to-traces">Exemplars: connecting metrics to traces</h2>
+<p>Once our system emits multiple telemetry signals, the next challenge is <em>connecting</em> them. An aggregated metric tells us something is wrong; a trace tells us exactly what happened. But how do we jump from one to the other?</p>
+<p>An <a href="https://github.com/prometheus/OpenMetrics/blob/main/specification/OpenMetrics.md#exemplars">exemplar</a> is a specific trace ID embedded in a metric data point, creating a direct bridge from an aggregated metric to the raw trace that produced it:</p>
+<pre><code>http_request_duration_seconds_bucket{le="0.5"} 100392 # {trace_id="KOO5S4vxi0o"} 0.42
+http_request_duration_seconds_bucket{le="1.0"} 129389 # {trace_id="oHg5SJYRHA0"} 0.87</code></pre>
+<p>In Grafana, exemplars render as small dots overlaid on metric panels. Clicking a dot navigates directly to the corresponding trace in Tempo — turning a latency spike in a histogram into a one-click jump to the exact request that caused it.</p>
+<p>This pattern extends beyond metrics-to-traces. In a well-correlated stack, <strong>derived fields</strong> in log aggregation tools extract trace IDs from structured log lines and link to traces. <strong>Trace-to-logs</strong> links a span to the correlated log lines emitted during its execution. <strong>Trace-to-profiles</strong> links a slow span to the flamegraph of that code path. The result is a connected web of signals where any entry point — a metric anomaly, a log error, a slow trace — leads to every other signal that shares the same context.</p>
+<p>The investigation flow from our 3:00 AM incident illustrates this:</p>
+<ul>
+<li>the SLO burn-rate alert fires</li>
+<li>we open the error rate panel</li>
+<li>we click an exemplar on the spike</li>
+<li>the trace viewer shows the full request path</li>
+<li>one span reveals the upstream timeout</li>
+<li>we follow the trace-to-logs link and see the connection pool exhaustion</li>
+<li>the trace-to-profile link shows the hot code path.</li>
+</ul>
+<p>Grafana’s <a href="https://grafana.com/docs/grafana/latest/fundamentals/exemplars/">exemplars documentation</a> covers the configuration details for setting up this correlation workflow.</p>
+</section>
+<section id="monitoring-methodologies" class="level2">
+<h2 class="anchored" data-anchor-id="monitoring-methodologies">Monitoring methodologies</h2>
+<p>Brendan Gregg’s <em>Systems Performance</em> <span class="citation" data-cites="gregg2020systems"><a href="#ref-gregg2020systems" role="doc-biblioref">[6]</a></span> provides multiple methodologies — and anti-methodologies — for reasoning about system behavior. Before examining the useful frameworks, it is worth understanding a common failure mode.</p>
+<section id="the-blame-someone-else-anti-method" class="level3">
+<h3 class="anchored" data-anchor-id="the-blame-someone-else-anti-method">The blame-someone-else anti-method</h3>
+<p>Gregg describes several anti-methods — approaches that feel productive but fail to find root causes. The most instructive is the <em>blame-someone-else</em> anti-method: rather than investigating with data, a team hypothesizes the problem lies elsewhere and redirects the ticket. The receiving team does the same. The problem orbits between teams without anyone measuring anything. This thrives wherever observability is poor — when no team has data to prove where the bottleneck is, the default is deflection.</p>
+</section>
+<section id="two-directions-of-analysis-resources-and-workloads" class="level3">
+<h3 class="anchored" data-anchor-id="two-directions-of-analysis-resources-and-workloads">Two directions of analysis: resources and workloads</h3>
+<p>Gregg frames performance analysis as approachable from two complementary directions <span class="citation" data-cites="gregg2020systems"><a href="#ref-gregg2020systems" role="doc-biblioref">[6]</a></span>.</p>
+<p><strong>Resource analysis</strong> works <em>bottom-up</em>. We start with the physical and logical resources the system depends on — CPUs, memory, disks, network interfaces, file descriptors, mutexes, connection pools — and for each one, we ask: is it a bottleneck? This is systematic and exhaustive. By iterating through every resource and checking for signs of constraint, we methodically eliminate candidates. The weakness of resource analysis is that it tells us <em>which resource</em> is stressed but not <em>which workload</em> is causing the stress.</p>
+<p><strong>Workload analysis</strong> works <em>top-down</em>. We start from the application or service and examine the workload it is serving: who is making requests, what are they requesting, and how is performance? This perspective is request-centric — we follow the user’s experience through the system. The weakness of workload analysis is the inverse: it tells us <em>which requests</em> are suffering but not <em>which resource</em> is responsible.</p>
+<p>Neither direction alone is sufficient. The power comes from using both: workload analysis identifies <em>what</em> is slow, and resource analysis identifies <em>why</em>.</p>
+</section>
+<section id="use-resource-oriented-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="use-resource-oriented-analysis">USE: resource-oriented analysis</h3>
+<p>The <strong>USE method</strong> <span class="citation" data-cites="brendangregg2017use"><a href="#ref-brendangregg2017use" role="doc-biblioref">[14]</a></span> is a formalization of resource analysis into a repeatable checklist. For <strong>every resource</strong> in the system, check three things: <strong>Utilization</strong> (how busy is it?), <strong>Saturation</strong> (how much queued or deferred work is there?), and <strong>Errors</strong> (are error events occurring?).</p>
+<p>The key insight is the <em>exhaustive iteration</em>. USE does not ask “which resource do I think is the problem?” — it asks “for each resource, is there a problem?” This systematic sweep prevents the common trap of staring at a CPU dashboard while the actual bottleneck is file descriptor exhaustion or network saturation on an interface we never thought to check.</p>
+<p>Recall the distinction between time-based and capacity-based utilization from our earlier discussion of metrics. USE applies to both, but the interpretation differs significantly. A CPU at 100% time-based utilization queues incoming work — saturation is high, but the situation is recoverable once load decreases. A disk at 100% capacity-based utilization rejects writes — that is a hard boundary, not a graceful degradation. Understanding which type of utilization we are measuring determines both the urgency and the response.</p>
+</section>
+<section id="red-workload-oriented-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="red-workload-oriented-analysis">RED: workload-oriented analysis</h3>
+<p>The <strong>RED method</strong> <span class="citation" data-cites="wilkie2018red"><a href="#ref-wilkie2018red" role="doc-biblioref">[15]</a></span> is the natural complement to USE, formalizing workload analysis for request-driven services. For <strong>every service</strong>, check three things: <strong>Rate</strong> (requests per second), <strong>Errors</strong> (failed requests per second), and <strong>Duration</strong> (distribution of response times).</p>
+<p>Where USE iterates over resources, RED iterates over services. It answers the question from the user’s perspective: <em>is this service healthy?</em> A deviation in any RED metric tells us something is affecting users, even if we don’t yet know which resource is responsible.</p>
+<p>Tom Wilkie, who <a href="https://grafana.com/blog/2018/10/30/monitoring-microservices-with-the-red-method/">formalized RED at Grafana Labs</a>, described the relationship clearly: USE tells us how happy our machines are; RED tells us how happy our users are.</p>
+</section>
+<section id="golden-signals-the-unified-view" class="level3">
+<h3 class="anchored" data-anchor-id="golden-signals-the-unified-view">Golden Signals: the unified view</h3>
+<p>The Google SRE Book <span class="citation" data-cites="beyer2016sre"><a href="#ref-beyer2016sre" role="doc-biblioref">[4]</a></span> defines four <strong>Golden Signals</strong>: <strong>Latency</strong>, <strong>Traffic</strong>, <strong>Errors</strong>, and <strong>Saturation</strong>. These overlap with both RED and USE — latency maps to duration, traffic to rate, and saturation is borrowed directly from USE. The Golden Signals are a broader, more general framework that works across both services and infrastructure, at the cost of some specificity compared to using RED and USE in their intended contexts.</p>
+</section>
+<section id="resource-to-service-service-to-resource" class="level3">
+<h3 class="anchored" data-anchor-id="resource-to-service-service-to-resource">Resource-to-service, service-to-resource</h3>
+<p>In practice, these methodologies form a <strong>bidirectional investigation pattern</strong>. When an alert fires, we typically enter from one direction and cross over to the other:</p>
+<p><strong>Service → Resource</strong> (top-down): A RED alert tells us the payment service has elevated latency. We pivot to USE and systematically check the resources the payment service depends on — CPU, memory, disk I/O, network, database connection pool — until we find the saturated resource. This is the most common incident response flow.</p>
+<p><strong>Resource → Service</strong> (bottom-up): A USE check reveals that disk I/O saturation on a database host is at 95%. We pivot to workload analysis and ask: <em>which service or query is generating this I/O?</em> This direction is common during capacity planning and proactive performance reviews.</p>
+<p>The bidirectional flow is why both perspectives need to be present in our dashboards. We structure them accordingly <span class="citation" data-cites="grafanadashboards"><a href="#ref-grafanadashboards" role="doc-biblioref">[16]</a></span>: service overview dashboards with RED panels (rate and error rate on the left, latency percentiles on the right, one row per service ordered by data flow), with drill-down links to infrastructure dashboards using USE panels (one row per resource, showing utilization, saturation, and errors). The RED dashboards are where we detect problems. The USE dashboards are where we diagnose them.</p>
+</section>
+</section>
+<section id="service-levels-sli-slo-sla" class="level2">
+<h2 class="anchored" data-anchor-id="service-levels-sli-slo-sla">Service levels: SLI, SLO, SLA</h2>
+<p>A core principle of Site Reliability Engineering is that <em>reliability is not an absolute good</em> — it is a cost, and past a certain point, increasing it is worse for the service and its users, not better <span class="citation" data-cites="beyer2016sre"><a href="#ref-beyer2016sre" role="doc-biblioref">[4]</a></span>. Extreme reliability slows feature development, increases operational cost, and ultimately delivers diminishing returns: a user on a 99% reliable mobile network cannot distinguish between 99.99% and 99.999% backend availability. The goal is not to maximize uptime, but to find the <em>right level of risk</em> — reliable enough to keep users happy, unreliable enough to keep shipping.</p>
+<p>Service levels are the mechanism that makes this explicit. They translate observability data into concrete reliability commitments, giving engineering teams a shared language with the business about how much risk is acceptable and when to act on it.</p>
+<p>This framing also exposes a common pathology in alerting. Without service levels, teams tend to accumulate alerts organically: one for CPU, one for memory, one for error rate, one for queue depth, one for every symptom that ever caused an incident. Over time, the alert surface grows until on-call engineers are paged for resource pressure on systems that have no measurable user impact — a database replica running hot during a compaction cycle, a background worker briefly saturating a core. Each alert <em>feels</em> justified in isolation, but collectively they produce noise that drowns out signal and exhausts the people responding to it.</p>
+<p>SLO-based alerting inverts this model. Instead of asking “is <em>any</em> component unhealthy?”, we ask “is the <em>user experience</em> degrading faster than our risk tolerance allows?” A service can have saturated CPUs, elevated garbage collection, and a spike in retries — and if the error budget is healthy, none of that warrants a page. The error budget absorbs imperfection by design. Conversely, a subtle bug that only affects 0.2% of requests might never trip a threshold-based CPU or error rate alert, but if it persists for days, it will quietly drain the error budget — and the burn-rate alert will catch it.</p>
+<p>This is the practical consequence of embracing risk: we stop alerting on <em>every deviation from ideal</em> and start alerting on <em>threats to the user experience we committed to delivering</em>.</p>
+<section id="sli-service-level-indicator" class="level3">
+<h3 class="anchored" data-anchor-id="sli-service-level-indicator">SLI (Service Level Indicator)</h3>
+<p>The measurement. Always expressed as a ratio:</p>
+<pre><code>SLI = Good Events / Valid Events</code></pre>
+<p>Examples: successful requests divided by total requests; or requests completed under 100ms divided by total requests. The key word is “valid” — we exclude health checks, internal traffic, and anything that does not reflect real user experience.</p>
+</section>
+<section id="slo-service-level-objective" class="level3">
+<h3 class="anchored" data-anchor-id="slo-service-level-objective">SLO (Service Level Objective)</h3>
+<p>The internal target. An SLI bound to a threshold and a time window:</p>
+<blockquote class="blockquote">
+<p><em>99.9% of requests will succeed in any rolling 28-day window.</em></p>
+</blockquote>
+<p>SLOs are internal. They drive engineering decisions — what to alert on, when to slow down feature work, how to prioritize incidents. They are not promises to customers.</p>
+</section>
+<section id="sla-service-level-agreement" class="level3">
+<h3 class="anchored" data-anchor-id="sla-service-level-agreement">SLA (Service Level Agreement)</h3>
+<p>The external promise. Always <em>looser</em> than the SLO — the buffer between our internal standard and our contractual obligation:</p>
+<pre><code>SLO: 99.9%  → internal target, drives engineering
+SLA: 99.5%  → external promise, 0.4% safety margin</code></pre>
+<p>Breaching the SLO is a signal to act. Breaching the SLA has financial or legal consequences. If our SLO equals our SLA, we have no safety margin — we will breach the SLA before we know we are in trouble.</p>
+</section>
+<section id="error-budgets-making-reliability-a-resource" class="level3">
+<h3 class="anchored" data-anchor-id="error-budgets-making-reliability-a-resource">Error budgets: making reliability a resource</h3>
+<p>The error budget is the tolerance our SLO implies:</p>
+<pre><code>Error budget = 100% - SLO target
+
+SLO 99.9%  → 0.1% budget → ~43 minutes downtime per 30 days
+SLO 99.95% → 0.05% budget → ~22 minutes per 30 days</code></pre>
+<p>Error budgets transform the eternal argument between “we need more reliability” and “we need to ship features” from a political debate into a data-driven decision <span class="citation" data-cites="beyer2016sre"><a href="#ref-beyer2016sre" role="doc-biblioref">[4]</a></span>. When the budget is healthy, we ship faster — we are <em>under-spending</em> on reliability. When it’s burning, we slow down and fix things. The budget decides, not opinions.</p>
+</section>
+<section id="multi-window-multi-burn-rate-alerting" class="level3">
+<h3 class="anchored" data-anchor-id="multi-window-multi-burn-rate-alerting">Multi-window, multi-burn-rate alerting</h3>
+<p>The intuitive approach to SLO alerting could be like, “alert when the SLO is breached”. This is like a fuel gauge that only warns us when the tank is empty. By the time it fires, the error budget is already gone!</p>
+<p>What we actually want is to detect <em>how fast</em> the budget is draining and respond proportionally. This is the <strong>burn rate</strong> — a multiplier that expresses how quickly we are consuming the error budget relative to its natural exhaustion rate. A burn rate of 1× means we are spending budget exactly as planned over the full window. A burn rate of 14.4× means we would exhaust the entire budget in about one hour — that warrants an immediate page. A burn rate of 3× means we would run out in about a day — important, but a ticket rather than waking someone up.</p>
+<p>The second insight is the <strong>multi-window</strong> check. A single time window can mislead us: a brief spike might look like a fast burn over a 5-minute window but be irrelevant over an hour. So each alert tier checks <em>two</em> windows simultaneously — a longer one (say, 1 hour) to detect sustained budget consumption, and a shorter one (say, 5 minutes) to confirm it is <em>still happening right now</em>. Both must be true before the alert fires. This prevents us from paging on spikes that have already resolved, while still catching slow burns that a short window would miss.</p>
+<p>The SRE Workbook <span class="citation" data-cites="beyer2018sreworkbook"><a href="#ref-beyer2018sreworkbook" role="doc-biblioref">[17]</a></span> formalizes this pattern, and SoundCloud’s engineering team has written about validating it in production <span class="citation" data-cites="soundcloud2018slo"><a href="#ref-soundcloud2018slo" role="doc-biblioref">[18]</a></span>. For teams that prefer not to hand-write these rules, tools like <strong>Sloth</strong> <span class="citation" data-cites="sloth"><a href="#ref-sloth" role="doc-biblioref">[19]</a></span> generate the complete set of recording and alerting rules from a declarative SLO specification.</p>
+</section>
+</section>
+<section id="common-challenges" class="level2">
+<h2 class="anchored" data-anchor-id="common-challenges">Common challenges</h2>
+<p>Observability is conceptually straightforward but operationally hard. The following challenges recur across organizations of every size, and recognizing them early can save significant time and money.</p>
+<p><strong>The dashboard trap.</strong> It is natural to equate “better observability” with “more dashboards.” But dashboards are <em>monitoring</em> artifacts — they answer the questions we already thought to ask. Over-investing in dashboards while under-investing in queryable, high-cardinality data leaves us well-informed about known-knowns and blind to unknown-unknowns <span class="citation" data-cites="majors2022observability"><a href="#ref-majors2022observability" role="doc-biblioref">[1]</a></span>. Dashboards are valuable, but they are a starting point, not the end goal.</p>
+<p><strong>Alert fatigue.</strong> When alerting rules are not carefully curated, teams end up in a state where alerts fire so frequently that they are routinely ignored. The Google SRE Book is explicit on this point, providing structured attributes for actionable alerting (Precision, Recall, Detection and Reset time). Every alert that pages a human should be actionable, and if a human does nothing more than acknowledge the alert, that alert should not exist or be modified <span class="citation" data-cites="beyer2016sre"><a href="#ref-beyer2016sre" role="doc-biblioref">[4]</a></span>. Multi-window, multi-burn-rate alerting (described above) is one structural remedy; regular alert review and pruning is another.</p>
+<p><strong>The cost of cardinality.</strong> As we discussed, high-cardinality data is what makes observability powerful — and expensive. A single additional label with 10,000 unique values multiplied across existing dimensions can increase time-series volume by orders of magnitude. Without active cardinality management — pipeline filtering, label allow-listing, smart sampling, and tiered retention — observability costs can grow faster than infrastructure costs. Many organizations find that log storage alone accounts for more than half their total observability spend.</p>
+<p><strong>Late instrumentation.</strong> When instrumentation is treated as an afterthought — something added by an operations team after deployment — the telemetry inevitably misses the domain-level context that matters most. The developer who wrote the code knows which attributes are important for debugging (the payment provider, the feature flag state, the retry count). The engineer who discovers the outage at 3 AM does not. Instrumenting during development, not after, produces fundamentally better observability <span class="citation" data-cites="majors2022observability"><a href="#ref-majors2022observability" role="doc-biblioref">[1]</a></span>.</p>
+<p><strong>Pre-aggregation and lost context.</strong> Aggregating data at collection time (averaging latencies, discarding per-request attributes) saves storage but destroys the high-cardinality detail needed for unknown-unknown debugging. Once context is aggregated away, it cannot be reconstructed. This is the core tension of observability engineering: we must balance the cost of storing granular data against the cost of <em>not having it</em> when we need it most.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
+<div id="ref-majors2022observability" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">C. Majors, L. Fong-Jones, and G. Miranda, <em>Observability engineering: Achieving production excellence</em>. O’Reilly Media, 2022.</div>
+</div>
+<div id="ref-kalman1960contributions" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">R. E. Kalman, <span>“On the general theory of control systems,”</span> <em>IRE Transactions on Automatic Control</em>, vol. 4, no. 3, pp. 110–120, 1960.</div>
+</div>
+<div id="ref-woody2022quantum" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">L. S. Woody, <em>Essential mathematics for quantum computing</em>. Packt Publishing, 2022.</div>
+</div>
+<div id="ref-beyer2016sre" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">B. Beyer, C. Jones, J. Petoff, and N. R. Murphy, <em>Site reliability engineering: How google runs production systems</em>. O’Reilly Media, 2016. Available: <a href="https://sre.google/sre-book/table-of-contents/">https://sre.google/sre-book/table-of-contents/</a></div>
+</div>
+<div id="ref-luft1955johari" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">J. Luft and H. Ingham, <span>“The johari window: A graphic model of interpersonal awareness,”</span> <em>Proceedings of the Western Training Laboratory in Group Development</em>, 1955.</div>
+</div>
+<div id="ref-gregg2020systems" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">B. Gregg, <em>Systems performance: Enterprise and the cloud</em>, 2nd ed. Pearson, 2020.</div>
+</div>
+<div id="ref-pi2024observability" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">J. Pi, <span>“Building a large-scale observability ecosystem.”</span> Accessed: Mar. 16, 2026. [Online]. Available: <a href="https://medium.com/mercadolibre-tech/building-a-large-scale-observability-ecosystem-1edf654b249e">https://medium.com/mercadolibre-tech/building-a-large-scale-observability-ecosystem-1edf654b249e</a></div>
+</div>
+<div id="ref-majors2024obs2" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[8] </div><div class="csl-right-inline">C. Majors, <span>“There is only one key difference between observability 1.0 and 2.0.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://charity.wtf/2024/11/19/there-is-only-one-key-difference-between-observability-1-0-and-2-0/">https://charity.wtf/2024/11/19/there-is-only-one-key-difference-between-observability-1-0-and-2-0/</a></div>
+</div>
+<div id="ref-grafana2025pillars" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[9] </div><div class="csl-right-inline">Grafana Labs, <span>“From pillars to rings: How interconnected observability optimizes performance.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://grafana.com/blog/2025/10/16/from-pillars-to-rings-how-interconnected-observability-in-grafana-cloud-optimizes-performance-and-reduces-telemetry-waste/">https://grafana.com/blog/2025/10/16/from-pillars-to-rings-how-interconnected-observability-in-grafana-cloud-optimizes-performance-and-reduces-telemetry-waste/</a></div>
+</div>
+<div id="ref-w3ctrace" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[10] </div><div class="csl-right-inline">W3C, <span>“W3C trace context specification.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://www.w3.org/TR/trace-context/">https://www.w3.org/TR/trace-context/</a></div>
+</div>
+<div id="ref-grafanabeyla" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[11] </div><div class="csl-right-inline">Grafana Labs, <span>“Grafana beyla: eBPF-based auto-instrumentation.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://grafana.com/oss/beyla-ebpf/">https://grafana.com/oss/beyla-ebpf/</a></div>
+</div>
+<div id="ref-otel2025stability" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[12] </div><div class="csl-right-inline">OpenTelemetry, <span>“Evolving OpenTelemetry’s stabilization and release practices.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://opentelemetry.io/blog/2025/stability-proposal-announcement/">https://opentelemetry.io/blog/2025/stability-proposal-announcement/</a></div>
+</div>
+<div id="ref-grafana2025predictions" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[13] </div><div class="csl-right-inline">Grafana Labs, <span>“2025 observability predictions and trends from grafana labs.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://grafana.com/blog/2025-observability-predictions-and-trends-from-grafana-labs/">https://grafana.com/blog/2025-observability-predictions-and-trends-from-grafana-labs/</a></div>
+</div>
+<div id="ref-brendangregg2017use" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[14] </div><div class="csl-right-inline">B. Gregg, <span>“The USE method.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://www.brendangregg.com/usemethod.html">https://www.brendangregg.com/usemethod.html</a></div>
+</div>
+<div id="ref-wilkie2018red" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[15] </div><div class="csl-right-inline">T. Wilkie, <span>“The RED method: How to instrument your services.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://grafana.com/blog/2018/08/02/the-red-method-how-to-instrument-your-services/">https://grafana.com/blog/2018/08/02/the-red-method-how-to-instrument-your-services/</a></div>
+</div>
+<div id="ref-grafanadashboards" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[16] </div><div class="csl-right-inline">Grafana Labs, <span>“Grafana dashboard best practices.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://grafana.com/docs/grafana-cloud/visualizations/dashboards/build-dashboards/best-practices/">https://grafana.com/docs/grafana-cloud/visualizations/dashboards/build-dashboards/best-practices/</a></div>
+</div>
+<div id="ref-beyer2018sreworkbook" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[17] </div><div class="csl-right-inline">B. Beyer, N. R. Murphy, D. K. Rensin, K. Kawahara, and S. Thorne, <em>The site reliability workbook: Practical ways to implement SRE</em>. O’Reilly Media, 2018. Available: <a href="https://sre.google/workbook/table-of-contents/">https://sre.google/workbook/table-of-contents/</a></div>
+</div>
+<div id="ref-soundcloud2018slo" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[18] </div><div class="csl-right-inline">SoundCloud Engineering, <span>“Alerting on SLOs like pros.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://developers.soundcloud.com/blog/alerting-on-slos/">https://developers.soundcloud.com/blog/alerting-on-slos/</a></div>
+</div>
+<div id="ref-sloth" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[19] </div><div class="csl-right-inline">X. Lara, <span>“Sloth: Easy and simple prometheus SLO generator.”</span> Accessed: Mar. 15, 2026. [Online]. Available: <a href="https://github.com/slok/sloth">https://github.com/slok/sloth</a></div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/ioaiaaii\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

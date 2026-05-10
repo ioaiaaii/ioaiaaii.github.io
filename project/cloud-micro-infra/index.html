@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2024-11-20">
+<meta name="description" content="A lightweight, production-grade, Kubernetes platform on GKE — fully automated from cluster provisioning to workload delivery.">
+
+<title>micro-infra</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e881a7107a3c9fd9d1c05d0bcc2eba8d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+window.MathJax = {
+  tex: {
+    macros: {
+      ket: ["|#1\\rangle", 1],
+      bra: ["\\langle #1|", 1],
+      braket: ["\\langle #1|#2\\rangle", 2]
+    }
+  }
+};
+</script>
+
+
+<meta property="og:title" content="micro-infra">
+<meta property="og:description" content="A lightweight, production-grade, Kubernetes platform on GKE — fully automated from cluster provisioning to workload delivery.">
+<meta property="og:image" content="https://ioaiaaii.github.io/project/cloud-micro-infra/media/logo.webp">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">ioaiaaii</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../notes.html"> 
+<span class="menu-text">Technical Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Projects</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#architecture" id="toc-architecture" class="nav-link active" data-scroll-target="#architecture">Architecture</a></li>
+  <li><a href="#bootstrap-flow" id="toc-bootstrap-flow" class="nav-link" data-scroll-target="#bootstrap-flow">Bootstrap Flow</a></li>
+  <li><a href="#repository-structure" id="toc-repository-structure" class="nav-link" data-scroll-target="#repository-structure">Repository Structure</a></li>
+  <li><a href="#design-decisions" id="toc-design-decisions" class="nav-link" data-scroll-target="#design-decisions">Design Decisions</a>
+  <ul class="collapse">
+  <li><a href="#self-managed-observability-over-cloud-ops" id="toc-self-managed-observability-over-cloud-ops" class="nav-link" data-scroll-target="#self-managed-observability-over-cloud-ops">Self-managed observability over Cloud Ops</a></li>
+  <li><a href="#crd-lifecycle-decoupled-from-operator-upgrades" id="toc-crd-lifecycle-decoupled-from-operator-upgrades" class="nav-link" data-scroll-target="#crd-lifecycle-decoupled-from-operator-upgrades">CRD lifecycle decoupled from operator upgrades</a></li>
+  <li><a href="#spot-instances-throughout" id="toc-spot-instances-throughout" class="nav-link" data-scroll-target="#spot-instances-throughout">Spot instances throughout</a></li>
+  <li><a href="#keyless-cicd-authentication" id="toc-keyless-cicd-authentication" class="nav-link" data-scroll-target="#keyless-cicd-authentication">Keyless CI/CD authentication</a></li>
+  <li><a href="#private-cluster-with-iap-bastion" id="toc-private-cluster-with-iap-bastion" class="nav-link" data-scroll-target="#private-cluster-with-iap-bastion">Private cluster with IAP bastion</a></li>
+  <li><a href="#argocd-sync-waves-for-ordered-reconciliation" id="toc-argocd-sync-waves-for-ordered-reconciliation" class="nav-link" data-scroll-target="#argocd-sync-waves-for-ordered-reconciliation">ArgoCD sync waves for ordered reconciliation</a></li>
+  <li><a href="#meta-charts-pattern" id="toc-meta-charts-pattern" class="nav-link" data-scroll-target="#meta-charts-pattern">Meta-charts pattern</a></li>
+  </ul></li>
+  <li><a href="#iac-layer-terragrunt" id="toc-iac-layer-terragrunt" class="nav-link" data-scroll-target="#iac-layer-terragrunt">IaC Layer (Terragrunt)</a>
+  <ul class="collapse">
+  <li><a href="#gcp-resources" id="toc-gcp-resources" class="nav-link" data-scroll-target="#gcp-resources">GCP Resources</a></li>
+  <li><a href="#variable-cascade" id="toc-variable-cascade" class="nav-link" data-scroll-target="#variable-cascade">Variable Cascade</a></li>
+  <li><a href="#automated-security-scanning" id="toc-automated-security-scanning" class="nav-link" data-scroll-target="#automated-security-scanning">Automated Security Scanning</a></li>
+  </ul></li>
+  <li><a href="#observability" id="toc-observability" class="nav-link" data-scroll-target="#observability">Observability</a>
+  <ul class="collapse">
+  <li><a href="#signal-coverage" id="toc-signal-coverage" class="nav-link" data-scroll-target="#signal-coverage">Signal Coverage</a></li>
+  <li><a href="#grafana-dashboards" id="toc-grafana-dashboards" class="nav-link" data-scroll-target="#grafana-dashboards">Grafana Dashboards</a></li>
+  <li><a href="#slo-reporting-planned" id="toc-slo-reporting-planned" class="nav-link" data-scroll-target="#slo-reporting-planned">SLO Reporting <em>(planned)</em></a></li>
+  </ul></li>
+  <li><a href="#product-delivery" id="toc-product-delivery" class="nav-link" data-scroll-target="#product-delivery">Product Delivery</a>
+  <ul class="collapse">
+  <li><a href="#continuous-deployment" id="toc-continuous-deployment" class="nav-link" data-scroll-target="#continuous-deployment">Continuous Deployment</a></li>
+  <li><a href="#pr-preview-environments" id="toc-pr-preview-environments" class="nav-link" data-scroll-target="#pr-preview-environments">PR Preview Environments</a></li>
+  </ul></li>
+  <li><a href="#security" id="toc-security" class="nav-link" data-scroll-target="#security">Security</a>
+  <ul class="collapse">
+  <li><a href="#network-security" id="toc-network-security" class="nav-link" data-scroll-target="#network-security">Network Security</a></li>
+  <li><a href="#identity-access" id="toc-identity-access" class="nav-link" data-scroll-target="#identity-access">Identity &amp; Access</a></li>
+  <li><a href="#iac-runtime" id="toc-iac-runtime" class="nav-link" data-scroll-target="#iac-runtime">IaC &amp; Runtime</a></li>
+  </ul></li>
+  <li><a href="#operations" id="toc-operations" class="nav-link" data-scroll-target="#operations">Operations</a>
+  <ul class="collapse">
+  <li><a href="#accessing-the-cluster" id="toc-accessing-the-cluster" class="nav-link" data-scroll-target="#accessing-the-cluster">Accessing the Cluster</a></li>
+  <li><a href="#runbooks" id="toc-runbooks" class="nav-link" data-scroll-target="#runbooks">Runbooks</a></li>
+  <li><a href="#makefile" id="toc-makefile" class="nav-link" data-scroll-target="#makefile">Makefile</a></li>
+  </ul></li>
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">micro-infra</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Cloud Computing</div>
+    <div class="quarto-category">IaC</div>
+    <div class="quarto-category">Kubernetes</div>
+    <div class="quarto-category">GitOps</div>
+    <div class="quarto-category">Observability</div>
+    <div class="quarto-category">Security</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    <p>A lightweight, production-grade, Kubernetes platform on GKE — fully automated from cluster provisioning to workload delivery.</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 20, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><a href="https://github.com/ioaiaaii/micro-infra">micro-infra</a> is the single source of truth for a lightweight and complete cloud-native infrastructure platform. It demonstrates end-to-end ownership of the reliability stack: infrastructure provisioning, GitOps-driven deployment, full-signal observability, layered security, and cost attribution — with minimal operational toil by design.</p>
+<section id="architecture" class="level2">
+<h2 class="anchored" data-anchor-id="architecture">Architecture</h2>
+<div class="quarto-layout-panel" data-layout-nrow="1">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
+<div id="fig-arch" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-arch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="./media/logo.webp" class="img-fluid figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-arch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Architecture
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>The platform is organised into three distinct operational domains, each mapped to an ArgoCD Project with independent sync policies and RBAC:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Domain</th>
+<th>Namespace</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>infrastructure</code></td>
+<td><code>infrastructure</code></td>
+<td>Cert-manager, Ingress NGINX, Cluster Autoscaler, Harbor</td>
+</tr>
+<tr class="even">
+<td><code>observability</code></td>
+<td><code>observability</code></td>
+<td>Prometheus, Grafana, Tempo, OTel Collector, OpenCost</td>
+</tr>
+<tr class="odd">
+<td><code>products</code></td>
+<td>per-service</td>
+<td>Application workloads and ephemeral PR preview environments</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bootstrap-flow" class="level2">
+<h2 class="anchored" data-anchor-id="bootstrap-flow">Bootstrap Flow</h2>
+<p>A single Terragrunt run takes a blank GCP project to a fully reconciled cluster:</p>
+<pre><code>Terragrunt
+  └── Provisions GCP resources (VPC, GKE, IAM, bastion, storage)
+        └── Installs ArgoCD via meta-argo-cd Helm chart
+              └── Creates bootstrap Application
+                    └── Syncs meta-charts/argocd-apps (App-of-Apps)
+                          ├── Creates ArgoCD Projects (infrastructure, observability, products)
+                          └── Creates App-of-Apps per project
+                                ├── gitops/infrastructure/* → infrastructure components
+                                ├── gitops/observability/* → full observability stack
+                                └── gitops/domain/*        → product workloads + PR previews</code></pre>
+<p>After the bootstrap, ArgoCD owns all cluster state. No manual <code>kubectl</code> or <code>helm</code> commands are needed — the cluster continuously reconciles itself to HEAD.</p>
+</section>
+<section id="repository-structure" class="level2">
+<h2 class="anchored" data-anchor-id="repository-structure">Repository Structure</h2>
+<pre><code>micro-infra/
+├── docs/                        # Architecture diagrams
+├── iac/                         # Terragrunt IaC for GCP
+│   └── gcp/
+│       ├── terragrunt.hcl       # Root: remote state, Trivy security hook
+│       └── micro-infra/
+│           ├── project.hcl      # Project-level variables
+│           └── europe-west3/
+│               ├── location.hcl                    # Region/zone variables
+│               ├── network/                        # VPC, Cloud Router + NAT
+│               ├── compute-engine/bastion/         # IAP-tunnelled bastion
+│               ├── kubernetes-engine/
+│               │   ├── cluster/                    # GKE private cluster
+│               │   ├── data/                       # GKE version data source
+│               │   └── workloads/cluster-bootstrap/ # ArgoCD Helm install
+│               ├── iam/
+│               │   ├── service-accounts/           # github-runners, opencost
+│               │   └── workload-identity-federation/ # Keyless OIDC auth
+│               ├── cloud-storage/website-content/
+│               └── project-factory/api-services/
+├── gitops/                      # ArgoCD Application manifests
+│   ├── infrastructure/
+│   ├── observability/
+│   └── domain/
+├── meta-charts/                 # Helm wrapper charts
+│   ├── meta-argo-cd/            # ArgoCD + bootstrap Application
+│   ├── argocd-apps/             # App-of-Apps (Projects + ApplicationSets)
+│   ├── cert-manager/            # LetsEncrypt + mTLS CA + client cert
+│   ├── cluster-autoscaler/
+│   ├── harbor/
+│   ├── ingress-nginx/
+│   ├── kube-prometheus-stack/   # Prometheus, Grafana, Alertmanager (CRDs split out)
+│   ├── monitoring/              # Grafana dashboards + PrometheusRules
+│   ├── otel-collector/
+│   ├── opencost/
+│   └── tempo/
+├── runbooks/                    # Operational runbooks
+├── scripts/                     # Utility and test scripts
+└── repo-operator/               # Submodule: shared hermetic Makefile targets</code></pre>
+</section>
+<section id="design-decisions" class="level2">
+<h2 class="anchored" data-anchor-id="design-decisions">Design Decisions</h2>
+<p>These are the deliberate trade-offs that shaped the platform, not just the defaults.</p>
+<section id="self-managed-observability-over-cloud-ops" class="level3">
+<h3 class="anchored" data-anchor-id="self-managed-observability-over-cloud-ops">Self-managed observability over Cloud Ops</h3>
+<p>GKE’s managed monitoring and logging are explicitly disabled. The platform runs its own Prometheus, Grafana, Tempo, and OTel Collector stack. This gives full control over retention, cardinality, alerting logic, and cost — at the expense of some operational overhead. The overhead is bounded: all components are ArgoCD-managed and self-healing.</p>
+</section>
+<section id="crd-lifecycle-decoupled-from-operator-upgrades" class="level3">
+<h3 class="anchored" data-anchor-id="crd-lifecycle-decoupled-from-operator-upgrades">CRD lifecycle decoupled from operator upgrades</h3>
+<p><code>kube-prometheus-stack</code> CRDs are managed as a separate ArgoCD Application (wave 2), using <code>ServerSideApply=true</code> and <code>Replace=true</code>. This prevents the well-known Helm CRD upgrade problem: Helm only installs CRDs on first deploy and silently skips updates on upgrades. Decoupling ensures the CRD schema is always in sync with the operator version.</p>
+</section>
+<section id="spot-instances-throughout" class="level3">
+<h3 class="anchored" data-anchor-id="spot-instances-throughout">Spot instances throughout</h3>
+<p>Both node pools (<code>workers-base-pool</code> and <code>infrastructure</code>) use GCP spot (preemptible) instances. Combined with OpenCost for cost attribution and the Cluster Autoscaler for right-sizing, this significantly reduces compute cost. The platform is designed to tolerate node preemption: ArgoCD self-heals, stateless workloads reschedule, and the infrastructure node pool is isolated via taints so critical components aren’t disrupted by workload churn.</p>
+</section>
+<section id="keyless-cicd-authentication" class="level3">
+<h3 class="anchored" data-anchor-id="keyless-cicd-authentication">Keyless CI/CD authentication</h3>
+<p>GitHub Actions CI authenticates to GCP via Workload Identity Federation — no long-lived service account keys exist anywhere. The WIF pool is scoped to a specific GitHub organisation ID and repository, limiting blast radius. The same pattern is applied for OpenCost’s GCP billing API access.</p>
+</section>
+<section id="private-cluster-with-iap-bastion" class="level3">
+<h3 class="anchored" data-anchor-id="private-cluster-with-iap-bastion">Private cluster with IAP bastion</h3>
+<p>No public endpoints. The GKE control plane is private (<code>172.16.0.0/28</code>), nodes have no external IPs, and cluster access requires an IAP-tunnelled SSH session through a bastion VM. The bastion can be stopped when not in use, reducing attack surface to zero during idle periods.</p>
+</section>
+<section id="argocd-sync-waves-for-ordered-reconciliation" class="level3">
+<h3 class="anchored" data-anchor-id="argocd-sync-waves-for-ordered-reconciliation">ArgoCD sync waves for ordered reconciliation</h3>
+<p>Deployment ordering is enforced via sync waves rather than manual sequencing:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Wave</th>
+<th>Applications</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>1</code></td>
+<td>cert-manager, cluster-autoscaler</td>
+<td>Must exist before anything that needs TLS or scales nodes</td>
+</tr>
+<tr class="even">
+<td><code>2</code></td>
+<td>ingress-nginx, kube-prometheus-stack-crds</td>
+<td>Ingress before exposed services; CRDs before the operator</td>
+</tr>
+<tr class="odd">
+<td><code>3</code></td>
+<td>kube-prometheus-stack, tempo, otel-collector, opencost</td>
+<td>Backends after CRDs are established</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="meta-charts-pattern" class="level3">
+<h3 class="anchored" data-anchor-id="meta-charts-pattern">Meta-charts pattern</h3>
+<p>Rather than pointing ArgoCD directly at upstream Helm repositories, every component is wrapped in a local “meta-chart” — a thin Helm chart with a single upstream dependency and a <code>values.yaml</code> override. This gives version pinning, values in source control, and a clean ArgoCD sync target, without forking upstream charts.</p>
+</section>
+</section>
+<section id="iac-layer-terragrunt" class="level2">
+<h2 class="anchored" data-anchor-id="iac-layer-terragrunt">IaC Layer (Terragrunt)</h2>
+<section id="gcp-resources" class="level3">
+<h3 class="anchored" data-anchor-id="gcp-resources">GCP Resources</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Module</th>
+<th>Resource</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>network/vpc</code></td>
+<td>VPC with primary subnet <code>10.10.0.0/20</code>, pod range <code>192.168.0.0/18</code>, service range <code>192.168.64.0/18</code></td>
+</tr>
+<tr class="even">
+<td><code>network/router</code></td>
+<td>Cloud Router + NAT (outbound internet for private nodes)</td>
+</tr>
+<tr class="odd">
+<td><code>compute-engine/bastion</code></td>
+<td>IAP-accessible bastion VM</td>
+</tr>
+<tr class="even">
+<td><code>kubernetes-engine/cluster</code></td>
+<td>Private zonal GKE cluster, <code>europe-west3-a</code></td>
+</tr>
+<tr class="odd">
+<td><code>kubernetes-engine/workloads/cluster-bootstrap</code></td>
+<td>ArgoCD, Helm-installed via Terragrunt <code>null_resource</code> with SHA-based drift detection</td>
+</tr>
+<tr class="even">
+<td><code>iam/service-accounts</code></td>
+<td>Dedicated SAs for github-runners and opencost</td>
+</tr>
+<tr class="odd">
+<td><code>iam/workload-identity-federation</code></td>
+<td>OIDC pools for keyless auth (GitHub Actions + OpenCost)</td>
+</tr>
+<tr class="even">
+<td><code>cloud-storage/website-content</code></td>
+<td>GCS static hosting</td>
+</tr>
+<tr class="odd">
+<td><code>project-factory/api-services</code></td>
+<td>GCP API enablement</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variable-cascade" class="level3">
+<h3 class="anchored" data-anchor-id="variable-cascade">Variable Cascade</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">iac/gcp/terragrunt.hcl</span>        ← root: remote state backend, Trivy hook</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">└──</span> project.hcl             ← project = <span class="st">"micro-infra"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="ex">└──</span> location.hcl      ← region = <span class="st">"europe-west3"</span>, zones = <span class="pp">[</span><span class="st">"europe-west3-a"</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>All child modules inherit variables via <code>find_in_parent_folders()</code>. State is stored in GCS, keyed by module path.</p>
+</section>
+<section id="automated-security-scanning" class="level3">
+<h3 class="anchored" data-anchor-id="automated-security-scanning">Automated Security Scanning</h3>
+<p>Trivy runs on every <code>plan</code>, <code>apply</code>, and <code>destroy</code> via a Terragrunt <code>after_hook</code>. The plan is rendered to JSON and scanned for misconfigurations before any changes are applied or confirmed:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">after_hook</span> <span class="st">"security_scan"</span> {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">commands</span> = [<span class="st">"plan"</span>, <span class="st">"apply"</span>, <span class="st">"destroy"</span>]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">execute</span>  = [<span class="st">"bash"</span>, <span class="st">"-c"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"terraform plan -out tmp_plan.out ... &amp;&amp; trivy config tmp_plan.json ..."</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">]</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="observability" class="level2">
+<h2 class="anchored" data-anchor-id="observability">Observability</h2>
+<section id="signal-coverage" class="level3">
+<h3 class="anchored" data-anchor-id="signal-coverage">Signal Coverage</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Signal</th>
+<th>Collection</th>
+<th>Storage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Metrics</td>
+<td>Prometheus <code>ServiceMonitor</code> CRDs + OTel Collector</td>
+<td>Prometheus</td>
+</tr>
+<tr class="even">
+<td>Traces</td>
+<td>OTel Collector (OTLP receiver)</td>
+<td>Tempo</td>
+</tr>
+<tr class="odd">
+<td>Costs</td>
+<td>OpenCost (GCP WIF billing access)</td>
+<td>Prometheus</td>
+</tr>
+<tr class="even">
+<td>Logs</td>
+<td>—</td>
+<td><em>(planned: Loki or similar)</em></td>
+</tr>
+<tr class="odd">
+<td>Profiling</td>
+<td>—</td>
+<td><em>(planned: Pyroscope)</em></td>
+</tr>
+</tbody>
+</table>
+<p>NGINX Ingress is <a href="https://kubernetes.github.io/ingress-nginx/user-guide/third-party-addons/opentelemetry/">OTel-instrumented</a>, emitting traces for all inbound HTTP traffic automatically.</p>
+</section>
+<section id="grafana-dashboards" class="level3">
+<h3 class="anchored" data-anchor-id="grafana-dashboards">Grafana Dashboards</h3>
+<p>Custom dashboards are bundled in <code>meta-charts/monitoring/</code> and deployed as ConfigMaps, automatically provisioned by Grafana:</p>
+<ul>
+<li>Kubernetes API enhanced monitoring</li>
+<li>Cluster Autoscaler activity</li>
+<li>NGINX Ingress + request handling performance</li>
+<li>OpenCost detailed cost overview</li>
+</ul>
+</section>
+<section id="slo-reporting-planned" class="level3">
+<h3 class="anchored" data-anchor-id="slo-reporting-planned">SLO Reporting <em>(planned)</em></h3>
+<p>Sloth or OpenSLO for automated SLO burn-rate alerting — currently evaluated.</p>
+</section>
+</section>
+<section id="product-delivery" class="level2">
+<h2 class="anchored" data-anchor-id="product-delivery">Product Delivery</h2>
+<section id="continuous-deployment" class="level3">
+<h3 class="anchored" data-anchor-id="continuous-deployment">Continuous Deployment</h3>
+<p><code>ioaiaaii-live</code> tracks semver tags (<code>&gt;=v0.0.0</code>) on the application repo, deploying to the <code>ioaiaaii-live</code> namespace with automated pruning and self-healing.</p>
+</section>
+<section id="pr-preview-environments" class="level3">
+<h3 class="anchored" data-anchor-id="pr-preview-environments">PR Preview Environments</h3>
+<p>An <code>ApplicationSet</code> with a <code>pullRequest</code> generator watches for PRs labelled <code>preview</code>. For each matching PR, ArgoCD automatically:</p>
+<ul>
+<li>Creates a dedicated namespace <code>ioaiaaii-{branch}-{pr}</code></li>
+<li>Deploys the branch Helm chart with a dynamic hostname <code>{branch}.ioaiaaii.net</code></li>
+<li>Provisions a LetsEncrypt TLS certificate via cert-manager</li>
+<li>Prunes the entire environment when the PR closes</li>
+</ul>
+<p>This enables full-stack preview environments with zero platform-team toil per deployment.</p>
+</section>
+</section>
+<section id="security" class="level2">
+<h2 class="anchored" data-anchor-id="security">Security</h2>
+<section id="network-security" class="level3">
+<h3 class="anchored" data-anchor-id="network-security">Network Security</h3>
+<ul>
+<li><strong>ModSecurity WAF</strong> on NGINX Ingress with OWASP CRS <code>v4.4.0</code> — detects and blocks protocol attacks, injection attempts, and malformed requests at the ingress layer</li>
+<li><strong>mTLS</strong> for private services (e.g.&nbsp;ArgoCD UI): cert-manager issues a private CA; clients must present valid certificates</li>
+<li><strong>Rate limiting</strong> via NGINX annotations on all public-facing ingresses</li>
+<li><strong>Ingress hardening</strong> per the official <a href="https://kubernetes.github.io/ingress-nginx/deploy/hardening-guide/">NGINX Hardening Guide</a></li>
+</ul>
+</section>
+<section id="identity-access" class="level3">
+<h3 class="anchored" data-anchor-id="identity-access">Identity &amp; Access</h3>
+<ul>
+<li><strong>Workload Identity Federation</strong> — keyless OIDC auth for GitHub Actions CI and OpenCost; no long-lived credentials</li>
+<li><strong>Private cluster</strong> — no public node or API server endpoints</li>
+<li><strong>Shielded Nodes + Secure Boot</strong> — enabled on all node pools</li>
+</ul>
+</section>
+<section id="iac-runtime" class="level3">
+<h3 class="anchored" data-anchor-id="iac-runtime">IaC &amp; Runtime</h3>
+<ul>
+<li><strong>Trivy</strong> — automatic misconfiguration scanning on every Terraform operation</li>
+<li><strong>Falco</strong> — runtime threat detection <em>(planned)</em></li>
+</ul>
+</section>
+</section>
+<section id="operations" class="level2">
+<h2 class="anchored" data-anchor-id="operations">Operations</h2>
+<section id="accessing-the-cluster" class="level3">
+<h3 class="anchored" data-anchor-id="accessing-the-cluster">Accessing the Cluster</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start bastion</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> compute instances start <span class="st">"bastion-vm"</span> <span class="at">--zone</span> <span class="st">"europe-west3-a"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Open IAP tunnel</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> compute ssh <span class="at">--zone</span> <span class="st">"europe-west3-a"</span> <span class="st">"bastion-vm"</span> <span class="dt">\</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--tunnel-through-iap</span> <span class="at">--project</span> <span class="st">"micro-infra"</span> <span class="dt">\</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--</span> <span class="at">-L</span> 8888:localhost:8888 <span class="at">-N</span> <span class="at">-q</span> <span class="at">-f</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Route kubectl through the tunnel</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">HTTPS_PROXY</span><span class="op">=</span>localhost:8888</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> container clusters get-credentials ioaiaaii <span class="at">--location</span> europe-west3-a <span class="at">--internal-ip</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop bastion when done</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> compute instances stop <span class="st">"bastion-vm"</span> <span class="at">--zone</span> <span class="st">"europe-west3-a"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="runbooks" class="level3">
+<h3 class="anchored" data-anchor-id="runbooks">Runbooks</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Runbook</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://github.com/ioaiaaii/micro-infra/blob/main/runbooks/operations/prometheus-operator/crds-upgrade.md">Prometheus Operator CRDs Upgrade</a></td>
+<td>Updating CRDs independently of the operator chart</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="makefile" class="level3">
+<h3 class="anchored" data-anchor-id="makefile">Makefile</h3>
+<p><code>repo-operator</code> is included as a submodule. Initialise after a fresh clone:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule update <span class="at">--init</span> <span class="at">--recursive</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> help</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="prerequisites" class="level2">
+<h2 class="anchored" data-anchor-id="prerequisites">Prerequisites</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install GKE auth plugin</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> components install gke-gcloud-auth-plugin</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Enable required GCP APIs</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> services enable <span class="dt">\</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  container.googleapis.com <span class="dt">\</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  compute.googleapis.com <span class="dt">\</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  cloudresourcemanager.googleapis.com <span class="dt">\</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  iap.googleapis.com</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Authenticate</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> auth application-default login</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> config set project micro-infra</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Required tools: <code>terraform &gt;= 1.9</code>, <code>terragrunt &gt;= 0.68</code>, <code>helm</code>, <code>kubectl</code>, <code>trivy</code>, <code>yq</code></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/ioaiaaii\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

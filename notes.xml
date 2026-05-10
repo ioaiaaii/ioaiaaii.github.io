@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>ioaiaaii&#39;s technical notes</title>
+<link>https://ioaiaaii.github.io/notes.html</link>
+<atom:link href="https://ioaiaaii.github.io/notes.xml" rel="self" type="application/rss+xml"/>
+<description>Ioannis Savvaidis</description>
+<generator>quarto-1.8.25</generator>
+<lastBuildDate>Wed, 25 Sep 2024 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Quantum Teleportation</title>
+  <link>https://ioaiaaii.github.io/notes/quantum-teleportation/</link>
+  <description><![CDATA[ Exploring how quantum states can be transmitted using entanglement. ]]></description>
+  <category>Quantum Computing</category>
+  <category>Qiskit</category>
+  <category>Teleportation</category>
+  <category>Entanglement</category>
+  <guid>https://ioaiaaii.github.io/notes/quantum-teleportation/</guid>
+  <pubDate>Wed, 25 Sep 2024 21:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.github.io/notes/quantum-teleportation/media/01.webp" medium="image" type="image/webp"/>
+</item>
+<item>
+  <title>OK but, what is computing?</title>
+  <link>https://ioaiaaii.github.io/notes/computing/</link>
+  <description><![CDATA[ The foundations of Information Science: the choreography between Information, Computation, and Computer. ]]></description>
+  <category>theory of computation</category>
+  <guid>https://ioaiaaii.github.io/notes/computing/</guid>
+  <pubDate>Sun, 14 Jul 2024 21:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Unconventional Computing</title>
+  <link>https://ioaiaaii.github.io/notes/uncomp/</link>
+  <description><![CDATA[ From Moore’s Law to its limits — and the rise of Unconventional Computing. ]]></description>
+  <category>unconventional computing</category>
+  <category>beyond moore</category>
+  <guid>https://ioaiaaii.github.io/notes/uncomp/</guid>
+  <pubDate>Tue, 09 Jul 2024 21:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Process Signals and Core Dumps</title>
+  <link>https://ioaiaaii.github.io/notes/pid1-dump/</link>
+  <description><![CDATA[ Why core dumps silently disappear when a Go binary runs as PID 1 in a container. ]]></description>
+  <category>Operating Systems</category>
+  <category>Kubernetes</category>
+  <category>Go</category>
+  <guid>https://ioaiaaii.github.io/notes/pid1-dump/</guid>
+  <pubDate>Tue, 05 Sep 2023 21:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.github.io/notes/pid1-dump/media/01.webp" medium="image" type="image/webp"/>
+</item>
+<item>
+  <title>Observability: A subtle introduction</title>
+  <link>https://ioaiaaii.github.io/notes/observability/</link>
+  <description><![CDATA[ What observability actually means, why it’s not just monitoring. ]]></description>
+  <category>SRE</category>
+  <category>Observability</category>
+  <category>Distributed Systems</category>
+  <guid>https://ioaiaaii.github.io/notes/observability/</guid>
+  <pubDate>Sat, 14 Jan 2023 22:00:00 GMT</pubDate>
+</item>
+</channel>
+</rss>

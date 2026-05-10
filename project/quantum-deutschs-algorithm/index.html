@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-08-30">
+<meta name="description" content="Analysis and implementation of Deutsch’s Algorithm with Qiskit.">
+
+<title>Deutsch’s Algorithm</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e881a7107a3c9fd9d1c05d0bcc2eba8d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+window.MathJax = {
+  tex: {
+    macros: {
+      ket: ["|#1\\rangle", 1],
+      bra: ["\\langle #1|", 1],
+      braket: ["\\langle #1|#2\\rangle", 2]
+    }
+  }
+};
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="Deutsch’s Algorithm">
+<meta property="og:description" content="Analysis and implementation of Deutsch’s Algorithm with Qiskit.">
+<meta property="og:image" content="https://ioaiaaii.github.io/project/quantum-deutschs-algorithm/media/08.webp">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">ioaiaaii</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../notes.html"> 
+<span class="menu-text">Technical Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Projects</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#analysis-of-deutschs-algorithm" id="toc-analysis-of-deutschs-algorithm" class="nav-link active" data-scroll-target="#analysis-of-deutschs-algorithm">Analysis of Deutsch’s Algorithm</a>
+  <ul class="collapse">
+  <li><a href="#building-the-oracle" id="toc-building-the-oracle" class="nav-link" data-scroll-target="#building-the-oracle">Building the Oracle</a></li>
+  <li><a href="#the-circuit" id="toc-the-circuit" class="nav-link" data-scroll-target="#the-circuit">The Circuit</a></li>
+  <li><a href="#i.-case-u_f_1" id="toc-i.-case-u_f_1" class="nav-link" data-scroll-target="#i.-case-u_f_1">I. Case: <span class="math inline">\(U_{f_1}\)</span></a>
+  <ul class="collapse">
+  <li><a href="#calculate-the-circuit" id="toc-calculate-the-circuit" class="nav-link" data-scroll-target="#calculate-the-circuit">Calculate the circuit</a></li>
+  <li><a href="#statevector-simulation" id="toc-statevector-simulation" class="nav-link" data-scroll-target="#statevector-simulation">Statevector Simulation</a></li>
+  </ul></li>
+  <li><a href="#ii.-case-u_f_2" id="toc-ii.-case-u_f_2" class="nav-link" data-scroll-target="#ii.-case-u_f_2">II. Case: <span class="math inline">\(U_{f_2}\)</span></a>
+  <ul class="collapse">
+  <li><a href="#calculate-the-circuit-1" id="toc-calculate-the-circuit-1" class="nav-link" data-scroll-target="#calculate-the-circuit-1">Calculate the circuit</a></li>
+  <li><a href="#statevector-simulation-1" id="toc-statevector-simulation-1" class="nav-link" data-scroll-target="#statevector-simulation-1">Statevector Simulation</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#executing-in-qiskit-aer" id="toc-executing-in-qiskit-aer" class="nav-link" data-scroll-target="#executing-in-qiskit-aer">Executing in Qiskit Aer</a></li>
+  <li><a href="#executing-in-real-quantum-computer" id="toc-executing-in-real-quantum-computer" class="nav-link" data-scroll-target="#executing-in-real-quantum-computer">Executing in Real Quantum Computer</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Deutsch’s Algorithm</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Quantum Computing</div>
+    <div class="quarto-category">Qiskit</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    <p>Analysis and implementation of Deutsch’s Algorithm with Qiskit.</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 30, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="analysis-of-deutschs-algorithm" class="level1 unnumbered">
+<h1 class="unnumbered">Analysis of Deutsch’s Algorithm</h1>
+<p>David Deutsch and Richard Jozsa’s algorithm is a quantum algorithm that solves a specific problem more efficiently than any classical algorithm. It was one of the first examples to demonstrate the potential of quantum computing to outperform classical computing for certain tasks, back in 1992.</p>
+<p><em>Deutsch’s Problem:</em></p>
+<p>Given a black-box function <span class="math inline">\(f:\{0,1\} \to \{0,1\}\)</span>, determine whether it is <em>constant</em> when it returns the same output for both inputs, or <em>balanced</em>, when it returns different outputs.</p>
+<p>In classical computing, we can form the unitary operator <span class="math inline">\(M_f\)</span> for 1 (qu)bit, to model the computation of <span class="math inline">\(f(x)\)</span>, with the following truth table <a href="#tbl-boolean-functions" class="quarto-xref">Table&nbsp;1</a>:</p>
+<div id="tbl-boolean-functions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-boolean-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: The four versions of <span class="math inline">\(f(x)\)</span>
+</figcaption>
+<div aria-describedby="tbl-boolean-functions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><span class="math inline">\(x\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(f_0\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(f_1\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(f_2\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(f_3\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="quarto-layout-panel" data-layout-nrow="1">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
+<div id="fig-unary-gate" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Unary Gate $f$">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="./media/01.webp" class="img-fluid figure-img" style="width:40.0%" alt="Unary Gate $f$">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Unary operator circuit
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>Therefore:</p>
+<ul>
+<li><p><span class="math inline">\(f_0, f_1\)</span> are <strong>constant</strong></p></li>
+<li><p><span class="math inline">\(f_2, f_3\)</span> are <strong>balanced</strong> (<span class="math inline">\(f(0) \neq f(1)\)</span>).</p></li>
+</ul>
+<p>Forming the two outputs as a bit string <span class="math inline">\(f(x)\,f(x)\)</span>, with <span class="math inline">\(x:\{0,1\}\)</span> :</p>
+<p><span class="math display">\[f_0 \to 00, \quad f_1 \to 11, \quad f_2 \to 01, \quad f_3 \to 10\]</span></p>
+<p>The XOR pattern appears, and we can use the binary addition to distinguish them from their outputs. We “XOR” the two bits to a single-bit discriminator:</p>
+<p><span class="math display">\[f(0) \oplus f(1) = \begin{cases} 0 &amp; \text{if } f \text{ is constant} \\ 1 &amp; \text{if } f \text{ is balanced} \end{cases}\]</span></p>
+<p>Classically, computing <span class="math inline">\(f(0) \oplus f(1)\)</span> requires two queries, one for each input.</p>
+<p>Deutsch’s algorithm answers the question with a single execution by exploiting superposition of states for quantum parallelism and phase-kickback.</p>
+<section id="building-the-oracle" class="level2">
+<h2 class="anchored" data-anchor-id="building-the-oracle">Building the Oracle</h2>
+<p>From the <span class="math inline">\(M_f\)</span> truth table <a href="#tbl-boolean-functions" class="quarto-xref">Table&nbsp;1</a>, we can represent each unary operator as a matrix, where the columns are the output states for each input. The output states are the basis states <span class="math inline">\(|0\rangle\)</span> and <span class="math inline">\(|1\rangle\)</span>:</p>
+<p><span class="math display">\[
+M_{f_0} = \begin{bmatrix}1 &amp; 1 \\ 0 &amp; 0\end{bmatrix} \quad
+M_{f_1} = \begin{bmatrix}0 &amp; 0 \\ 1 &amp; 1\end{bmatrix} \quad
+M_{f_2} = \begin{bmatrix}1 &amp; 0 \\ 0 &amp; 1\end{bmatrix} \quad
+M_{f_3} = \begin{bmatrix}0 &amp; 1 \\ 1 &amp; 0\end{bmatrix}
+\]</span></p>
+<p>In Quantum Computing, an operator <span class="math inline">\(\hat{U}\)</span>, transforms an initial input state <span class="math inline">\(\ket{\psi_i}\)</span> to an output state <span class="math inline">\(\ket{\psi_f}\)</span>:</p>
+<p><span class="math display">\[
+\hat{U}\ket{\psi_i} = \ket{\psi_f}
+\]</span></p>
+<p>The states, are the column vectors representing the quantum states, which are actually their probability amplitudes.</p>
+<p>Quantum operators are Unitary transformations with <span class="math inline">\(\hat{U}^\dagger = \hat{U}^{-1}\)</span>. Therefore are also reversible. Given an output state <span class="math inline">\(\ket{\psi_f}\)</span>, we can find the corresponding input state <span class="math inline">\(\ket{\psi_i}\)</span>.</p>
+<p>However, <span class="math inline">\(M_{f_0}\)</span> and <span class="math inline">\(M_{f_1}\)</span> are not unitary since <span class="math inline">\(M_{f_0}^\dagger M_{f_0} \neq I\)</span> and <span class="math inline">\(M_{f_1}^\dagger M_{f_1} \neq I\)</span>. The constant functions map two distinct inputs (0 and 1) to the same output.</p>
+<p>We need another qubit to generate a Unitary Matrix for the Oracle with all f functions. By adding another qubit from the CNOT pattern, we can have the first qubit as input and the second as output of f(x).</p>
+<p>Therefore the quantum circuit in operator form can be defined as:</p>
+<p><span class="math display">\[U_f\ket{x}\ket{y} = \ket{x}\ket{y \oplus f(x)}\]</span></p>
+<div class="quarto-layout-panel" data-layout-nrow="1">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
+<div id="fig-unary-gate" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Unitary Gate $f$">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="./media/02.webp" class="img-fluid figure-img" style="width:40.0%" alt="Unitary Gate $f$">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Unitary Gate
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>The XOR construction makes <span class="math inline">\(U_f\)</span> self-inverse and therefore unitary for all four functions:</p>
+<p><span class="math display">\[U_f^2\ket{x}\ket{y} = U_f\ket{x}\ket{y \oplus f(x)} = \ket{x}\ket{y \oplus f(x) \oplus f(x)} = \ket{x}\ket{y}\]</span></p>
+<p>The oracle matrix columns are read from the truth table of <span class="math inline">\(U_f\ket{x}\ket{y}\)</span>:</p>
+<div id="tbl-truth-table" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-truth-table-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Truth table for <span class="math inline">\(U_f\)</span>
+</figcaption>
+<div aria-describedby="tbl-truth-table-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><span class="math inline">\(\ket{x}\ket{y}\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(U_{f_0}\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(U_{f_1}\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(U_{f_2}\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(U_{f_3}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(\ket{00}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{00}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{01}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{00}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{01}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(\ket{01}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{01}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{00}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{01}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{00}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(\ket{10}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{10}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{11}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{11}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{10}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(\ket{11}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{11}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{10}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{10}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\ket{11}\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>From <a href="#tbl-truth-table" class="quarto-xref">Table&nbsp;2</a>, the oracle matrices are:</p>
+<p><span class="math display">\[
+U_{f_0} =
+\begin{bmatrix}
+1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix}
+=
+\begin{bmatrix}
+I &amp; 0 \\
+0 &amp; I
+\end{bmatrix}
+\quad
+U_{f_1} =
+\begin{bmatrix}
+0 &amp; 1 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+0 &amp; 0 &amp; 1 &amp; 0
+\end{bmatrix}
+=
+\begin{bmatrix}
+X &amp; 0 \\
+0 &amp; X
+\end{bmatrix}
+\quad
+\]</span></p>
+<p><span class="math display">\[
+U_{f_2} =
+\begin{bmatrix}
+1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+0 &amp; 0 &amp; 1 &amp; 0
+\end{bmatrix}
+=
+\begin{bmatrix}
+I &amp; 0 \\
+0 &amp; X
+\end{bmatrix}
+\quad
+U_{f3} =
+\begin{bmatrix}
+0 &amp; 1 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix}
+=
+\begin{bmatrix}
+X &amp; 0 \\
+0 &amp; I
+\end{bmatrix}
+\]</span></p>
+</section>
+<section id="the-circuit" class="level2">
+<h2 class="anchored" data-anchor-id="the-circuit">The Circuit</h2>
+<p>In formulating the problem, we can use the first qubit as the first part of the binary addition since it will leave the second part un-flipped (XOR). We need to execute the circuit classically twice, <span class="math inline">\(x \in \{0,1\}\)</span>:</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-unary-gate" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="./media/03.webp" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: f(0)
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-unary-gate" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="./media/04.webp" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: f(1)
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>Using Quantum Parallelism in the target qubit, which queries the f function, we can calculate both steps in one by applying a Hadamard Gate <span class="math inline">\(H\)</span> to the control qubit. This will create a superposition, querying both <span class="math inline">\(f(0)\)</span> and <span class="math inline">\(f(1)\)</span> in a single oracle call:</p>
+<div class="quarto-layout-panel" data-layout-ncol="1">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
+<div id="fig-unary-gate" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="./media/05.webp" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: f(0) and f(1)
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>But measuring this state collapses it to one of the two equally-probable outcomes — we lose information about both <span class="math inline">\(f(0)\)</span> and <span class="math inline">\(f(1)\)</span>. Adding Hadamards to the target qubit, or to both qubits after the oracle, also fails:</p>
+<div class="quarto-layout-panel" data-layout-ncol="1">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
+<div id="fig-unary-gate" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="./media/07.webp" class="img-fluid figure-img" style="width:40.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: f(0) and f(1) with H Gate
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>The final state will be <span class="math inline">\(H\ket{+}\ket{+}\)</span>, which do not encode <span class="math inline">\(f(0)\oplus f(1)\)</span> in a measurable way.</p>
+<p>Deutsch’s key fix is to initialise the target qubit in <span class="math inline">\(\ket{1}\)</span> instead of <span class="math inline">\(\ket{0}\)</span>. After the first Hadamard layer, the target is in <span class="math inline">\(\ket{-}=\frac{1}{\sqrt{2}}(\ket{0}-\ket{1})\)</span>. The oracle then performs phase-kickback and it encodes <span class="math inline">\((-1)^{f(x)}\)</span> into the phase of the control qubit, so the final Hadamard on the control directly reveals <span class="math inline">\(f(0)\oplus f(1)\)</span>:</p>
+<p>We measure the control qubit. The target qubit is always in <span class="math inline">\(|-\rangle\)</span> regardless of <span class="math inline">\(f\)</span>, carrying no information. The control qubit encodes the answer <span class="math inline">\(\pm|0\rangle\)</span> for constant, <span class="math inline">\(\pm|1\rangle\)</span> for balanced — which a single measurement resolves with certainty.</p>
+<div class="quarto-layout-panel" data-layout-ncol="1">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
+<div id="fig-unary-gate" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="./media/08.webp" class="img-fluid figure-img" style="width:50.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-unary-gate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Duetch’s Algorithm with Oracle
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>We are denoting the states as <span class="math inline">\(|q_i\rangle\)</span> for clarity, based on the above circuit steps.</p>
+<p>The circuit in operator form is: <span class="math inline">\((H \otimes I)U_f(H \otimes H)|0\rangle|1\rangle\)</span></p>
+<p>The oracle <span class="math inline">\(U_f\)</span> transformation is: <span class="math inline">\(|x\rangle|y\rangle\ \xrightarrow{U_f} |x\rangle|y \oplus f(x) \rangle\)</span>.</p>
+<p><span class="math display">\[
+|q_2\rangle\ = (H \otimes H)|0\rangle|1\rangle = \frac{1}{2}(|0\rangle|0\rangle - |0\rangle|1\rangle+|1\rangle|0\rangle-|1\rangle|1\rangle) = |+\rangle|-\rangle \tag{1}
+\]</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_3\rangle = U_f|q_2\rangle &amp;\\
+&amp;= \frac{1}{2} \Big( |0\rangle |0 \oplus f(0) \rangle - |0\rangle |1 \oplus f(0) \rangle + |1\rangle |0 \oplus f(1) \rangle - |1\rangle |1 \oplus f(1) \rangle \Big) &amp;\\
+&amp;= \frac{1}{2} \Big[ |0\rangle (|0 \oplus f(0) \rangle - |1 \oplus f(0) \rangle) + |1\rangle (|0 \oplus f(1) \rangle - |1 \oplus f(1) \rangle) \Big]
+\end{aligned} \tag{2}
+\]</span></p>
+<p><em>Both parts have a common factor, which can be abstracted:</em></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|0 \oplus f(x) \rangle - |1 \oplus f(x)\rangle =(-1)^{f(x)}(|0\rangle-|1\rangle)\\
+&amp;\text{since:}&amp;\\
+&amp;|0 \oplus f(x) \rangle - |1 \oplus f(x)\rangle \xrightarrow{f(x)=0} |0 \rangle - |1 \rangle=1(|0 \rangle - |1 \rangle)=(-1)^0(|0 \rangle - |1 \rangle)&amp;\\
+&amp;|0 \oplus f(x) \rangle - |1 \oplus f(x)\rangle \xrightarrow{f(x)=1} |1 \rangle - |0 \rangle=-1(|0 \rangle - |1 \rangle)=(-1)^1(|0 \rangle - |1 \rangle)&amp;
+\end{aligned}
+\]</span></p>
+<p><em>Applying (2) in (1):</em></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_3\rangle = \frac{1}{2} \Big[ |0\rangle(-1)^{f(0)}(|0\rangle-|1\rangle)+|1\rangle(-1)^{f(1)}(|0\rangle-|1\rangle)\Big]&amp;\\
+&amp;=\frac{1}{2} \Big[(-1)^{f(0)}|0\rangle(|0\rangle-|1\rangle)+(-1)^{f(1)}|1\rangle(|0\rangle-|1\rangle)\Big]&amp;
+\end{aligned}
+\]</span></p>
+<p><em>Factoring out the common tensor product factor <span class="math inline">\((|0\rangle -|1\rangle)\)</span>:</em></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_2\rangle = \frac{1}{2} \Big[(-1)^{f(0)}|0\rangle + (-1)^{f(1)}|1\rangle\Big] \otimes \Big[(|0\rangle -|1\rangle) \Big] &amp;
+\end{aligned}
+\]</span></p>
+<p><em>The second term looks like <span class="math inline">\(|-\rangle\)</span>, we can decompose <span class="math inline">\(\frac{1}{2}\)</span> and use tensor product properties to:</em></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_3\rangle = \frac{1}{\sqrt{2}} \Big[(-1)^{f(0)}|0\rangle + (-1)^{f(1)}|1\rangle\Big] \otimes \frac{1}{\sqrt{2}} \Big[(|0\rangle -|1\rangle) \Big]&amp;\\
+&amp;= \frac{1}{\sqrt{2}} \Big[(-1)^{f(0)}|0\rangle + (-1)^{f(1)}|1\rangle\Big] \otimes |-\rangle &amp;
+\end{aligned}
+\]</span></p>
+<p>Both qubits are in superposition. The qubit <span class="math inline">\(|1\rangle\)</span> remained in <span class="math inline">\(|-\rangle\)</span>, but the other qubit changed its phase from <span class="math inline">\(|+\rangle\)</span> to the one above. While <span class="math inline">\(f\)</span> started in the second qubit, the qubits interfered, and the second kicked back the phase to the first — this is the <strong>phase kickback</strong>. This phase encodes the function’s computation during superposition.</p>
+<p>Since the circuits measure only the <span class="math inline">\(|x\rangle\)</span> qubit, we will omit the tensor product:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_4\rangle = (H \otimes I)|q_3\rangle &amp;\\
+&amp;= (H \otimes I)\Big(\frac{1}{\sqrt{2}} \Big[(-1)^{f(0)}|0\rangle + (-1)^{f(1)}|1\rangle\Big] \otimes |-\rangle \Big) \xrightarrow{omit} &amp;\\
+&amp;H\Big(\frac{1}{\sqrt{2}} \Big[(-1)^{f(0)}|0\rangle + (-1)^{f(1)}|1\rangle\Big]\Big)&amp;\\
+&amp;= \frac{1}{\sqrt{2}}\Big[(-1)^{f(0)}H|0\rangle + (-1)^{f(1)}H|1\rangle \Big]
+\end{aligned}  \tag{3}
+\]</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;H|0\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)=|+\rangle &amp;\\
+&amp;H|1\rangle=\frac{1}{\sqrt{2}}(|0\rangle-|1\rangle)=|-\rangle &amp;
+\end{aligned} \tag{4, 5}
+\]</span></p>
+<p><em>Applying (4) and (5) in (3):</em></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_4\rangle=\frac{1}{2}\Big[(-1)^{f(0)}(|0\rangle+|1\rangle) + (-1)^{f(1)}(|0\rangle-|1\rangle) \Big]&amp;\\
+&amp;=\frac{1}{2}\Big[(-1)^{f(0)}|0\rangle+(-1)^{f(0)}|1\rangle+(-1)^{f(1)}|0\rangle-(-1)^{f(1)}(|1\rangle\Big]=&amp;\\
+&amp;=\frac{1}{2}\Big[[(-1)^{f(0)}+(-1)^{f(1)}]|0\rangle + [(-1)^{f(0)}-(-1)^{f(1)}]|1\rangle \Big]&amp;\\
+&amp;=\frac{1}{2}\Big((-1)^{f(0)}+(-1)^{f(1)})\Big)|0\rangle + \frac{1}{2}\Big((-1)^{f(0)}-(-1)^{f(1)} \Big)|1\rangle&amp;
+\end{aligned}
+\]</span></p>
+<p>Now, we can extend this further using the identity of powers:</p>
+<p><span class="math inline">\(1=(-1)^{f(x)}*(-1)^{-f(x)}=(-1)^{f(x)-f(x)}=(-1)^{f(x) \oplus f(x)}=(-1)^0=1\)</span>.</p>
+<p>Since the common part is <span class="math inline">\((-1)^{f(0)}\)</span>, we will factor our this term:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_4\rangle=\frac{1}{2}\Big((-1)^{f(0)}+(-1)^{f(1)}(-1)^{f(0)}(-1)^{-f(0)})\Big)|0\rangle + \frac{1}{2}\Big((-1)^{f(0)}-(-1)^{f(1)}(-1)^{f(0)}(-1)^{-f(0)} \Big)|1\rangle&amp;\\
+&amp;=\frac{(-1)^{f(0)}}{2}(1+(-1)^{f(1)-f(0)})|0\rangle + \frac{(-1)^{f(0)}}{2}(1-(-1)^{f(1)-f(0)})|1\rangle&amp;\\
+&amp;=\frac{(-1)^{f(0)}}{2}\Big[(1+(-1)^{f(1)-f(0)})|0\rangle + (1-(-1)^{f(1)-f(0)})|1\rangle\Big] &amp;\\
+&amp;=\frac{(-1)^{f(0)}}{2}\Big[(1+(-1)^{f(1) \oplus f(0)})|0\rangle + (1-(-1)^{f(1) \oplus f(0)})|1\rangle\Big] &amp;\\
+&amp;=\frac{(-1)^{f(0)}}{2}\Big[(1+(-1)^{f(1) \oplus f(0)})|0\rangle \Big] + \frac{(-1)^{f(0)}}{2}\Big[(1-(-1)^{f(1) \oplus f(0)})|1\rangle\Big]
+= \alpha|0\rangle+\beta|1\rangle&amp;
+\end{aligned}
+\]</span></p>
+<p>Since we have the probability amplitudes, we can calculate the final states.</p>
+<p>For <span class="math inline">\(f(0) = f(1)\)</span>:</p>
+<ul>
+<li><p><span class="math inline">\((-1)^{f(1) \oplus f(0)}=(-1)^0=1\)</span></p></li>
+<li><p><span class="math inline">\(\alpha=(-1)^{f(0)}\)</span> and <span class="math inline">\(\beta=0\)</span></p></li>
+<li><p><span class="math inline">\(|q_4\rangle=(-1)^{f(0)}|0\rangle\)</span></p></li>
+</ul>
+<p>For <span class="math inline">\(f(0) \neq f(1) \rightarrow (-1)^{f(1)\oplus f(0)}=-1\)</span>:</p>
+<ul>
+<li><p><span class="math inline">\((-1)^{0 \oplus 1}=-1\)</span> and <span class="math inline">\((-1)^{1 \oplus 0}=-1 \rightarrow (-1)^{f(1) \oplus f(0)}=-1\)</span></p></li>
+<li><p><span class="math inline">\(\alpha=0\)</span> and <span class="math inline">\(\beta=(-1)^{f(0)}\)</span></p></li>
+<li><p><span class="math inline">\(|q_4\rangle=(-1)^{f(0)}|1\rangle\)</span></p></li>
+</ul>
+<p>Based on <span class="math inline">\(|q_4\rangle\)</span>, the exponent <span class="math inline">\({f(1) \oplus f(0)}\)</span> dictates the probability amplitude of each basis state, giving the needed XOR bit, and the exponent <span class="math inline">\(f(0)\)</span> dictates the control qubit’s phase, adding a layer of further binary encoding for both function of each category.</p>
+<div id="tbl-final-states" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-final-states-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Final States
+</figcaption>
+<div aria-describedby="tbl-final-states-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Final State</th>
+<th>Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(f_0\)</span></td>
+<td><span class="math inline">\(\ket{q_{final}} = \ket{0}\)</span></td>
+<td><span class="math inline">\(0\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(f_1\)</span></td>
+<td><span class="math inline">\(\ket{q_{final}} = -\ket{0}\)</span></td>
+<td><span class="math inline">\(\pi\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(f_2\)</span></td>
+<td><span class="math inline">\(\ket{q_{final}} = \ket{1}\)</span></td>
+<td><span class="math inline">\(0\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(f_3\)</span></td>
+<td><span class="math inline">\(\ket{q_{final}} = -\ket{1}\)</span></td>
+<td><span class="math inline">\(\pi\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="i.-case-u_f_1" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="i.-case-u_f_1">I. Case: <span class="math inline">\(U_{f_1}\)</span></h2>
+<section id="calculate-the-circuit" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="calculate-the-circuit">Calculate the circuit</h3>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_2\rangle\ = |+\rangle|-\rangle = \frac{1}{2}(|0\rangle|0\rangle - |0\rangle|1\rangle+|1\rangle|0\rangle-|1\rangle|1\rangle&amp;
+\end{aligned}
+\]</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_3\rangle = U_{f_1}|q_2\rangle = \begin{bmatrix}
+0 &amp; 1 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+0 &amp; 0 &amp; 1 &amp; 0
+\end{bmatrix}  \begin{bmatrix}
+\frac{1}{2}\\
+-\frac{1}{2}\\
+\frac{1}{2} \\
+-\frac{1}{2}
+\end{bmatrix} = \begin{bmatrix}
+- \frac{1}{2}\\
+\frac{1}{2}\\
+-\frac{1}{2} \\
+\frac{1}{2}
+\end{bmatrix} = &amp;\\
+&amp;\frac{1}{2}(-|0\rangle|0\rangle +|0\rangle|1\rangle-|1\rangle|0\rangle+|1\rangle|1\rangle&amp;\\\\
+&amp;|q_4\rangle = (H \otimes I)|q_3\rangle =
+\frac{1}{\sqrt{2}}\begin{bmatrix}
+1 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; 1 \\
+1 &amp; 0 &amp; -1 &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; -1
+\end{bmatrix}\frac{1}{2}\begin{bmatrix}
+-1\\
+1\\
+-1\\
+1
+\end{bmatrix}=\frac{1}{2\sqrt{2}}\begin{bmatrix}
+-2\\
+2\\
+0\\
+0
+\end{bmatrix} &amp;\\
+&amp;= \frac{1}{\sqrt{2}}(-|0\rangle|0\rangle +|0\rangle|1\rangle) &amp;\\
+&amp;=\frac{1}{\sqrt{2}}[-|0\rangle \otimes(|0\rangle-|1\rangle)]=
+[-|0\rangle \otimes\frac{1}{\sqrt{2}}(|0\rangle-|1\rangle)]=-|0\rangle|-\rangle&amp;
+\end{aligned} \tag{7}
+\]</span></p>
+<p>In equation (7) we can verify the final state with the previous calculations from the Final States table <a href="#tbl-final-states" class="quarto-xref">Table&nbsp;3</a>.</p>
+</section>
+<section id="statevector-simulation" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="statevector-simulation">Statevector Simulation</h3>
+<p>The circuit below depicts Deutsch’s Algorithm using an X gate as the oracle <span class="math inline">\(U_{f_1}\)</span>, with 2 qubits and 5 steps.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.circuit <span class="im">import</span> QuantumRegister, ClassicalRegister</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>qr <span class="op">=</span> QuantumRegister(<span class="dv">2</span>, <span class="st">'q'</span>)<span class="op">;</span> cr <span class="op">=</span> ClassicalRegister(<span class="dv">1</span>, <span class="st">'c'</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>qc <span class="op">=</span> QuantumCircuit(qr, cr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>qc.x(<span class="dv">1</span>)<span class="op">;</span> qc.barrier()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>qc.h([<span class="dv">0</span>, <span class="dv">1</span>])<span class="op">;</span> qc.barrier()</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>qc.x(<span class="dv">1</span>)<span class="op">;</span> qc.barrier()        <span class="co"># U_f1: X on target qubit</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>qc.h(<span class="dv">0</span>)<span class="op">;</span> qc.barrier()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>qc.measure(<span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>qc.draw(<span class="st">'mpl'</span>, initial_state<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="a7fc65ec" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<p><img src="index_files/figure-html/cell-3-output-1.png" class="img-fluid" width="878"></p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Qiskit uses a reversed bit ordering, relative to the mathematical convention (too much unitary? :)). The states are labelled <span class="math inline">\(|q_1\, q_0\rangle\)</span> — target qubit first, control qubit second (rightmost bit). In addition, in our previous circuits, we were starting the target qubit in <span class="math inline">\(|1\rangle\)</span>, while Qiskit initialises all qubits in <span class="math inline">\(|0\rangle\)</span> — therefore we prepend an <strong>X gate</strong> on the target qubit.</p>
+</div>
+</div>
+<p>The statevector before measurement (Qiskit convention <span class="math inline">\(|q_1 q_0\rangle\)</span>, target first) is:</p>
+<p><span class="math display">\[|q_4\rangle = -\frac{1}{\sqrt{2}}|00\rangle + \frac{1}{\sqrt{2}}|10\rangle\]</span></p>
+<div id="tbl-sv-f1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sv-f1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <span class="math inline">\(U_{f_1}\)</span>
+</figcaption>
+<div aria-describedby="tbl-sv-f1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">State</th>
+<th style="text-align: center;">Amplitude</th>
+<th style="text-align: center;">Probability</th>
+<th style="text-align: center;">Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(|00\rangle\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(-1/\sqrt{2}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.5\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\pi\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(|10\rangle\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(+1/\sqrt{2}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.5\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Both states have <span class="math inline">\(q_0 = 0\)</span>, so measurement always collapses to <span class="math inline">\(|0\rangle\)</span> — <strong>constant</strong> function detected.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.quantum_info <span class="im">import</span> Statevector</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.visualization <span class="im">import</span> plot_state_qsphere, plot_bloch_multivector</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>qr2 <span class="op">=</span> QuantumRegister(<span class="dv">2</span>, <span class="st">'q'</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>qc2 <span class="op">=</span> QuantumCircuit(qr2)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>qc2.x(<span class="dv">1</span>)           <span class="co"># initialise target to |1⟩</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>qc2.h([<span class="dv">0</span>, <span class="dv">1</span>])      <span class="co"># Hadamard on both</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>qc2.x(<span class="dv">1</span>)           <span class="co"># U_f1: X gate on target</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>qc2.h(<span class="dv">0</span>)           <span class="co"># final Hadamard on control</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>sv <span class="op">=</span> Statevector(qc2)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plot_state_qsphere(sv)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plot_bloch_multivector(sv)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="27d4ccdb" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="3">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<p><img src="index_files/figure-html/cell-4-output-1.png" class="img-fluid" width="425"></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="ii.-case-u_f_2" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="ii.-case-u_f_2">II. Case: <span class="math inline">\(U_{f_2}\)</span></h2>
+<section id="calculate-the-circuit-1" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="calculate-the-circuit-1">Calculate the circuit</h3>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_2\rangle\ = |+\rangle|-\rangle = \frac{1}{2}(|0\rangle|0\rangle - |0\rangle|1\rangle+|1\rangle|0\rangle-|1\rangle|1\rangle&amp;
+\end{aligned}
+\]</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;|q_3\rangle = U_{f_2}|q_2\rangle = \begin{bmatrix}
+1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+0 &amp; 0 &amp; 1 &amp; 0
+\end{bmatrix}  \begin{bmatrix}
+\frac{1}{2}\\
+-\frac{1}{2}\\
+\frac{1}{2} \\
+-\frac{1}{2}
+\end{bmatrix} = \begin{bmatrix}
+\frac{1}{2}\\
+-\frac{1}{2}\\
+-\frac{1}{2} \\
+\frac{1}{2}
+\end{bmatrix} = \frac{1}{2}(|0\rangle|0\rangle -|0\rangle|1\rangle-|1\rangle|0\rangle+|1\rangle|1\rangle&amp;\\\\
+&amp;|q_4\rangle = (H \otimes I)|q_3\rangle =
+\frac{1}{\sqrt{2}}\begin{bmatrix}
+1 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; 1 \\
+1 &amp; 0 &amp; -1 &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; -1
+\end{bmatrix}\frac{1}{2}\begin{bmatrix}
+1\\
+-1\\
+-1\\
+1
+\end{bmatrix}=\frac{1}{2\sqrt{2}}\begin{bmatrix}
+0\\
+0\\
+2\\
+-2
+\end{bmatrix} &amp;\\
+&amp;= \frac{1}{\sqrt{2}}(|1\rangle|0\rangle -|1\rangle|1\rangle)&amp;\\
+&amp;=\frac{1}{\sqrt{2}}[|1\rangle \otimes(|0\rangle-|1\rangle)]=
+[|1\rangle \otimes\frac{1}{\sqrt{2}}(|0\rangle-|1\rangle)]=|1\rangle|-\rangle&amp;
+\end{aligned} \tag{9}
+\]</span></p>
+<p>In equation (9) we can verify the final state with the previous calculations from the Final States table above.</p>
+</section>
+<section id="statevector-simulation-1" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="statevector-simulation-1">Statevector Simulation</h3>
+<p>The circuit below depicts Deutsch’s Algorithm using a CNOT gate as the oracle <span class="math inline">\(U_{f_2}\)</span>, with 2 qubits and 5 steps.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.circuit <span class="im">import</span> QuantumRegister, ClassicalRegister</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>qr <span class="op">=</span> QuantumRegister(<span class="dv">2</span>, <span class="st">'q'</span>)<span class="op">;</span> cr <span class="op">=</span> ClassicalRegister(<span class="dv">1</span>, <span class="st">'c'</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>qc <span class="op">=</span> QuantumCircuit(qr, cr)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>qc.x(<span class="dv">1</span>)<span class="op">;</span> qc.barrier()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>qc.h([<span class="dv">0</span>, <span class="dv">1</span>])<span class="op">;</span> qc.barrier()</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>qc.cx(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> qc.barrier()    <span class="co"># U_f2: CNOT (control q0, target q1)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>qc.h(<span class="dv">0</span>)<span class="op">;</span> qc.barrier()</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>qc.measure(<span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>qc.draw(<span class="st">'mpl'</span>, initial_state<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="806a803a" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="4">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<p><img src="index_files/figure-html/cell-5-output-1.png" class="img-fluid" width="878"></p>
+</div>
+</div>
+</div>
+<p>The statevector before measurement (Qiskit convention <span class="math inline">\(|q_1 q_0\rangle\)</span>, target first) is:</p>
+<p><span class="math display">\[|q_4\rangle = \frac{1}{\sqrt{2}}|01\rangle - \frac{1}{\sqrt{2}}|11\rangle\]</span></p>
+<div id="tbl-sv-f2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sv-f2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <span class="math inline">\(U_{f_2}\)</span>
+</figcaption>
+<div aria-describedby="tbl-sv-f2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">State</th>
+<th style="text-align: center;">Amplitude</th>
+<th style="text-align: center;">Probability</th>
+<th style="text-align: center;">Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(|01\rangle\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(+1/\sqrt{2}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.5\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(|11\rangle\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(-1/\sqrt{2}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.5\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\pi\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Both states have <span class="math inline">\(q_0 = 1\)</span>, so measurement always collapses to <span class="math inline">\(|1\rangle\)</span> — <strong>balanced</strong> function detected.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.quantum_info <span class="im">import</span> Statevector</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.visualization <span class="im">import</span> plot_state_qsphere, plot_bloch_multivector</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>qr2 <span class="op">=</span> QuantumRegister(<span class="dv">2</span>, <span class="st">'q'</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>qc2 <span class="op">=</span> QuantumCircuit(qr2)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>qc2.x(<span class="dv">1</span>)           <span class="co"># initialise target to |1⟩</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>qc2.h([<span class="dv">0</span>, <span class="dv">1</span>])      <span class="co"># Hadamard on both</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>qc2.cx(<span class="dv">0</span>, <span class="dv">1</span>)       <span class="co"># U_f2: CNOT (control q0, target q1)</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>qc2.h(<span class="dv">0</span>)           <span class="co"># final Hadamard on control</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>sv <span class="op">=</span> Statevector(qc2)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>plot_state_qsphere(sv)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>plot_bloch_multivector(sv)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="ce17a157" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="5">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<p><img src="index_files/figure-html/cell-6-output-1.png" class="img-fluid" width="425"></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="executing-in-qiskit-aer" class="level1 unnumbered">
+<h1 class="unnumbered">Executing in Qiskit Aer</h1>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The following sections are focusing only on the code execution of <span class="math inline">\(U_{f_2}\)</span>.</p>
+</div>
+</div>
+<p>The code was developed on Python 3.11.1 with <a href="https://github.com/Qiskit/qiskit/releases/tag/1.1.1">Qiskit 1.1.1</a>, <a href="https://github.com/Qiskit/qiskit-ibm-runtime/releases/tag/0.27.0">Qiskit IBM Runtime 0.27.0</a> and <a href="https://github.com/Qiskit/qiskit-aer/releases/tag/0.14.2">Qiskit Aer 0.14.2</a> packages. Since Qiskit has a <a href="https://docs.quantum.ibm.com/guides/bit-ordering">reversed bit-ordering</a>, I wanted to measure the exact circuit as developed in QCS. Thus, I developed it in reverse order, and I used the <a href="https://docs.quantum.ibm.com/guides/bit-ordering#change-ordering-in-qiskit">draw(reverse_bits=True)</a> parameter to draw it in reverse.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Too much spinning ? Take a break &gt; <a href="https://brianenoallsaints.bandcamp.com/track/spinning-away">Spinning Away | Brian Eno &amp; John Cale</a></p>
+</div>
+</div>
+<p>The figures below show the Qiskit circuit, the Q-Sphere of the final state in superposition before measurement (phase <span class="math inline">\(\pi\)</span> on <span class="math inline">\(|11\rangle\)</span>, matching our results), and the measurement histogram showing collapse to <span class="math inline">\(|1\rangle\)</span>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit <span class="im">import</span> QuantumCircuit, QuantumRegister, ClassicalRegister, transpile</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit_aer <span class="im">import</span> AerSimulator</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.visualization <span class="im">import</span> plot_histogram, plot_state_qsphere</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct the circuit</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>qr <span class="op">=</span> QuantumRegister(<span class="dv">2</span>, <span class="st">'qr'</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>cr <span class="op">=</span> ClassicalRegister(<span class="dv">1</span>, <span class="st">'cr'</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>qc <span class="op">=</span> QuantumCircuit(qr, cr)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>qc.x(qr[<span class="dv">0</span>])</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>qc.barrier()</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>qc.h(qr)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>qc.barrier()</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>qc.cx(qr[<span class="dv">1</span>], qr[<span class="dv">0</span>])</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>qc.barrier()</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>qc.h(qr[<span class="dv">1</span>])</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Save statevector before measurement</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>qc.save_statevector()</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Measure only qr[1] (control in reversed ordering)</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>qc.measure(qr[<span class="dv">1</span>], cr[<span class="dv">0</span>])</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Draw with reverse_bits to match mathematical convention</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>qc.draw(output<span class="op">=</span><span class="st">'mpl'</span>, reverse_bits<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="c54b0e9f" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="6">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<p><img src="index_files/figure-html/cell-7-output-1.png" class="img-fluid" width="995"></p>
+</div>
+</div>
+</div>
+<div id="4699aa44" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run on Aer simulator</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>simulator <span class="op">=</span> AerSimulator()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>qc_t <span class="op">=</span> transpile(circuits<span class="op">=</span>qc, backend<span class="op">=</span>simulator)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> simulator.run(qc_t).result()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> result.get_counts()</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>state_vector <span class="op">=</span> result.get_statevector(qc_t)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>plot_histogram(counts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-8-output-1.png" width="707" height="226" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="d16b626e" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>plot_state_qsphere(state_vector, show_state_phases<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-9-output-1.png" width="672" height="670" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="executing-in-real-quantum-computer" class="level1 unnumbered">
+<h1 class="unnumbered">Executing in Real Quantum Computer</h1>
+<p>The Qiskit 1.+ version introduced breaking changes around the transpilation process and the usage of primitives to sample and estimate the circuit. During my experiments, I tried to first understand and simulate a real backend and observe a few metrics. After this, I ran it on a real Quantum Computer. It was very interesting to observe that Deutsch’s Algorithm took <strong>3s</strong> on <code>ibm_sherbrooke</code>. I think this is a big execution time, and there is a latency from somewhere, during circuit execution or measurement.</p>
+<p>To investigate, I wrote two helper functions — <code>metrics()</code> for plotting and <code>aer_mimic_simulation()</code> for running simulations. It is still not clear to me, but I believe that the <code>SamplerV2</code> primitive, along with the IBM runtime layer, can add this latency.</p>
+<p>The graphs compare counts, circuit depth, and gate operations across an ideal <code>AerSimulator</code>, a <code>FakeSherbrooke</code> mimic, and the real <code>ibm_sherbrooke</code> backend. For the scheduling pass, I used <code>timeline_drawer()</code> to analyse each step in <span class="math inline">\(dt\)</span> units. While measurement appears to take the most time, the estimated QPU time would be <span class="math inline">\(9466\, dt \times 0.0000000002\, s/dt = 1.8932 \times 10^{-6}\, s\)</span>. Interestingly, both circuit depth and gate count increased after transpilation for <code>ibm_sherbrooke</code>. The default shot count of <code>SamplerV2</code> is 4096, which may have added to the QPU time.</p>
+<p><strong><code>metrics(circuit, transpiled_circuit, backend, counts)</code></strong> — plots a full diagnostic view for a given backend run:</p>
+<ul>
+<li>Circuit diagrams before and after transpilation</li>
+<li>Circuit depth comparison</li>
+<li>Operation counts: total ops, gates, non-local gates</li>
+<li>Scheduling timeline via <code>timeline_drawer()</code> (skipped for ideal Aer)</li>
+<li>Per-gate duration on a log scale with an estimated total execution time (skipped for ideal Aer)</li>
+<li>Measurement histogram</li>
+</ul>
+<p><strong><code>aer_mimic_simulation(circuit, backend)</code></strong> — transpiles and runs the circuit on a given backend:</p>
+<ul>
+<li>Uses <code>generate_preset_pass_manager</code> at optimisation level 3</li>
+<li>Applies <code>asap</code> scheduling for real or noisy backends</li>
+<li>Runs via <code>SamplerV2</code> with 4096 shots</li>
+<li>Passes results to <code>metrics()</code></li>
+</ul>
+<div id="ea329774" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Imports</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> logging</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit <span class="im">import</span> QuantumCircuit, QuantumRegister, ClassicalRegister</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.providers <span class="im">import</span> BackendV2</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.visualization <span class="im">import</span> plot_histogram, timeline_drawer</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.transpiler.preset_passmanagers <span class="im">import</span> generate_preset_pass_manager</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit_aer <span class="im">import</span> AerSimulator</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit_ibm_runtime.fake_provider <span class="im">import</span> FakeSherbrooke</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit_ibm_runtime <span class="im">import</span> QiskitRuntimeService, SamplerV2 <span class="im">as</span> Sampler</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>logging.getLogger(<span class="st">'qiskit_ibm_runtime'</span>).setLevel(logging.WARN)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="f48c6e78" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>metrics() — diagnostic plots</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> metrics(circuit<span class="op">=</span>QuantumCircuit, transpiled_circuit<span class="op">=</span>QuantumCircuit, backend<span class="op">=</span>BackendV2, counts<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    labels <span class="op">=</span> [<span class="st">'Before Transpilation'</span>, <span class="st">'After Transpilation'</span>]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    experiment <span class="op">=</span> backend.name</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    circuit.draw(output<span class="op">=</span><span class="st">'mpl'</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    transpiled_circuit.draw(output<span class="op">=</span><span class="st">'mpl'</span>, idle_wires<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Depth</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    depths <span class="op">=</span> [circuit.depth(), transpiled_circuit.depth()]</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    plt.bar(labels, depths, width<span class="op">=</span><span class="fl">0.7</span>, color<span class="op">=</span>[<span class="st">'blue'</span>, <span class="st">'green'</span>])</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'circuit_depth'</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> index, data <span class="kw">in</span> <span class="bu">enumerate</span>(depths):</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        plt.text(x<span class="op">=</span>index, y<span class="op">=</span>data <span class="op">+</span> <span class="dv">1</span>, s<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>data<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Operations</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    operations <span class="op">=</span> [<span class="bu">sum</span>(circuit.count_ops().values()), <span class="bu">sum</span>(transpiled_circuit.count_ops().values())]</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    gates <span class="op">=</span> [circuit.size(), transpiled_circuit.size()]</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    nonlocal_gates <span class="op">=</span> [circuit.num_nonlocal_gates(), transpiled_circuit.num_nonlocal_gates()]</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    fig, (ax1, ax2, ax3) <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    ax1.bar(labels, operations, color<span class="op">=</span>[<span class="st">'blue'</span>, <span class="st">'green'</span>])</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    ax1.set_ylabel(<span class="st">'operations'</span>)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> index, data <span class="kw">in</span> <span class="bu">enumerate</span>(operations):</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>        ax1.text(x<span class="op">=</span>index, y<span class="op">=</span>data <span class="op">+</span> <span class="dv">1</span>, s<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>data<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    ax2.bar(labels, gates, color<span class="op">=</span>[<span class="st">'blue'</span>, <span class="st">'green'</span>])</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    ax2.set_ylabel(<span class="st">'Gates'</span>)</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> index, data <span class="kw">in</span> <span class="bu">enumerate</span>(gates):</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>        ax2.text(x<span class="op">=</span>index, y<span class="op">=</span>data <span class="op">+</span> <span class="dv">1</span>, s<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>data<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    ax3.bar(labels, nonlocal_gates, color<span class="op">=</span>[<span class="st">'blue'</span>, <span class="st">'green'</span>])</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    ax3.set_ylabel(<span class="st">'Non-local Gates'</span>)</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> index, data <span class="kw">in</span> <span class="bu">enumerate</span>(nonlocal_gates):</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>        ax3.text(x<span class="op">=</span>index, y<span class="op">=</span>data <span class="op">+</span> <span class="dv">1</span>, s<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>data<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Scheduling</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> experiment <span class="op">!=</span> <span class="st">"aer_simulator"</span>:</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>        timeline_drawer(transpiled_circuit, show_idle<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>        plt.show()</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Duration</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> experiment <span class="op">!=</span> <span class="st">"aer_simulator"</span>:</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>        gate_lengths <span class="op">=</span> {}</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>        backend_properties <span class="op">=</span> backend.properties()</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> instruction <span class="kw">in</span> transpiled_circuit.data:</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>            qubits <span class="op">=</span> [qubit._index <span class="cf">for</span> qubit <span class="kw">in</span> instruction.qubits]</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>            gate_name <span class="op">=</span> instruction.operation.name</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> gate_name <span class="kw">in</span> [<span class="st">'barrier'</span>, <span class="st">'measure'</span>, <span class="st">'delay'</span>]:</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>                <span class="cf">continue</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>            gate_duration <span class="op">=</span> backend_properties.gate_length(gate_name, qubits)</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> gate_duration:</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> gate_name <span class="kw">in</span> gate_lengths:</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>                    gate_lengths[gate_name] <span class="op">+=</span> gate_duration</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span>:</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>                    gate_lengths[gate_name] <span class="op">=</span> gate_duration</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(gate_lengths)</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>        total_gate_time <span class="op">=</span> <span class="bu">sum</span>(gate_lengths.values())</span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>        estimated_time <span class="op">=</span> transpiled_circuit.depth() <span class="op">*</span> total_gate_time</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>        plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>        plt.bar(gate_lengths.keys(), gate_lengths.values())</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>        plt.xlabel(<span class="st">'Gate'</span>)</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>        plt.ylabel(<span class="st">'duration'</span>)</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>        plt.yscale(<span class="st">'log'</span>)</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>        plt.title(<span class="ss">f"Estimated Duration </span><span class="sc">{</span>estimated_time<span class="sc">:.10f}</span><span class="ss"> seconds"</span>)</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>        plt.tight_layout()</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>        plt.show()</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Counts</span></span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> counts <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>        plot_histogram(counts)</span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>        plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="e34640d0" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>aer_mimic_simulation() — transpile &amp; run</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> aer_mimic_simulation(circuit<span class="op">=</span>QuantumCircuit, backend<span class="op">=</span>BackendV2):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Simulation of a real backend characteristics"""</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    experiment <span class="op">=</span> backend.name</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> experiment <span class="op">==</span> <span class="st">"aer_simulator"</span>:</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        pass_manager <span class="op">=</span> generate_preset_pass_manager(</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>            optimization_level<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>            backend<span class="op">=</span>backend,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>            timing_constraints<span class="op">=</span>backend.target.timing_constraints()</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        pass_manager <span class="op">=</span> generate_preset_pass_manager(</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>            optimization_level<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            backend<span class="op">=</span>backend,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>            timing_constraints<span class="op">=</span>backend.target.timing_constraints(),</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>            scheduling_method<span class="op">=</span><span class="st">'asap'</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    transpiled_circuit <span class="op">=</span> pass_manager.run(circuit, backend)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    sampler <span class="op">=</span> Sampler(mode<span class="op">=</span>backend)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    sampler.options.default_shots <span class="op">=</span> <span class="dv">4096</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    job <span class="op">=</span> sampler.run([transpiled_circuit])</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Job ID is </span><span class="sc">{</span>job<span class="sc">.</span>job_id()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    pub_result <span class="op">=</span> job.result()[<span class="dv">0</span>]</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    counts <span class="op">=</span> pub_result.data.c0.get_counts()</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    metrics(circuit, transpiled_circuit, backend, counts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>The circuit is the same <span class="math inline">\(U_{f_2}\)</span> (balanced) implementation, built in Qiskit’s reversed bit ordering. It is run twice to compare ideal vs noisy behaviour:</p>
+<ul>
+<li><strong><code>AerSimulator()</code></strong> — ideal simulation, no noise</li>
+<li><strong><code>AerSimulator.from_backend(FakeSherbrooke())</code></strong> — mimics <code>ibm_sherbrooke</code> noise model and qubit connectivity</li>
+</ul>
+<div id="c00cce61" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Circuit construction &amp; Aer simulation</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>qr <span class="op">=</span> QuantumRegister(<span class="dv">2</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>cr <span class="op">=</span> ClassicalRegister(<span class="dv">1</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>qc <span class="op">=</span> QuantumCircuit(qr, cr)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>qc.x(qr[<span class="dv">0</span>])</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>qc.barrier()</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>qc.h(qr)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>qc.barrier()</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>qc.cx(qr[<span class="dv">1</span>], qr[<span class="dv">0</span>])</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>qc.barrier()</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>qc.h(qr[<span class="dv">1</span>])</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>qc.measure(qr[<span class="dv">1</span>], cr[<span class="dv">0</span>])</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Ideal Aer simulation and FakeSherbrooke mimic</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>aer_mimic_simulation(qc, AerSimulator())</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>aer_mimic_simulation(qc, AerSimulator.from_backend(FakeSherbrooke()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>The same circuit is submitted to the real <code>ibm_sherbrooke</code> backend via the IBM Quantum cloud. Since jobs queue, the result is retrieved separately by job ID after it completes.</p>
+<ul>
+<li><code>asap</code> scheduling packs gates as early as possible to minimise idle time and decoherence</li>
+<li>The transpilation pass manager targets <code>ibm_sherbrooke</code>’s native gate set and qubit topology</li>
+<li>Job retrieval decouples submission from result collection — useful when queue wait times are long</li>
+</ul>
+<div id="d65efda8" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Real hardware execution</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>service <span class="op">=</span> QiskitRuntimeService(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    channel<span class="op">=</span><span class="st">'ibm_quantum'</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    instance<span class="op">=</span><span class="st">'ibm-q/open/main'</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    token<span class="op">=</span><span class="st">'XXX'</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>backend <span class="op">=</span> service.backend(<span class="st">'ibm_sherbrooke'</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Backend: </span><span class="sc">{</span>backend<span class="sc">.</span>name<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Version: </span><span class="sc">{</span>backend<span class="sc">.</span>version<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"No. of qubits: </span><span class="sc">{</span>backend<span class="sc">.</span>num_qubits<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Backend dt time in seconds: </span><span class="sc">{</span>backend<span class="sc">.</span>dt<span class="sc">:.10f}</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>pass_manager <span class="op">=</span> generate_preset_pass_manager(</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    optimization_level<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span>backend,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    timing_constraints<span class="op">=</span>backend.target.timing_constraints(),</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    scheduling_method<span class="op">=</span><span class="st">'asap'</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>transpiled_circuit <span class="op">=</span> pass_manager.run(qc)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Job retrieval after queue wait</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>job <span class="op">=</span> service.job(<span class="st">'ctzehppvz5fg0081cv8g'</span>)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>job_result <span class="op">=</span> job.result()</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> job_result[<span class="dv">0</span>].data.c0.get_counts()</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>metrics(qc, transpiled_circuit, backend, counts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p><img src="./media/09.webp" class="img-fluid"></p>
+<p><img src="./media/10.webp" class="img-fluid"></p>
+<p><img src="./media/11.webp" class="img-fluid"></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/ioaiaaii\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

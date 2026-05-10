@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-09-06">
+<meta name="description" content="Why core dumps silently disappear when a Go binary runs as PID 1 in a container.">
+
+<title>Process Signals and Core Dumps</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e881a7107a3c9fd9d1c05d0bcc2eba8d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<meta name="mermaid-theme" content="neutral">
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: {
+    macros: {
+      ket: ["|#1\\rangle", 1],
+      bra: ["\\langle #1|", 1],
+      braket: ["\\langle #1|#2\\rangle", 2]
+    }
+  }
+};
+</script>
+
+
+<meta property="og:title" content="Process Signals and Core Dumps">
+<meta property="og:description" content="Why core dumps silently disappear when a Go binary runs as PID 1 in a container.">
+<meta property="og:image" content="https://ioaiaaii.github.io/notes/pid1-dump/media/01.webp">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">ioaiaaii</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../notes.html"> 
+<span class="menu-text">Technical Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Projects</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#context" id="toc-context" class="nav-link active" data-scroll-target="#context">Context</a></li>
+  <li><a href="#background" id="toc-background" class="nav-link" data-scroll-target="#background">Background</a>
+  <ul class="collapse">
+  <li><a href="#interrupts-exceptions-and-signals" id="toc-interrupts-exceptions-and-signals" class="nav-link" data-scroll-target="#interrupts-exceptions-and-signals">Interrupts, exceptions, and signals</a></li>
+  <li><a href="#core-dumps" id="toc-core-dumps" class="nav-link" data-scroll-target="#core-dumps">Core dumps</a></li>
+  <li><a href="#signals-in-containers-and-kubernetes" id="toc-signals-in-containers-and-kubernetes" class="nav-link" data-scroll-target="#signals-in-containers-and-kubernetes">Signals in containers and Kubernetes</a></li>
+  </ul></li>
+  <li><a href="#investigation" id="toc-investigation" class="nav-link" data-scroll-target="#investigation">Investigation</a></li>
+  <li><a href="#experiments" id="toc-experiments" class="nav-link" data-scroll-target="#experiments">Experiments</a>
+  <ul class="collapse">
+  <li><a href="#experiment-1-signal-delivered-to-a-non-pid-1-process" id="toc-experiment-1-signal-delivered-to-a-non-pid-1-process" class="nav-link" data-scroll-target="#experiment-1-signal-delivered-to-a-non-pid-1-process">Experiment 1 — Signal delivered to a non-PID-1 process</a></li>
+  <li><a href="#experiment-2-signal-delivered-to-pid-1-go-binary-as-init" id="toc-experiment-2-signal-delivered-to-pid-1-go-binary-as-init" class="nav-link" data-scroll-target="#experiment-2-signal-delivered-to-pid-1-go-binary-as-init">Experiment 2 — Signal delivered to PID 1 (Go binary as init)</a></li>
+  <li><a href="#experiment-3-go-binary-as-non-pid-1-default-runtime-configuration" id="toc-experiment-3-go-binary-as-non-pid-1-default-runtime-configuration" class="nav-link" data-scroll-target="#experiment-3-go-binary-as-non-pid-1-default-runtime-configuration">Experiment 3 — Go binary as non-PID-1, default runtime configuration</a></li>
+  <li><a href="#experiment-4-go-binary-as-non-pid-1-gotracebackcrash" id="toc-experiment-4-go-binary-as-non-pid-1-gotracebackcrash" class="nav-link" data-scroll-target="#experiment-4-go-binary-as-non-pid-1-gotracebackcrash">Experiment 4 — Go binary as non-PID-1, <code>GOTRACEBACK=crash</code></a></li>
+  <li><a href="#experiment-5-go-binary-as-pid-1-gotracebackcrash" id="toc-experiment-5-go-binary-as-pid-1-gotracebackcrash" class="nav-link" data-scroll-target="#experiment-5-go-binary-as-pid-1-gotracebackcrash">Experiment 5 — Go binary as PID 1, <code>GOTRACEBACK=crash</code></a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#solutions" id="toc-solutions" class="nav-link" data-scroll-target="#solutions">Solutions</a></li>
+  <li><a href="#takeaway" id="toc-takeaway" class="nav-link" data-scroll-target="#takeaway">Takeaway</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Process Signals and Core Dumps</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Operating Systems</div>
+    <div class="quarto-category">Kubernetes</div>
+    <div class="quarto-category">Go</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    <p>Why core dumps silently disappear when a Go binary runs as PID 1 in a container.</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 6, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="context" class="level2">
+<h2 class="anchored" data-anchor-id="context">Context</h2>
+<p>Our REST service was crashing in production with <code>SIGSEGV</code> and <code>SIGABRT</code> signals. We had <a href="https://github.com/IBM/core-dump-handler">core-dump-handler</a> <span class="citation" data-cites="coredumphandler"><a href="#ref-coredumphandler" role="doc-biblioref">[1]</a></span> deployed — a daemonset that sets <code>kernel.core_pattern</code>, watches the output directory, and uploads core dumps to S3. It was working correctly and uploading dumps from other workloads.</p>
+<p>But for this service: no dumps. Ever.</p>
+<p>The pipeline was healthy — the problem was upstream of it. Somewhere between the crash and the collection point, the signal was being suppressed. What follows is a systematic investigation into <em>where</em> and <em>why</em>.</p>
+</section>
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<section id="interrupts-exceptions-and-signals" class="level3">
+<h3 class="anchored" data-anchor-id="interrupts-exceptions-and-signals">Interrupts, exceptions, and signals</h3>
+<p>To understand why core dumps can silently disappear, we need to understand how the kernel communicates with hardware and with processes:</p>
+<pre class="shell"><code>Hardware     --&gt; Kernel     : interrupts
+Process      --&gt; Kernel     : traps (system calls)
+CPU fault    --&gt; Kernel     : exceptions
+Kernel       --&gt; Process    : signals
+Process      --&gt; Process    : signals (via kernel)</code></pre>
+<p><strong>Interrupts</strong> are how hardware talks to the kernel. When a hardware device needs the kernel’s attention — a disk controller completed an I/O request, a network card received a packet, a timer chip fired — it sends a hardware interrupt to the CPU. The CPU pauses whatever it was executing, saves its context, and jumps to the kernel’s interrupt service routine for that device <span class="citation" data-cites="gregg2020systems"><a href="#ref-gregg2020systems" role="doc-biblioref">[2]</a></span>. The kernel processes the event (moves data from the network buffer, marks the I/O as complete, schedules the next process) and returns control. Gregg treats interrupt analysis as a key part of performance work because handling interrupts consumes CPU cycles, and high interrupt rates (especially from network I/O) can become a measurable overhead.</p>
+<p><strong>Traps</strong> are how processes talk to the kernel. When a userspace process needs the kernel to do something — read a file, allocate memory, open a socket — it executes a system call, which triggers a trap. This is an intentional, synchronous transfer of control from userspace to kernel space.</p>
+<p><strong>Exceptions</strong> are how the CPU reports faults to the kernel. When the CPU encounters a problem during instruction execution — an invalid memory address, a division by zero — it raises an exception (sometimes called a fault). This is similar in mechanism to a trap (control transfers to the kernel), but it is unintentional — the process did not ask for it. The kernel examines the exception and decides what to do. Some exceptions are routine: a page fault means the page is on disk, so the kernel loads it and resumes the process. Others are fatal: an access to genuinely invalid memory means the process has a bug.</p>
+<p><strong>Signals</strong> are how the kernel talks to processes <span class="citation" data-cites="signal7"><a href="#ref-signal7" role="doc-biblioref">[3]</a></span>. When the kernel needs to notify a userspace process about something, it delivers a signal. Signals are the kernel’s outbound notification mechanism. They can be triggered by several things: the kernel translating a fatal CPU exception into a notification (<code>SIGSEGV</code> from a bad memory access), the kernel reporting a state change (<code>SIGCHLD</code> when a child process exits, <code>SIGPIPE</code> on a broken pipe), or one process explicitly asking the kernel to notify another (<code>kill()</code> system call sending <code>SIGTERM</code>).</p>
+<p>The <code>SIGSEGV</code> at the center of our investigation is an example of the first category: the CPU’s memory management unit detects an invalid access, raises an exception, and the kernel delivers <code>SIGSEGV</code> to the offending process. What happens next depends on whether the process has registered a handler for that signal.</p>
+<p>Each signal has a default action <span class="citation" data-cites="kerrisk2010linux"><a href="#ref-kerrisk2010linux" role="doc-biblioref">[4]</a></span>: ignore, terminate, stop, or terminate with core dump. The signals relevant here:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 53%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Signal</th>
+<th>Default action</th>
+<th>Origin</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>SIGSEGV</code></td>
+<td>Terminate + core dump</td>
+<td>CPU exception: invalid memory access</td>
+</tr>
+<tr class="even">
+<td><code>SIGABRT</code></td>
+<td>Terminate + core dump</td>
+<td>Software: explicit abort</td>
+</tr>
+<tr class="odd">
+<td><code>SIGBUS</code></td>
+<td>Terminate + core dump</td>
+<td>CPU exception: misaligned memory access</td>
+</tr>
+<tr class="even">
+<td><code>SIGKILL</code></td>
+<td>Terminate (forced)</td>
+<td>Kernel/process: cannot be caught</td>
+</tr>
+</tbody>
+</table>
+<p>A process can install a custom signal handler to override the default action — catching <code>SIGSEGV</code> to log a traceback and exit cleanly, for example. If it does, the OS never sees the termination as an abnormal crash, and no core dump is written. This distinction — between the OS observing an <em>abnormal termination</em> versus a <em>clean exit</em> — turns out to be central to the problem.</p>
+</section>
+<section id="core-dumps" class="level3">
+<h3 class="anchored" data-anchor-id="core-dumps">Core dumps</h3>
+<p>When a process terminates abnormally and the OS determines a core dump should be written, it saves the process state — memory, registers, open file descriptors, stack — to a file <span class="citation" data-cites="core5"><a href="#ref-core5" role="doc-biblioref">[5]</a></span>. The destination is controlled by <code>sysctl kernel.core_pattern</code>.</p>
+<p>core-dump-handler runs as a privileged daemonset and sets <code>kernel.core_pattern</code> to a helper binary. When the OS writes a dump, the helper picks it up, uploads it to S3, and removes it from disk.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  crash["process crash&lt;br/&gt;(unhandled signal)"]
+  kernel["kernel&lt;br/&gt;kernel.core_pattern"]
+  handler["core-dump-handler&lt;br/&gt;writes to disk"]
+  s3["S3 upload"]
+
+  crash --&gt; kernel --&gt; handler --&gt; s3
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>If no dump appears in S3, something in that chain is broken. Our investigation needed to determine <em>which link</em> was failing.</p>
+</section>
+<section id="signals-in-containers-and-kubernetes" class="level3">
+<h3 class="anchored" data-anchor-id="signals-in-containers-and-kubernetes">Signals in containers and Kubernetes</h3>
+<p>Containers introduce an additional layer of signal handling that does not exist in bare-metal or VM deployments.</p>
+<p>In a standard Linux system, PID 1 is the init process (<code>systemd</code>, <code>sysvinit</code>, etc.), which is purpose-built to handle signals correctly and reap orphaned child processes. Inside a container, whatever process is defined as the entrypoint becomes PID 1 — even if it has no awareness of those responsibilities.</p>
+<p>Kubernetes adds another consideration. When a container’s entrypoint exits or crashes, Kubernetes detects the unhealthy state and sends <code>SIGKILL</code> to clean up the container. The window between the crash and the forced kill is narrow — often too narrow for the OS to write a core dump, even when the dump mechanism is correctly configured.</p>
+<p>With this background established, we designed a series of experiments to isolate the root cause.</p>
+</section>
+</section>
+<section id="investigation" class="level2">
+<h2 class="anchored" data-anchor-id="investigation">Investigation</h2>
+<p>core-dump-handler passed its own <a href="https://github.com/IBM/core-dump-handler/tree/main/charts/core-dump-handler#verifying-the-chart-installation">verification test</a> and was producing uploads for other workloads. The problem was isolated to this service.</p>
+<p>To reproduce the conditions systematically, we sent <code>SIGSEGV</code> directly to the target process inside the container and observed whether a core dump was produced. Each experiment varied one factor — PID position, Go runtime configuration — to isolate the root cause.</p>
+</section>
+<section id="experiments" class="level2">
+<h2 class="anchored" data-anchor-id="experiments">Experiments</h2>
+<section id="experiment-1-signal-delivered-to-a-non-pid-1-process" class="level3">
+<h3 class="anchored" data-anchor-id="experiment-1-signal-delivered-to-a-non-pid-1-process">Experiment 1 — Signal delivered to a non-PID-1 process</h3>
+<p><strong>Hypothesis:</strong> a non-PID-1 process receiving <code>SIGSEGV</code> with default handling will produce a core dump.</p>
+<p><strong>Setup:</strong> the Go binary runs as PID 1; a <code>/bin/bash</code> session runs as PID 16.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">USER</span>       PID STAT COMMAND</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">rest</span>         1 Ssl  /go/bin/rest-binary</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">rest</span>        16 Ss   /bin/bash</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">kill</span> <span class="at">-s</span> SIGSEGV 16</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># command terminated with exit code 139</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Exit code 139 = <code>128 + SIGSEGV(11)</code>. The process terminated with the signal, the OS wrote a core dump, and core-dump-handler uploaded it.</p>
+<p><strong>Result:</strong> core dump produced. This confirms the OS-level mechanism and core-dump-handler are functioning correctly.</p>
+</section>
+<section id="experiment-2-signal-delivered-to-pid-1-go-binary-as-init" class="level3">
+<h3 class="anchored" data-anchor-id="experiment-2-signal-delivered-to-pid-1-go-binary-as-init">Experiment 2 — Signal delivered to PID 1 (Go binary as init)</h3>
+<p><strong>Hypothesis:</strong> PID 1 will behave differently when receiving the same signal.</p>
+<p><strong>Setup:</strong> the Go binary runs as PID 1.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">kill</span> <span class="at">-s</span> SIGSEGV 1</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># command terminated with exit code 137</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Exit code 137 = <code>128 + SIGKILL(9)</code>. The signal did not terminate the process directly — Kubernetes detected the crash and killed the container with <code>SIGKILL</code>. No dump was written.</p>
+<p><strong>Result:</strong> no core dump. This revealed the first piece of the puzzle. The Linux kernel treats PID 1 differently from all other processes: <strong>signals with default action <code>terminate</code> are silently dropped if PID 1 has not explicitly registered a handler for them</strong> <span class="citation" data-cites="kerrisk2010linux"><a href="#ref-kerrisk2010linux" role="doc-biblioref">[4]</a></span>. This is a safety mechanism to prevent the init process from being killed by accident. For any other PID, an unhandled <code>SIGSEGV</code> terminates the process and produces a core dump. For PID 1, it is silently discarded.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+  subgraph bare["Bare process — PID &gt; 1"]
+    s1["SIGSEGV received"]
+    s2["no handler registered"]
+    s3["kernel writes core dump"]
+    s4["core-dump-handler uploads"]
+    s1 --&gt; s2 --&gt; s3 --&gt; s4
+  end
+
+  subgraph pid1["Container — PID 1"]
+    p1["SIGSEGV received"]
+    p2["kernel: PID 1, no handler&lt;br/&gt;signal dropped silently"]
+    p3["K8s detects crash → SIGKILL"]
+    p4["container terminated&lt;br/&gt;no dump written"]
+    p1 --&gt; p2 --&gt; p3 --&gt; p4
+  end
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>At this point, the fix seemed straightforward: ensure the Go binary does not run as PID 1. But the next experiment revealed a second, independent layer of suppression.</p>
+</section>
+<section id="experiment-3-go-binary-as-non-pid-1-default-runtime-configuration" class="level3">
+<h3 class="anchored" data-anchor-id="experiment-3-go-binary-as-non-pid-1-default-runtime-configuration">Experiment 3 — Go binary as non-PID-1, default runtime configuration</h3>
+<p><strong>Hypothesis:</strong> with the Go binary running as a child process (not PID 1), the signal should reach the OS dump mechanism.</p>
+<p><strong>Setup:</strong> a shell script runs as PID 1; the Go binary starts as PID 8.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">USER</span>       PID STAT COMMAND</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">rest</span>         1 Ss   /bin/bash <span class="at">-c</span> ./init.sh</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">rest</span>         8 Sl   /go/bin/rest-binary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">kill</span> <span class="at">-s</span> SIGSEGV 8 <span class="kw">&amp;&amp;</span> <span class="bu">echo</span> <span class="va">$?</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 0</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># command terminated with exit code 137</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>kill</code> returned 0 — the signal was delivered. But the container exited with 137, not 139. The Go runtime intercepted <code>SIGSEGV</code>, printed a goroutine traceback, and called <code>os.Exit</code> — a clean exit from the kernel’s perspective. The OS never observed an abnormal termination and produced no dump.</p>
+<p><strong>Result:</strong> no core dump. This was the less obvious finding. Even with the PID 1 problem eliminated, the <strong>Go runtime’s default signal handling masks the crash from the OS</strong> <span class="citation" data-cites="goruntime"><a href="#ref-goruntime" role="doc-biblioref">[6]</a></span>. The runtime catches the signal, handles it internally, and performs a clean shutdown — which means the kernel never sees the abnormal termination that would trigger a core dump. From the OS perspective, the process exited normally.</p>
+</section>
+<section id="experiment-4-go-binary-as-non-pid-1-gotracebackcrash" class="level3">
+<h3 class="anchored" data-anchor-id="experiment-4-go-binary-as-non-pid-1-gotracebackcrash">Experiment 4 — Go binary as non-PID-1, <code>GOTRACEBACK=crash</code></h3>
+<p><strong>Hypothesis:</strong> setting <code>GOTRACEBACK=crash</code> will cause the Go runtime to re-raise the signal as <code>SIGABRT</code>, allowing the OS to produce a core dump.</p>
+<p>The Go runtime exposes <code>GOTRACEBACK</code> to control its behavior on fatal errors <span class="citation" data-cites="goruntime"><a href="#ref-goruntime" role="doc-biblioref">[6]</a></span>. The <code>crash</code> value changes how it terminates:</p>
+<blockquote class="blockquote">
+<p><em>“crash is like ‘system’ but crashes in an operating system-specific manner instead of exiting. For example, on Unix systems, the crash raises SIGABRT to trigger a core dump.”</em> — <a href="https://pkg.go.dev/runtime">Go runtime docs</a></p>
+</blockquote>
+<p><strong>Setup:</strong> Go binary as non-PID-1, <code>GOTRACEBACK=crash</code> set in the environment.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">env</span> <span class="kw">|</span> <span class="fu">grep</span> GOTRACEBACK</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># GOTRACEBACK=crash</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">kill</span> <span class="at">-s</span> SIGSEGV 8</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># command terminated with exit code 137</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># [INFO core_dump_agent] Uploading: /var/mnt/core-dump-handler/cores/6d3008ea-...-dump-....zip</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The Go runtime caught <code>SIGSEGV</code>, raised <code>SIGABRT</code>, and the OS wrote the core dump before Kubernetes could kill the container.</p>
+<p><strong>Result:</strong> core dump produced. <code>GOTRACEBACK=crash</code> is a necessary condition — but is it sufficient on its own?</p>
+</section>
+<section id="experiment-5-go-binary-as-pid-1-gotracebackcrash" class="level3">
+<h3 class="anchored" data-anchor-id="experiment-5-go-binary-as-pid-1-gotracebackcrash">Experiment 5 — Go binary as PID 1, <code>GOTRACEBACK=crash</code></h3>
+<p><strong>Hypothesis:</strong> even with <code>GOTRACEBACK=crash</code>, PID 1 signal semantics will prevent the dump.</p>
+<p><strong>Setup:</strong> Go binary as PID 1, <code>GOTRACEBACK=crash</code> set.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">env</span> <span class="kw">|</span> <span class="fu">grep</span> GOTRACEBACK</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># GOTRACEBACK=crash</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">kill</span> <span class="at">-s</span> SIGSEGV 1</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># command terminated with exit code 137</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>No upload. Compared to experiment 4, the container was killed immediately — Kubernetes reacted before the dump could be written. With the binary as PID 1, the timing window collapses.</p>
+<p><strong>Result:</strong> no core dump. <code>GOTRACEBACK=crash</code> alone is not sufficient when the binary runs as PID 1.</p>
+</section>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Experiment</th>
+<th>PID position</th>
+<th><code>GOTRACEBACK</code></th>
+<th>Core dump</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>non-PID-1 (<code>/bin/bash</code>)</td>
+<td>default</td>
+<td>produced</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>PID 1</td>
+<td>default</td>
+<td>suppressed</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>non-PID-1 (Go binary)</td>
+<td>default</td>
+<td>suppressed</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>non-PID-1 (Go binary)</td>
+<td><code>crash</code></td>
+<td>produced</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>PID 1 (Go binary)</td>
+<td><code>crash</code></td>
+<td>suppressed</td>
+</tr>
+</tbody>
+</table>
+<p>Two independent conditions must both be true for a core dump to be produced:</p>
+<ol type="1">
+<li>The Go runtime must re-raise the signal as <code>SIGABRT</code> (<code>GOTRACEBACK=crash</code>)</li>
+<li>The binary must not be running as PID 1</li>
+</ol>
+<p>Neither condition alone is sufficient. Experiment 3 shows that solving only the PID problem fails (the Go runtime still intercepts the signal). Experiment 5 shows that solving only the Go runtime problem fails (PID 1 semantics still suppress the dump). Both layers must be addressed together.</p>
+</section>
+<section id="solutions" class="level2">
+<h2 class="anchored" data-anchor-id="solutions">Solutions</h2>
+<p>Google’s best practices for building containers <span class="citation" data-cites="googlecontainers"><a href="#ref-googlecontainers" role="doc-biblioref">[7]</a></span> covers this class of problem in detail. Three approaches exist.</p>
+<p><strong>Register signal handlers in the binary.</strong> Explicitly handle <code>SIGSEGV</code> and <code>SIGABRT</code> in application code. The binary can run as PID 1 but takes responsibility for forwarding signals to the OS dump mechanism. Requires changes to application code.</p>
+<p><strong>Enable process namespace sharing in Kubernetes.</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spec</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">shareProcessNamespace</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>All containers in the pod share a single PID namespace. The kubelet’s pause container owns PID 1; the application binary runs as a normal child process. Tested and confirmed working.</p>
+<p><strong>Use a specialized init system.</strong> Run a minimal init like <a href="https://github.com/krallin/tini">tini</a> <span class="citation" data-cites="tini"><a href="#ref-tini" role="doc-biblioref">[8]</a></span> as PID 1, which correctly handles signals and reaps child processes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode dockerfile code-with-copy"><code class="sourceCode dockerfile"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ENTRYPOINT</span> [<span class="st">"/tini"</span>, <span class="st">"--"</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> [<span class="st">"/go/bin/your-binary"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The binary runs as a child of tini, inheriting normal signal semantics.</p>
+<p>All three solutions address condition 2 (PID position). Condition 1 (<code>GOTRACEBACK=crash</code>) must still be set regardless of which approach is chosen.</p>
+</section>
+<section id="takeaway" class="level2">
+<h2 class="anchored" data-anchor-id="takeaway">Takeaway</h2>
+<p>The missing core dumps were caused by two independent layers of signal interception stacking against each other: the Go runtime catching <code>SIGSEGV</code> before the OS could act on it, and PID 1 kernel semantics preventing the OS dump mechanism from firing even when the runtime was configured to re-raise the signal. Neither issue alone was the full cause — both had to be addressed together.</p>
+<p>This is a useful reminder that the chain from event to observable artifact can be longer than we assume. A crash is not a core dump. A core dump is not an upload. Each link in the chain — the runtime, the kernel, the container orchestrator, the collection pipeline — can independently suppress the signal we depend on. When debugging missing telemetry, it is worth tracing the full path from source to storage, rather than assuming that the absence of data means the event did not occur <span class="citation" data-cites="gregg2020systems"><a href="#ref-gregg2020systems" role="doc-biblioref">[2]</a></span>.</p>
+<p>When debugging missing core dumps in containerized Go services, check both conditions: runtime signal behavior and PID 1 semantics.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
+<div id="ref-coredumphandler" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">IBM, <span>“Core-dump-handler: Saves core dumps from kubernetes pods to S3.”</span> Accessed: Sep. 06, 2023. [Online]. Available: <a href="https://github.com/IBM/core-dump-handler">https://github.com/IBM/core-dump-handler</a></div>
+</div>
+<div id="ref-gregg2020systems" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">B. Gregg, <em>Systems performance: Enterprise and the cloud</em>, 2nd ed. Pearson, 2020.</div>
+</div>
+<div id="ref-signal7" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">Linux man-pages project, <em>Signal(7) — linux programmer’s manual</em>. Accessed: Sep. 06, 2023. [Online]. Available: <a href="https://man7.org/linux/man-pages/man7/signal.7.html">https://man7.org/linux/man-pages/man7/signal.7.html</a></div>
+</div>
+<div id="ref-kerrisk2010linux" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">M. Kerrisk, <em>The linux programming interface</em>. No Starch Press, 2010.</div>
+</div>
+<div id="ref-core5" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">Linux man-pages project, <em>Core(5) — linux programmer’s manual</em>. Accessed: Sep. 06, 2023. [Online]. Available: <a href="https://man7.org/linux/man-pages/man5/core.5.html">https://man7.org/linux/man-pages/man5/core.5.html</a></div>
+</div>
+<div id="ref-goruntime" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">The Go Authors, <em>Runtime package documentation</em>. Accessed: Sep. 06, 2023. [Online]. Available: <a href="https://pkg.go.dev/runtime">https://pkg.go.dev/runtime</a></div>
+</div>
+<div id="ref-googlecontainers" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">Google Cloud, <span>“Best practices for building containers: Signal handling.”</span> Accessed: Sep. 06, 2023. [Online]. Available: <a href="https://cloud.google.com/architecture/best-practices-for-building-containers">https://cloud.google.com/architecture/best-practices-for-building-containers</a></div>
+</div>
+<div id="ref-tini" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[8] </div><div class="csl-right-inline">T. Frazelle, <span>“Tini: A tiny but valid init for containers.”</span> Accessed: Sep. 06, 2023. [Online]. Available: <a href="https://github.com/krallin/tini">https://github.com/krallin/tini</a></div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/ioaiaaii\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
