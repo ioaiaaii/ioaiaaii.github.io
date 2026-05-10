@@ -134,9 +134,13 @@ make help
 ### 5. Sync gitignore and pre-commit hooks
 
 ``` bash
-make gitignore        # Merges Go, macOS, terragrunt templates into .gitignore
-make pre-commit-hooks # Merges hook configs into .pre-commit-config.yaml
+make gitignore           # Merges Go, macOS, terragrunt templates into .gitignore
+make pre-commit-install  # Syncs hook configs into .pre-commit-config.yaml AND installs the git hook
 ```
+
+`pre-commit-install` runs the sync step (same as `make pre-commit-hooks`) and then `pre-commit install` on the host to write `.git/hooks/pre-commit`. Without that second step, git won't actually invoke the hooks on commit.
+
+This requires the `pre-commit` binary on the host (it's the only target that breaks the hermetic-Docker pattern, since the installed hook references the host's `pre-commit` path). Install it once with `pip install pre-commit` or `brew install pre-commit`.
 
 ### 6. Keep the submodule up to date
 
@@ -176,6 +180,7 @@ Core variables and shared utilities. **Always include this first.**
 | `environment` | Print current Git tag, branch, version, Go path and version |
 | `gitignore` | Merge `gitignore/` templates into the project's `.gitignore` |
 | `pre-commit-hooks` | Merge `pre-commit-hooks/` configs into `.pre-commit-config.yaml` |
+| `pre-commit-install` | Run `pre-commit-hooks` then `pre-commit install` on the host to wire up `.git/hooks/pre-commit` |
 | `pre-commit-hooks-list` | List available pre-commit hook config files |
 
 
