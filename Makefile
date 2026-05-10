@@ -14,3 +14,9 @@ webp:
 	    -not -path "./_site/*"   \
 	    -not -path "./.quarto/*" \
 	    | xargs sed -i '' 's/\.png/.webp/g'
+
+.PHONY: webp2png
+webp2png:
+	@for f in $(PNGS); do \
+	    dwebp "$$f" -o "$${f%.webp}.png"; \
+	done
