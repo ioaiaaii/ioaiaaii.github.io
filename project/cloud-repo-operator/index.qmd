@@ -94,8 +94,10 @@ repo-operator/
 
 ### 1. Add as a submodule
 
+Add `repo-operator` at any path that fits your project. For Go projects following the [standard project layout](https://github.com/golang-standards/project-layout), `build/` is the conventional home for build/CI tooling:
+
 ``` bash
-git submodule add https://github.com/ioaiaaii/repo-operator.git repo-operator
+git submodule add https://github.com/ioaiaaii/repo-operator.git build/repo-operator
 ```
 
 ### 2. Initialise on a fresh clone
@@ -110,7 +112,7 @@ Include only the modules relevant to your project:
 
 ``` makefile
 # --- Override repo-operator defaults ---
-override OPERATOR_PATH     := repo-operator
+override OPERATOR_PATH     := build/repo-operator
 override OPENAPI_FILE      := api/OpenAPI/openapi.yaml
 override OPENAPI_DOCS_PATH := docs/api
 
@@ -138,11 +140,26 @@ make pre-commit-hooks # Merges hook configs into .pre-commit-config.yaml
 
 ### 6. Keep the submodule up to date
 
+Track the latest commit on `master`:
+
 ``` bash
-git submodule update --remote
-git add repo-operator
-git commit -m "chore: update repo-operator"
+git submodule update --remote build/repo-operator
+git add build/repo-operator
+git commit -m "chore: bump repo-operator submodule"
 ```
+
+Or pin to a specific release tag instead:
+
+``` bash
+cd build/repo-operator
+git fetch --tags
+git checkout v1.2.3
+cd -
+git add build/repo-operator
+git commit -m "chore: pin repo-operator to v1.2.3"
+```
+
+The parent repo records the submodule's commit SHA — bumping the submodule and committing in the parent are two separate steps.
 
 
 ## Makefile Modules
@@ -312,7 +329,7 @@ skipping any lines already present:
 Override any variable before the `include` statements:
 
 ``` makefile
-override OPERATOR_PATH     := repo-operator
+override OPERATOR_PATH     := build/repo-operator
 override SRC               := .
 override BUILD_PATH        := build
 override DEPLOY_PATH       := deploy
