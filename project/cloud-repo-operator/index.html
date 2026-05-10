@@ -338,8 +338,10 @@ Figure&nbsp;1: logo
 </section>
 <section id="sync-gitignore-and-pre-commit-hooks" class="level3">
 <h3 class="anchored" data-anchor-id="sync-gitignore-and-pre-commit-hooks">5. Sync gitignore and pre-commit hooks</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> gitignore        <span class="co"># Merges Go, macOS, terragrunt templates into .gitignore</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> pre-commit-hooks <span class="co"># Merges hook configs into .pre-commit-config.yaml</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> gitignore           <span class="co"># Merges Go, macOS, terragrunt templates into .gitignore</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> pre-commit-install  <span class="co"># Syncs hook configs into .pre-commit-config.yaml AND installs the git hook</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>pre-commit-install</code> runs the sync step (same as <code>make pre-commit-hooks</code>) and then <code>pre-commit install</code> on the host to write <code>.git/hooks/pre-commit</code>. Without that second step, git won’t actually invoke the hooks on commit.</p>
+<p>This requires the <code>pre-commit</code> binary on the host (it’s the only target that breaks the hermetic-Docker pattern, since the installed hook references the host’s <code>pre-commit</code> path). Install it once with <code>pip install pre-commit</code> or <code>brew install pre-commit</code>.</p>
 </section>
 <section id="keep-the-submodule-up-to-date" class="level3">
 <h3 class="anchored" data-anchor-id="keep-the-submodule-up-to-date">6. Keep the submodule up to date</h3>
@@ -392,6 +394,10 @@ Figure&nbsp;1: logo
 <td>Merge <code>pre-commit-hooks/</code> configs into <code>.pre-commit-config.yaml</code></td>
 </tr>
 <tr class="odd">
+<td><code>pre-commit-install</code></td>
+<td>Run <code>pre-commit-hooks</code> then <code>pre-commit install</code> on the host to wire up <code>.git/hooks/pre-commit</code></td>
+</tr>
+<tr class="even">
 <td><code>pre-commit-hooks-list</code></td>
 <td>List available pre-commit hook config files</td>
 </tr>
