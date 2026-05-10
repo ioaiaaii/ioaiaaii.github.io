@@ -9,8 +9,8 @@
 <link>https://ioaiaaii.github.io/notes.html</link>
 <atom:link href="https://ioaiaaii.github.io/notes.xml" rel="self" type="application/rss+xml"/>
 <description>Ioannis Savvaidis</description>
-<generator>quarto-1.8.25</generator>
-<lastBuildDate>Wed, 25 Sep 2024 21:00:00 GMT</lastBuildDate>
+<generator>quarto-1.9.37</generator>
+<lastBuildDate>Thu, 26 Sep 2024 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Quantum Teleportation</title>
   <link>https://ioaiaaii.github.io/notes/quantum-teleportation/</link>
@@ -20,7 +20,7 @@
   <category>Teleportation</category>
   <category>Entanglement</category>
   <guid>https://ioaiaaii.github.io/notes/quantum-teleportation/</guid>
-  <pubDate>Wed, 25 Sep 2024 21:00:00 GMT</pubDate>
+  <pubDate>Thu, 26 Sep 2024 00:00:00 GMT</pubDate>
   <media:content url="https://ioaiaaii.github.io/notes/quantum-teleportation/media/01.webp" medium="image" type="image/webp"/>
 </item>
 <item>
@@ -29,7 +29,7 @@
   <description><![CDATA[ The foundations of Information Science: the choreography between Information, Computation, and Computer. ]]></description>
   <category>theory of computation</category>
   <guid>https://ioaiaaii.github.io/notes/computing/</guid>
-  <pubDate>Sun, 14 Jul 2024 21:00:00 GMT</pubDate>
+  <pubDate>Mon, 15 Jul 2024 00:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Unconventional Computing</title>
@@ -38,7 +38,7 @@
   <category>unconventional computing</category>
   <category>beyond moore</category>
   <guid>https://ioaiaaii.github.io/notes/uncomp/</guid>
-  <pubDate>Tue, 09 Jul 2024 21:00:00 GMT</pubDate>
+  <pubDate>Wed, 10 Jul 2024 00:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Process Signals and Core Dumps</title>
@@ -48,7 +48,7 @@
   <category>Kubernetes</category>
   <category>Go</category>
   <guid>https://ioaiaaii.github.io/notes/pid1-dump/</guid>
-  <pubDate>Tue, 05 Sep 2023 21:00:00 GMT</pubDate>
+  <pubDate>Wed, 06 Sep 2023 00:00:00 GMT</pubDate>
   <media:content url="https://ioaiaaii.github.io/notes/pid1-dump/media/01.webp" medium="image" type="image/webp"/>
 </item>
 <item>
@@ -59,7 +59,7 @@
   <category>Observability</category>
   <category>Distributed Systems</category>
   <guid>https://ioaiaaii.github.io/notes/observability/</guid>
-  <pubDate>Sat, 14 Jan 2023 22:00:00 GMT</pubDate>
+  <pubDate>Sun, 15 Jan 2023 00:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>

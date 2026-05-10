@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.9.37">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,6 +11,9 @@
 
 <title>Deutsch’s Algorithm</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -69,15 +72,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="../../">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-e881a7107a3c9fd9d1c05d0bcc2eba8d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-f3fd427f85cbcb2f3bf9a16d2ddf111f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -118,7 +120,7 @@ window.MathJax = {
 </script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -158,10 +160,6 @@ window.Quarto = {
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
-    </a>
-  </div>
             <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
@@ -752,7 +750,7 @@ Table&nbsp;3: Final States
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>qc.h(<span class="dv">0</span>)<span class="op">;</span> qc.barrier()</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>qc.measure(<span class="dv">0</span>, <span class="dv">0</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>qc.draw(<span class="st">'mpl'</span>, initial_state<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="a7fc65ec" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="2">
+<div id="a7fc65ec" class="cell quarto-layout-panel" data-execution_count="2" data-layout-nrow="1">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-3-output-1.png" class="img-fluid" width="878"></p>
@@ -821,7 +819,7 @@ Table&nbsp;4: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>sv <span class="op">=</span> Statevector(qc2)</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plot_state_qsphere(sv)</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plot_bloch_multivector(sv)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="27d4ccdb" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="3">
+<div id="27d4ccdb" class="cell quarto-layout-panel" data-execution_count="3" data-layout-nrow="1">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-4-output-1.png" class="img-fluid" width="425"></p>
@@ -893,7 +891,7 @@ Table&nbsp;4: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>qc.h(<span class="dv">0</span>)<span class="op">;</span> qc.barrier()</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>qc.measure(<span class="dv">0</span>, <span class="dv">0</span>)</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>qc.draw(<span class="st">'mpl'</span>, initial_state<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="806a803a" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="4">
+<div id="806a803a" class="cell quarto-layout-panel" data-execution_count="4" data-layout-nrow="1">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-5-output-1.png" class="img-fluid" width="878"></p>
@@ -950,7 +948,7 @@ Table&nbsp;5: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>sv <span class="op">=</span> Statevector(qc2)</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>plot_state_qsphere(sv)</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>plot_bloch_multivector(sv)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="ce17a157" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="5">
+<div id="ce17a157" class="cell quarto-layout-panel" data-execution_count="5" data-layout-nrow="1">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-6-output-1.png" class="img-fluid" width="425"></p>
@@ -1015,7 +1013,7 @@ Note
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Draw with reverse_bits to match mathematical convention</span></span>
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>qc.draw(output<span class="op">=</span><span class="st">'mpl'</span>, reverse_bits<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="c54b0e9f" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="6">
+<div id="c54b0e9f" class="cell quarto-layout-panel" data-execution_count="6" data-layout-nrow="1">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-7-output-1.png" class="img-fluid" width="995"></p>

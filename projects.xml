@@ -9,8 +9,8 @@
 <link>https://ioaiaaii.github.io/projects.html</link>
 <atom:link href="https://ioaiaaii.github.io/projects.xml" rel="self" type="application/rss+xml"/>
 <description>Ioannis Savvaidis</description>
-<generator>quarto-1.8.25</generator>
-<lastBuildDate>Tue, 14 Jan 2025 22:00:00 GMT</lastBuildDate>
+<generator>quarto-1.9.37</generator>
+<lastBuildDate>Wed, 15 Jan 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>ioaiaaii.net</title>
   <link>https://ioaiaaii.github.io/project/cloud-iaiaiiaa/</link>
@@ -22,7 +22,7 @@
   <category>CI/CD</category>
   <category>Kubernetes</category>
   <guid>https://ioaiaaii.github.io/project/cloud-iaiaiiaa/</guid>
-  <pubDate>Tue, 14 Jan 2025 22:00:00 GMT</pubDate>
+  <pubDate>Wed, 15 Jan 2025 00:00:00 GMT</pubDate>
   <media:content url="https://ioaiaaii.github.io/project/cloud-iaiaiiaa/media/arch.webp" medium="image" type="image/webp"/>
 </item>
 <item>
@@ -36,7 +36,7 @@
   <category>Observability</category>
   <category>Security</category>
   <guid>https://ioaiaaii.github.io/project/cloud-micro-infra/</guid>
-  <pubDate>Tue, 19 Nov 2024 22:00:00 GMT</pubDate>
+  <pubDate>Wed, 20 Nov 2024 00:00:00 GMT</pubDate>
   <media:content url="https://ioaiaaii.github.io/project/cloud-micro-infra/media/logo.webp" medium="image" type="image/webp"/>
 </item>
 <item>
@@ -47,7 +47,7 @@
   <category>Hermetic Builds</category>
   <category>Makefile</category>
   <guid>https://ioaiaaii.github.io/project/cloud-repo-operator/</guid>
-  <pubDate>Tue, 29 Oct 2024 22:00:00 GMT</pubDate>
+  <pubDate>Wed, 30 Oct 2024 00:00:00 GMT</pubDate>
   <media:content url="https://ioaiaaii.github.io/project/cloud-repo-operator/media/logo.webp" medium="image" type="image/webp"/>
 </item>
 <item>
@@ -57,7 +57,7 @@
   <category>Quantum Computing</category>
   <category>Qiskit</category>
   <guid>https://ioaiaaii.github.io/project/quantum-shors/</guid>
-  <pubDate>Mon, 09 Oct 2023 21:00:00 GMT</pubDate>
+  <pubDate>Tue, 10 Oct 2023 00:00:00 GMT</pubDate>
   <media:content url="https://ioaiaaii.github.io/project/quantum-shors/media/01.webp" medium="image" type="image/webp"/>
 </item>
 <item>
@@ -67,7 +67,7 @@
   <category>Quantum Computing</category>
   <category>Qiskit</category>
   <guid>https://ioaiaaii.github.io/project/quantum-grovers-algorithm/</guid>
-  <pubDate>Fri, 29 Sep 2023 21:00:00 GMT</pubDate>
+  <pubDate>Sat, 30 Sep 2023 00:00:00 GMT</pubDate>
   <media:content url="https://ioaiaaii.github.io/project/quantum-grovers-algorithm/media/01.webp" medium="image" type="image/webp"/>
 </item>
 <item>
@@ -77,7 +77,7 @@
   <category>Quantum Computing</category>
   <category>Qiskit</category>
   <guid>https://ioaiaaii.github.io/project/quantum-deutschs-algorithm/</guid>
-  <pubDate>Tue, 29 Aug 2023 21:00:00 GMT</pubDate>
+  <pubDate>Wed, 30 Aug 2023 00:00:00 GMT</pubDate>
   <media:content url="https://ioaiaaii.github.io/project/quantum-deutschs-algorithm/media/08.webp" medium="image" type="image/webp"/>
 </item>
 </channel>
