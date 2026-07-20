@@ -36,14 +36,14 @@ about:
 
 :::{#hero-heading}
 
-👋 Hey, welcome to my blog!
+I’m a Computer Engineer focused on Site Reliability Engineering. For more than a decade, I’ve been designing and operating infrastructure across on-premises and cloud environments, building systems that behave *predictably* at scale.
 
-I’m a Computer Engineer focused on making complex systems trustworthy. For more than a decade, I’ve been designing and operating infrastructure that remains reliable under pressure — applying the discipline of Site Reliability Engineering to design systems that behave *predictably* at scale.
+My work focuses on systems performance and observability engineering, with a particular interest in understanding how systems evolve and their underlying dynamics.
 
-My work focuses on system performance and observability engineering across on-premises and cloud environments.
+I recently completed an MSc in Quantum Computing and Quantum Technologies, studying the interface between quantum and classical computing.
 
-I’m also finishing an MSc in Quantum Computing and composing experimental music. These pursuits are less separate than they might appear — each is, at its core, about *understanding* systems deeply enough to *compute* their *dynamics*.
+Alongside my engineering work, I compose electro-acoustic music. Although these fields may appear distant, they share a common *thread*. Each is, at its core, about *understanding* systems deeply enough to *compute* their *dynamics*.
 
-In this blog I share technical notes, experiments, and projects around Site Reliability Engineering, distributed systems, and quantum computing.
+In this blog, I share technical notes, experiments, and projects around Site Reliability Engineering, distributed systems, cloud, and quantum computing.
 
 :::
