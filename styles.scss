@@ -16,8 +16,8 @@
 
 $theme-lightblue: #ffffff;
 $theme-darkblue: #080808;
-$theme-blue: #1700e4;
-
+$theme-blue: #0062db;
+$theme-blue-rgb: 0.16 0.01 260;
 // Base document colors
 $body-bg: $theme-lightblue;
 $body-color: $theme-darkblue;
@@ -37,7 +37,7 @@ $navbar-fg: $theme-blue;
   position: relative;
   text-transform: uppercase;
   border-bottom: unset;
-  font-weight: 600;
+  font-weight: 400;
   font-size: large;
   &::after {
     content: '';
@@ -47,7 +47,7 @@ $navbar-fg: $theme-blue;
     width: 100%;
     height: 0.1em;
     background-color: $theme-blue;
-    transition: opacity 300ms, transform 300ms;
+    transition: opacity 100ms, transform 300ms;
     opacity: 1;
     transform: scale(0);
     transform-origin: center;
