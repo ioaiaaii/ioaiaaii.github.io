@@ -209,7 +209,7 @@ We measure the control qubit. The target qubit is always in $|-\rangle$ regardle
 
 
 ::: {layout-ncol=1}
-![Duetch’s Algorithm with Oracle](./media/08.webp){#fig-unary-gate width="50%"}
+![Deutsch’s Algorithm with Oracle](./media/08.webp){#fig-unary-gate width="50%"}
 :::
 
 We are denoting the states as $|q_i\rangle$ for clarity, based on the above circuit steps.
