@@ -26,7 +26,8 @@ $link-hover-color: darken(saturate($link-color, 50%), 15%);
 
 // // Typography ------------------------------------------------------------------
 $font-size-base: 1rem;
-$line-height-base: 1.7;
+$line-height-base: 1.75;
+$font-weight-base: 300; // lighter body weight
 
 // Navigation ------------------------------------------------------------------
 $navbar-bg: $theme-lightblue;
@@ -123,4 +124,15 @@ div.quarto-post .listing-categories .listing-category,
   border-color: $theme-blue;
 
   @include btn-inverse;
+}
+
+// reading rhythm ---------------------------------------------------------------
+
+p {
+  margin-bottom: 1.15em;
+}
+
+h2,
+h3 {
+  margin-top: 1.8em;
 }
