@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -41,10 +44,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-ed064d9ea34b95d6e5f8bc68e6c3a6b9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-1247952a7f2e1eee32541aeb3f26589d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -114,7 +117,7 @@ window.MathJax = {
 </script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -144,7 +147,9 @@ window.Quarto = {
 </script>
 
 <link rel="alternate" type="application/rss+xml" title="ioaiaaii's projects" href="projects.xml" data-external="1"><meta property="og:title" content="ioaiaaii – Projects">
-<meta property="og:image" content="https://ioaiaaii.github.io/project/cloud-iaiaiiaa/media/arch.webp">
+<meta property="og:image" content="https://ioaiaaii.github.io/project/msc-thesis/media/qcc-architecture.png">
+<meta property="og:image:height" content="1700">
+<meta property="og:image:width" content="2530">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -186,7 +191,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(6)</span></div><div class="category" data-category="Q0klMkZDRA==">CI/CD <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Q2xlYW4lMjBBcmNoaXRlY3R1cmU=">Clean Architecture <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Q2xvdWQlMjBDb21wdXRpbmc=">Cloud Computing <span class="quarto-category-count">(2)</span></div><div class="category" data-category="R2l0T3Bz">GitOps <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R28=">Go <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SGVybWV0aWMlMjBCdWlsZHM=">Hermetic Builds <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SWFD">IaC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="S3ViZXJuZXRlcw==">Kubernetes <span class="quarto-category-count">(2)</span></div><div class="category" data-category="TWFrZWZpbGU=">Makefile <span class="quarto-category-count">(1)</span></div><div class="category" data-category="T2JzZXJ2YWJpbGl0eQ==">Observability <span class="quarto-category-count">(2)</span></div><div class="category" data-category="UWlza2l0">Qiskit <span class="quarto-category-count">(3)</span></div><div class="category" data-category="UXVhbnR1bSUyMENvbXB1dGluZw==">Quantum Computing <span class="quarto-category-count">(3)</span></div><div class="category" data-category="U2VjdXJpdHk=">Security <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VnVlLmpz">Vue.js <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(6)</span></div><div class="category" data-category="Q2xvdWQlMjBDb21wdXRpbmc=">Cloud Computing <span class="quarto-category-count">(3)</span></div><div class="category" data-category="R2l0T3Bz">GitOps <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SGVybWV0aWMlMjBCdWlsZHM=">Hermetic Builds <span class="quarto-category-count">(1)</span></div><div class="category" data-category="SWFD">IaC <span class="quarto-category-count">(1)</span></div><div class="category" data-category="S3ViZXJuZXRlcw==">Kubernetes <span class="quarto-category-count">(2)</span></div><div class="category" data-category="TWFrZWZpbGU=">Makefile <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TVNjJTIwVGhlc2lz">MSc Thesis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="T2JzZXJ2YWJpbGl0eQ==">Observability <span class="quarto-category-count">(2)</span></div><div class="category" data-category="T3BlblRlbGVtZXRyeQ==">OpenTelemetry <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UWlza2l0">Qiskit <span class="quarto-category-count">(3)</span></div><div class="category" data-category="UXVhbnR1bSUyMENvbXB1dGluZw==">Quantum Computing <span class="quarto-category-count">(4)</span></div><div class="category" data-category="U2VjdXJpdHk=">Security <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
 
@@ -199,46 +204,46 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="R28lMkNWdWUuanMlMkNDbGVhbiUyMEFyY2hpdGVjdHVyZSUyQ09ic2VydmFiaWxpdHklMkNDSSUyRkNEJTJDS3ViZXJuZXRlcw==" data-listing-date-sort="1736899200000" data-listing-file-modified-sort="1784565005160" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1061">
-<a href="./project/cloud-iaiaiiaa/index.html" class="quarto-grid-link">
+<div class="g-col-1" data-index="0" data-categories="UXVhbnR1bSUyMENvbXB1dGluZyUyQ0t1YmVybmV0ZXMlMkNDbG91ZCUyMENvbXB1dGluZyUyQ09ic2VydmFiaWxpdHklMkNPcGVuVGVsZW1ldHJ5JTJDTVNjJTIwVGhlc2lz" data-listing-date-sort="1785110400000" data-listing-file-modified-sort="1785171374528" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="547">
+<a href="./project/msc-thesis/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
-<img loading="lazy" src="./project/cloud-iaiaiiaa/media/arch.webp" class="thumbnail-image card-img" style="height: 150px;">
+<img loading="lazy" src="./project/msc-thesis/media/qcc-architecture.png" class="thumbnail-image card-img" style="height: 150px;">
 </p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-ioaiaaii.net
+Interface between Quantum and Classical Computers
 </h5>
 <div class="listing-categories">
 
-<div class="listing-category" onclick="window.quartoListingCategory('R28='); return false;">Go</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('VnVlLmpz'); return false;">Vue.js</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('Q2xlYW4lMjBBcmNoaXRlY3R1cmU='); return false;">Clean Architecture</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('T2JzZXJ2YWJpbGl0eQ=='); return false;">Observability</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('Q0klMkZDRA=='); return false;">CI/CD</div>
+<div class="listing-category" onclick="window.quartoListingCategory('UXVhbnR1bSUyMENvbXB1dGluZw=='); return false;">Quantum Computing</div>
 
 <div class="listing-category" onclick="window.quartoListingCategory('S3ViZXJuZXRlcw=='); return false;">Kubernetes</div>
 
+<div class="listing-category" onclick="window.quartoListingCategory('Q2xvdWQlMjBDb21wdXRpbmc='); return false;">Cloud Computing</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('T2JzZXJ2YWJpbGl0eQ=='); return false;">Observability</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('T3BlblRlbGVtZXRyeQ=='); return false;">OpenTelemetry</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TVNjJTIwVGhlc2lz'); return false;">MSc Thesis</div>
+
 </div>
 <div class="card-text listing-description delink">
-<p>Deliberately over-engineered personal website — because a static page wouldn’t be any fun.</p>
+<p>MSc thesis and proof of concept, a Kubernetes-native control plane that treats quantum circuits and backends as managed, observable resources across the quantum–classical…</p>
 </div>
 <div class="card-attribution card-text-small justify">
 <div class="listing-author">
 
 </div>
 <div class="listing-date">
-Jan 15, 2025
+Jul 27, 2026
 </div>
 </div>
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="Q2xvdWQlMjBDb21wdXRpbmclMkNJYUMlMkNLdWJlcm5ldGVzJTJDR2l0T3BzJTJDT2JzZXJ2YWJpbGl0eSUyQ1NlY3VyaXR5" data-listing-date-sort="1732060800000" data-listing-file-modified-sort="1784565005160" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2166">
+<div class="g-col-1" data-index="1" data-categories="Q2xvdWQlMjBDb21wdXRpbmclMkNJYUMlMkNLdWJlcm5ldGVzJTJDR2l0T3BzJTJDT2JzZXJ2YWJpbGl0eSUyQ1NlY3VyaXR5" data-listing-date-sort="1732060800000" data-listing-file-modified-sort="1785171374526" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2166">
 <a href="./project/cloud-micro-infra/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -277,7 +282,7 @@ Nov 20, 2024
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="Q2xvdWQlMjBDb21wdXRpbmclMkNIZXJtZXRpYyUyMEJ1aWxkcyUyQ01ha2VmaWxl" data-listing-date-sort="1730246400000" data-listing-file-modified-sort="1784565005163" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1564">
+<div class="g-col-1" data-index="2" data-categories="Q2xvdWQlMjBDb21wdXRpbmclMkNIZXJtZXRpYyUyMEJ1aWxkcyUyQ01ha2VmaWxl" data-listing-date-sort="1730246400000" data-listing-file-modified-sort="1785171374528" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1564">
 <a href="./project/cloud-repo-operator/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -310,7 +315,7 @@ Oct 30, 2024
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="3" data-categories="UXVhbnR1bSUyMENvbXB1dGluZyUyQ1Fpc2tpdA==" data-listing-date-sort="1696896000000" data-listing-file-modified-sort="1784565005168" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3142">
+<div class="g-col-1" data-index="3" data-categories="UXVhbnR1bSUyMENvbXB1dGluZyUyQ1Fpc2tpdA==" data-listing-date-sort="1696896000000" data-listing-file-modified-sort="1785171374580" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3142">
 <a href="./project/quantum-shors/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -341,7 +346,7 @@ Oct 10, 2023
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="4" data-categories="UXVhbnR1bSUyMENvbXB1dGluZyUyQ1Fpc2tpdA==" data-listing-date-sort="1696032000000" data-listing-file-modified-sort="1784565005164" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17" data-listing-word-count-sort="3391">
+<div class="g-col-1" data-index="4" data-categories="UXVhbnR1bSUyMENvbXB1dGluZyUyQ1Fpc2tpdA==" data-listing-date-sort="1696032000000" data-listing-file-modified-sort="1785171374577" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17" data-listing-word-count-sort="3391">
 <a href="./project/quantum-grovers-algorithm/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -372,7 +377,7 @@ Sep 30, 2023
 </div>
 </div></a>
 </div>
-<div class="g-col-1" data-index="5" data-categories="UXVhbnR1bSUyMENvbXB1dGluZyUyQ1Fpc2tpdA==" data-listing-date-sort="1693353600000" data-listing-file-modified-sort="1784565005164" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="19" data-listing-word-count-sort="3764">
+<div class="g-col-1" data-index="5" data-categories="UXVhbnR1bSUyMENvbXB1dGluZyUyQ1Fpc2tpdA==" data-listing-date-sort="1693353600000" data-listing-file-modified-sort="1785171374576" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="19" data-listing-word-count-sort="3764">
 <a href="./project/quantum-deutschs-algorithm/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">

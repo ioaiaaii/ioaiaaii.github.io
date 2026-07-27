@@ -9,21 +9,21 @@
 <link>https://ioaiaaii.github.io/projects.html</link>
 <atom:link href="https://ioaiaaii.github.io/projects.xml" rel="self" type="application/rss+xml"/>
 <description>Ioannis Savvaidis</description>
-<generator>quarto-1.9.38</generator>
-<lastBuildDate>Wed, 15 Jan 2025 00:00:00 GMT</lastBuildDate>
+<generator>quarto-1.10.18</generator>
+<lastBuildDate>Mon, 27 Jul 2026 00:00:00 GMT</lastBuildDate>
 <item>
-  <title>ioaiaaii.net</title>
-  <link>https://ioaiaaii.github.io/project/cloud-iaiaiiaa/</link>
-  <description><![CDATA[ Deliberately over-engineered personal website — because a static page wouldn’t be any fun. ]]></description>
-  <category>Go</category>
-  <category>Vue.js</category>
-  <category>Clean Architecture</category>
-  <category>Observability</category>
-  <category>CI/CD</category>
+  <title>Interface between Quantum and Classical Computers</title>
+  <link>https://ioaiaaii.github.io/project/msc-thesis/</link>
+  <description><![CDATA[ MSc thesis and proof of concept, a Kubernetes-native control plane that treats quantum circuits and backends as managed, observable resources across the quantum–classical boundary. ]]></description>
+  <category>Quantum Computing</category>
   <category>Kubernetes</category>
-  <guid>https://ioaiaaii.github.io/project/cloud-iaiaiiaa/</guid>
-  <pubDate>Wed, 15 Jan 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://ioaiaaii.github.io/project/cloud-iaiaiiaa/media/arch.webp" medium="image" type="image/webp"/>
+  <category>Cloud Computing</category>
+  <category>Observability</category>
+  <category>OpenTelemetry</category>
+  <category>MSc Thesis</category>
+  <guid>https://ioaiaaii.github.io/project/msc-thesis/</guid>
+  <pubDate>Mon, 27 Jul 2026 00:00:00 GMT</pubDate>
+  <media:content url="https://ioaiaaii.github.io/project/msc-thesis/media/qcc-architecture.png" medium="image" type="image/png" height="97" width="144"/>
 </item>
 <item>
   <title>micro-infra</title>

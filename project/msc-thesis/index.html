@@ -6,10 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2024-09-26">
-<meta name="description" content="Exploring how quantum states can be transmitted using entanglement.">
+<meta name="dcterms.date" content="2026-07-27">
+<meta name="description" content="MSc thesis and proof of concept, a Kubernetes-native control plane that treats quantum circuits and backends as managed, observable resources across the quantum–classical boundary.">
 
-<title>Quantum Teleportation</title>
+<title>Interface between Quantum and Classical Computers</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -28,62 +28,7 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
 <script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -142,39 +87,12 @@ window.MathJax = {
 };
 </script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<meta property="og:title" content="Quantum Teleportation">
-<meta property="og:description" content="Exploring how quantum states can be transmitted using entanglement.">
-<meta property="og:image" content="https://ioaiaaii.github.io/notes/quantum-teleportation/media/01.webp">
+<meta property="og:title" content="Interface between Quantum and Classical Computers">
+<meta property="og:description" content="MSc thesis and proof of concept, a Kubernetes-native control plane that treats quantum circuits and backends as managed, observable resources across the quantum–classical boundary.">
+<meta property="og:image" content="https://ioaiaaii.github.io/project/msc-thesis/media/qcc-architecture.png">
+<meta property="og:image:height" content="1700">
+<meta property="og:image:width" content="2530">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -219,9 +137,10 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#teleportation" id="toc-teleportation" class="nav-link active" data-scroll-target="#teleportation">Teleportation</a></li>
-  <li><a href="#teleportation-in-qiskit" id="toc-teleportation-in-qiskit" class="nav-link" data-scroll-target="#teleportation-in-qiskit">Teleportation in Qiskit</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#motivation" id="toc-motivation" class="nav-link" data-scroll-target="#motivation">Motivation</a></li>
+  <li><a href="#quantum-circuit-controller-qcc" id="toc-quantum-circuit-controller-qcc" class="nav-link" data-scroll-target="#quantum-circuit-controller-qcc">Quantum Circuit Controller (QCC)</a></li>
+  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">Resources</a></li>
   </ul>
 </nav>
     </div>
@@ -230,18 +149,20 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Quantum Teleportation</h1>
+<h1 class="title">Interface between Quantum and Classical Computers</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Quantum Computing</div>
-    <div class="quarto-category">Qiskit</div>
-    <div class="quarto-category">Teleportation</div>
-    <div class="quarto-category">Entanglement</div>
+    <div class="quarto-category">Kubernetes</div>
+    <div class="quarto-category">Cloud Computing</div>
+    <div class="quarto-category">Observability</div>
+    <div class="quarto-category">OpenTelemetry</div>
+    <div class="quarto-category">MSc Thesis</div>
   </div>
   </div>
 
 <div>
   <div class="description">
-    <p>Exploring how quantum states can be transmitted using entanglement.</p>
+    <p>MSc thesis and proof of concept, a Kubernetes-native control plane that treats quantum circuits and backends as managed, observable resources across the quantum–classical boundary.</p>
   </div>
 </div>
 
@@ -252,7 +173,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 26, 2024</p>
+      <p class="date">July 27, 2026</p>
     </div>
   </div>
   
@@ -264,174 +185,37 @@ window.Quarto = {
 </header>
 
 
-<section id="teleportation" class="level2">
-<h2 class="anchored" data-anchor-id="teleportation">Teleportation</h2>
-<p>Teleportation is a communication protocol that transfers quantum states between two ends. In classical systems, we can copy a state and easily encode, transfer, and decode it from one end to another. Quantum systems work differently — the <strong>no-cloning theorem</strong> <span class="citation" data-cites="wootters1982nocloning"><a href="#ref-wootters1982nocloning" role="doc-biblioref">[1]</a></span> proves that it is impossible to create an identical copy of an arbitrary unknown quantum state, ruling out any classical copy-and-send approach.</p>
-<p>In addition, if we measure a qubit state, which could be in superposition, and then transfer the classical collapsed state, we do not improve network communication. Thus, teleportation uses the quantum mechanical principle of <strong>entanglement</strong> — first described by Einstein, Podolsky, and Rosen in 1935 <span class="citation" data-cites="einstein1935epr"><a href="#ref-einstein1935epr" role="doc-biblioref">[2]</a></span> — which acts as a communication channel without physical substrate.</p>
-<p>Entanglement creates a correlated state between quantum systems in which the state cannot be decomposed or expressed as a tensor product of the individual states, hence the measurement of one affects the measurement of others. Since this effect is instantaneous regardless of distance, it is also called non-local. Using entanglement, teleportation can move a quantum state from one end to another without physically transferring anything.</p>
-<p>However, since entangled states are equally distributed probabilistic states, the information remains saved but not directly accessible. The original teleportation protocol, proposed by Bennett et al.&nbsp;in 1993 <span class="citation" data-cites="bennett1993teleporting"><a href="#ref-bennett1993teleporting" role="doc-biblioref">[3]</a></span>, solves this with a final classical step: measure the sender’s qubits and communicate the classical results to the receiver.</p>
-<p>The receiver then applies conditional operations based on the received classical bits to reconstruct the original state in a new qubit. The qubit entity no longer exists on the sender’s side but only on the recipient’s, respecting the no-cloning theorem <span class="citation" data-cites="wootters1982nocloning"><a href="#ref-wootters1982nocloning" role="doc-biblioref">[1]</a></span>. Finally, since classical information must still travel via classical networks — which cannot exceed the speed of light — teleportation and entanglement do not violate special relativity <span class="citation" data-cites="lapierre2021quantum"><a href="#ref-lapierre2021quantum" role="doc-biblioref">[4]</a></span>.</p>
+<p>MSc in Quantum Computing &amp; Quantum Technologies, Democritus University of Thrace.</p>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>Quantum computers are increasingly used not as standalone machines but as accelerators within hybrid workflows, in which a classical system prepares a circuit, submits it to a quantum processor, and interprets the probabilistic results it returns. This thesis treats the quantum–classical interface as a systems problem rather than a physics one. The orchestration, scheduling, and observability taken for granted in classical cloud-native operations are largely absent at the quantum execution boundary.</p>
+<p>From a layered analysis of the interface and a survey of existing orchestration and observability work, the thesis derives a set of requirements and answers them with a proof of concept, the Quantum Circuit Controller (QCC).</p>
 </section>
-<section id="teleportation-in-qiskit" class="level2">
-<h2 class="anchored" data-anchor-id="teleportation-in-qiskit">Teleportation in Qiskit</h2>
-<p>A 3-Qubit and 3-Cbit register represents the teleportation protocol in <a href="#fig-tc" class="quarto-xref">Figure&nbsp;1</a>, with the following specification:</p>
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
+<p>After a BSc in Applied Informatics and a dissertation on Cloud Computing (2012), I built my career in Systems and Site Reliability Engineering (SRE). In that discipline, orchestration, scheduling, and observability are foundational concerns, and their absence from quantum computing was conspicuous. The gap became apparent during the execution of Deutsch’s algorithm on IBM Quantum hardware. A two-qubit circuit incurred approximately three seconds of wall-clock time, whereas the gate operations themselves accounted for only microseconds.</p>
+<p>The same behaviour recurred, more acutely, with Shor’s algorithm, where the selection of backend determined whether the computation yielded any usable signal. On one device the output was indistinguishable from noise. On another it survived. No mechanism existed to evaluate that selection <em>a priori</em>, so it reduced to manual inspection of calibration data and the submission of trial jobs. Addressing this gap, and treating quantum circuits and backends as first-class, observable resources, is the objective of this thesis.</p>
+</section>
+<section id="quantum-circuit-controller-qcc" class="level2">
+<h2 class="anchored" data-anchor-id="quantum-circuit-controller-qcc">Quantum Circuit Controller (QCC)</h2>
+<p>QCC is a control plane for the quantum–classical interface. It brings cloud-native orchestration and vendor-neutral, standards-based observability to quantum execution, so a backend becomes a managed, observable resource rather than an opaque remote endpoint.</p>
+<p>Circuits and backends are modelled as Kubernetes custom resources, <code>Circuit</code> and <code>QPU</code>, under the <code>qcc.io</code> API group. A Go controller reconciles submitted circuits. A Python executor dispatches them through a provider adapter to either a simulator or IBM Quantum hardware. Execution emits OpenTelemetry metrics under a <code>qcc.*</code> namespace, exported through an OTel Collector to Prometheus and Grafana.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./media/qcc-architecture.png" class="img-fluid figure-img"></p>
+<figcaption>QCC system context: the <code>qcc</code> stack on Kubernetes, provider adapters to IBM Quantum and the Aer simulator, and the OpenTelemetry path to Prometheus and Grafana.</figcaption>
+</figure>
+</div>
+<p>The design follows IBM’s Quantum-Centric Supercomputing (QCSC) reference architecture of <a href="https://arxiv.org/abs/2603.10970">Seelam et al.&nbsp;(2026)</a>, which identifies an orchestration and monitoring layer for hybrid workloads. QCC provides a cloud-native realisation of that layer on Kubernetes, occupying the System Orchestration layer and the management-and-monitoring cross-cut. It complements the Quantum Resource Management Interface (QRMI) of <a href="https://arxiv.org/abs/2506.10052">Bacher et al.&nbsp;(2025)</a>, the vendor-neutral middleware that treats a QPU as a schedulable resource. Where QRMI standardises provider-facing acquisition and execution beneath the scheduler, QCC models circuits and backends as first-class Kubernetes resources above it, and consumes such providers through adapters.</p>
+<p>The design was exercised end-to-end on a representative quantum workload, across both a simulator and real IBM hardware. It satisfies the requirements set out in the thesis and makes the computational cost and behaviour of the interface visible. The thesis also proposes two standardisation pathways: a vendor-neutral execution interface and a set of quantum observability conventions.</p>
+</section>
+<section id="resources" class="level2">
+<h2 class="anchored" data-anchor-id="resources">Resources</h2>
 <ul>
-<li><p><strong>Teleport_Q</strong>: Alice’s Qubit to send to Bob</p></li>
-<li><p><strong>Alice_Q</strong>: Alice’s Qubit to be entangled</p></li>
-<li><p><strong>Bob_Q</strong>: Bob’s Qubit to be entangled</p></li>
-<li><p><strong>Alice_C</strong>: Alice’s Classical Bit for measuring Alice_Q</p></li>
-<li><p><strong>Teleport_C</strong>: Alice’s Classical Bit for measuring Teleport_Q</p></li>
-<li><p><strong>Teleported_C</strong>: Bob’s Classical Bit for receiving the teleported Teleport_Q</p></li>
+<li><a href="./thesis.pdf">Thesis manuscript (PDF)</a></li>
+<li><a href="./presentation.pdf">Defence presentation (PDF)</a></li>
+<li>QCC source code on GitHub (coming soon)</li>
 </ul>
-<div id="d7eadefc" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Circuit Construction</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>teleport_qubit <span class="op">=</span> QuantumRegister(<span class="dv">1</span>, <span class="st">'Teleport_Q'</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>alice_qubit <span class="op">=</span> QuantumRegister(<span class="dv">1</span>, <span class="st">'Alice_Q'</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>bob_qubit <span class="op">=</span> QuantumRegister(<span class="dv">1</span>, <span class="st">'Bob_Q'</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>alice_cbit <span class="op">=</span> ClassicalRegister(<span class="dv">1</span>, <span class="st">'Alice_C'</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>teleport_cbit <span class="op">=</span> ClassicalRegister(<span class="dv">1</span>, <span class="st">'Teleport_C'</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>teleported_cbit <span class="op">=</span> ClassicalRegister(<span class="dv">1</span>, <span class="st">'Teleported_C'</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>teleportation <span class="op">=</span> QuantumCircuit(</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    teleport_qubit, alice_qubit, bob_qubit, alice_cbit, teleport_cbit, teleported_cbit, name<span class="op">=</span><span class="st">'Teleportation'</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Init a value in Alice's Teleport_Q</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>teleportation.x(teleport_qubit)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>teleportation.barrier(label<span class="op">=</span><span class="st">'Add Information'</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Entangle Alice and Bob qubits</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>teleportation.h(alice_qubit)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>teleportation.cx(alice_qubit, bob_qubit)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>teleportation.barrier(label<span class="op">=</span><span class="st">'Entanglement'</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Teleportation Sender/Alice Actions</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>teleportation.cx(teleport_qubit, alice_qubit)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>teleportation.h(teleport_qubit)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>teleportation.barrier(label<span class="op">=</span><span class="st">'Alice Encodes'</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>teleportation.measure(alice_qubit, alice_cbit)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>teleportation.measure(teleport_qubit, teleport_cbit)</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>teleportation.barrier(label<span class="op">=</span><span class="st">'Alice Sends cbits'</span>)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Bob uses the classical bits to conditionally apply gates</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> teleportation.if_test((alice_cbit, <span class="dv">1</span>)):</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    teleportation.x(bob_qubit)</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> teleportation.if_test((teleport_cbit, <span class="dv">1</span>)):</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    teleportation.z(bob_qubit)</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>teleportation.measure(bob_qubit, teleported_cbit)</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>teleportation.barrier(label<span class="op">=</span><span class="st">'Bob Conditionally Decodes'</span>)</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation in mimic h/w</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>backend <span class="op">=</span> AerSimulator()</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>aer_mimic_simulation(teleportation, backend<span class="op">=</span>backend, shots<span class="op">=</span><span class="dv">1024</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>The results of the measurement in <a href="#fig-am" class="quarto-xref">Figure&nbsp;2</a> and <a href="#fig-bm" class="quarto-xref">Figure&nbsp;3</a> below.</p>
-<div id="fig-tc" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-tc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="./media/01.webp" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Teleportation Circuit
-</figcaption>
-</figure>
-</div>
-<div class="quarto-layout-panel" data-layout-ncol="2">
-<div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div id="fig-am" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-am-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="./media/02.webp" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-am-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Alice_C measurements
-</figcaption>
-</figure>
-</div>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="./media/03.webp" class="img-fluid figure-img"></p>
-<figcaption>Teleport_C measurements</figcaption>
-</figure>
-</div>
-</div>
-</div>
-</div>
-<div id="fig-bm" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-bm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="./media/04.webp" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: Bob Measurement of Teleported Qubit
-</figcaption>
-</figure>
-</div>
-<p>We can test the Teleportation Circuit by flipping the initial state of <strong>Teleport_Q</strong> qubit, from <span class="math inline">\(|0\rangle\)</span> to <span class="math inline">\(|1\rangle\)</span>, and we should expect Bob’s measurement to be 1, representing the teleported state of <strong>Teleport_Q</strong> to <strong>Bob_Q</strong> (<a href="#fig-ctt" class="quarto-xref">Figure&nbsp;4</a>). We can validate Bob’s Qubit state which flipped to <span class="math inline">\(|1\rangle\)</span>. The results of the measurement in <a href="#fig-am2" class="quarto-xref">Figure&nbsp;5</a> and <a href="#fig-bm2" class="quarto-xref">Figure&nbsp;6</a> below.</p>
-<div id="fig-ctt" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-ctt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="./media/05.webp" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ctt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: Teleportation Circuit — test run
-</figcaption>
-</figure>
-</div>
-<div class="quarto-layout-panel" data-layout-ncol="2">
-<div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div id="fig-am2" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-am2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="./media/06.webp" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-am2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: Alice_C measurements
-</figcaption>
-</figure>
-</div>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="./media/07.webp" class="img-fluid figure-img"></p>
-<figcaption>Teleport_C measurements</figcaption>
-</figure>
-</div>
-</div>
-</div>
-</div>
-<div id="fig-bm2" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-bm2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="./media/08.webp" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bm2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6: Bob Measurement of Teleported Qubit
-</figcaption>
-</figure>
-</div>
-</section>
-<section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">References</h2>
-<div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
-<div id="ref-wootters1982nocloning" class="csl-entry" role="listitem">
-<div class="csl-left-margin">[1] </div><div class="csl-right-inline">W. K. Wootters and W. H. Zurek, <span>“A single quantum cannot be cloned,”</span> <em>Nature</em>, vol. 299, pp. 802–803, 1982, doi: <a href="https://doi.org/10.1038/299802a0">10.1038/299802a0</a>.</div>
-</div>
-<div id="ref-einstein1935epr" class="csl-entry" role="listitem">
-<div class="csl-left-margin">[2] </div><div class="csl-right-inline">A. Einstein, B. Podolsky, and N. Rosen, <span>“Can quantum-mechanical description of physical reality be considered complete?”</span> <em>Physical Review</em>, vol. 47, no. 10, pp. 777–780, 1935, doi: <a href="https://doi.org/10.1103/PhysRev.47.777">10.1103/PhysRev.47.777</a>.</div>
-</div>
-<div id="ref-bennett1993teleporting" class="csl-entry" role="listitem">
-<div class="csl-left-margin">[3] </div><div class="csl-right-inline">C. H. Bennett, G. Brassard, C. Crépeau, R. Jozsa, A. Peres, and W. K. Wootters, <span>“Teleporting an unknown quantum state via dual classical and einstein-podolsky-rosen channels,”</span> <em>Physical Review Letters</em>, vol. 70, no. 13, pp. 1895–1899, 1993, doi: <a href="https://doi.org/10.1103/PhysRevLett.70.1895">10.1103/PhysRevLett.70.1895</a>.</div>
-</div>
-<div id="ref-lapierre2021quantum" class="csl-entry" role="listitem">
-<div class="csl-left-margin">[4] </div><div class="csl-right-inline">R. LaPierre, <em>Introduction to quantum computing</em>. Springer, 2021.</div>
-</div>
-</div>
 
 
 </section>
