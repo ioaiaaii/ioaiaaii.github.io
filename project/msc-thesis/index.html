@@ -47,7 +47,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-1247952a7f2e1eee32541aeb3f26589d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-9eaa664e84e7c16e93111c30eeeade98.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -137,10 +137,8 @@ window.MathJax = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
-  <li><a href="#motivation" id="toc-motivation" class="nav-link" data-scroll-target="#motivation">Motivation</a></li>
+  <li><a href="#motivation" id="toc-motivation" class="nav-link active" data-scroll-target="#motivation">Motivation</a></li>
   <li><a href="#quantum-circuit-controller-qcc" id="toc-quantum-circuit-controller-qcc" class="nav-link" data-scroll-target="#quantum-circuit-controller-qcc">Quantum Circuit Controller (QCC)</a></li>
-  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">Resources</a></li>
   </ul>
 </nav>
     </div>
@@ -177,6 +175,12 @@ window.MathJax = {
     </div>
   </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">September 3, 2026</p>
+    </div>
+  </div>
     
   </div>
   
@@ -186,15 +190,15 @@ window.MathJax = {
 
 
 <p>MSc in Quantum Computing &amp; Quantum Technologies, Democritus University of Thrace.</p>
-<section id="overview" class="level2">
-<h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>Quantum computers are increasingly used not as standalone machines but as accelerators within hybrid workflows, in which a classical system prepares a circuit, submits it to a quantum processor, and interprets the probabilistic results it returns. This thesis treats the quantum–classical interface as a systems problem rather than a physics one. The orchestration, scheduling, and observability taken for granted in classical cloud-native operations are largely absent at the quantum execution boundary.</p>
-<p>From a layered analysis of the interface and a survey of existing orchestration and observability work, the thesis derives a set of requirements and answers them with a proof of concept, the Quantum Circuit Controller (QCC).</p>
-</section>
 <section id="motivation" class="level2">
 <h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
-<p>After a BSc in Applied Informatics and a dissertation on Cloud Computing (2012), I built my career in Systems and Site Reliability Engineering (SRE). In that discipline, orchestration, scheduling, and observability are foundational concerns, and their absence from quantum computing was conspicuous. The gap became apparent during the execution of Deutsch’s algorithm on IBM Quantum hardware. A two-qubit circuit incurred approximately three seconds of wall-clock time, whereas the gate operations themselves accounted for only microseconds.</p>
-<p>The same behaviour recurred, more acutely, with Shor’s algorithm, where the selection of backend determined whether the computation yielded any usable signal. On one device the output was indistinguishable from noise. On another it survived. No mechanism existed to evaluate that selection <em>a priori</em>, so it reduced to manual inspection of calibration data and the submission of trial jobs. Addressing this gap, and treating quantum circuits and backends as first-class, observable resources, is the objective of this thesis.</p>
+<p>After a BSc in Applied Informatics and a dissertation on Cloud Computing (2012), I built my career in Systems and Site Reliability Engineering (SRE). In that discipline orchestration, scheduling, and observability are foundational concerns, and their absence from quantum computing was conspicuous. Running Deutsch’s algorithm on IBM Quantum hardware, a two-qubit circuit took approximately three seconds while the gates accounted for microseconds, and none of the classical overhead was observable. With Shor’s algorithm, the choice of backend determined whether the computation yielded any usable signal, with no way to evaluate it in advance.</p>
+<p>This thesis surveys the quantum–classical literature across a five-layer interfacing model, from programming frameworks to hardware control, and closes the identified gap with an open-source prototype, the Quantum Circuit Controller (QCC). Quantum circuits and QPU backends become first-class, observable Kubernetes custom resources, execution emits standards-based telemetry, and the design is exercised end-to-end on real IBM Quantum hardware.</p>
+<ul>
+<li><a href="https://doi.org/10.5281/zenodo.22283450">Thesis manuscript</a></li>
+<li><a href="https://github.com/ioaiaaii/quantum-circuit-controller">QCC source code</a></li>
+<li><a href="./presentation.pdf">Defence presentation</a></li>
+</ul>
 </section>
 <section id="quantum-circuit-controller-qcc" class="level2">
 <h2 class="anchored" data-anchor-id="quantum-circuit-controller-qcc">Quantum Circuit Controller (QCC)</h2>
@@ -208,14 +212,6 @@ window.MathJax = {
 </div>
 <p>The design follows IBM’s Quantum-Centric Supercomputing (QCSC) reference architecture of <a href="https://arxiv.org/abs/2603.10970">Seelam et al.&nbsp;(2026)</a>, which identifies an orchestration and monitoring layer for hybrid workloads. QCC provides a cloud-native realisation of that layer on Kubernetes, occupying the System Orchestration layer and the management-and-monitoring cross-cut. It complements the Quantum Resource Management Interface (QRMI) of <a href="https://arxiv.org/abs/2506.10052">Bacher et al.&nbsp;(2025)</a>, the vendor-neutral middleware that treats a QPU as a schedulable resource. Where QRMI standardises provider-facing acquisition and execution beneath the scheduler, QCC models circuits and backends as first-class Kubernetes resources above it, and consumes such providers through adapters.</p>
 <p>The design was exercised end-to-end on a representative quantum workload, across both a simulator and real IBM hardware. It satisfies the requirements set out in the thesis and makes the computational cost and behaviour of the interface visible. The thesis also proposes two standardisation pathways: a vendor-neutral execution interface and a set of quantum observability conventions.</p>
-</section>
-<section id="resources" class="level2">
-<h2 class="anchored" data-anchor-id="resources">Resources</h2>
-<ul>
-<li><a href="./thesis.pdf">Thesis manuscript (PDF)</a></li>
-<li><a href="./presentation.pdf">Defence presentation (PDF)</a></li>
-<li>QCC source code on GitHub (coming soon)</li>
-</ul>
 
 
 </section>
