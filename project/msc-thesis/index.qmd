@@ -3,6 +3,7 @@ title: Interface between Quantum and Classical Computers
 description: |
   MSc thesis and proof of concept, a Kubernetes-native control plane that treats quantum circuits and backends as managed, observable resources across the quantum–classical boundary.
 date: '2026-07-27'
+date-modified: '2026-09-03'
 categories:
   - Quantum Computing
   - Kubernetes
@@ -15,17 +16,15 @@ image: "./media/qcc-architecture.png"
 
 MSc in Quantum Computing & Quantum Technologies, Democritus University of Thrace.
 
-## Overview
-
-Quantum computers are increasingly used not as standalone machines but as accelerators within hybrid workflows, in which a classical system prepares a circuit, submits it to a quantum processor, and interprets the probabilistic results it returns. This thesis treats the quantum–classical interface as a systems problem rather than a physics one. The orchestration, scheduling, and observability taken for granted in classical cloud-native operations are largely absent at the quantum execution boundary.
-
-From a layered analysis of the interface and a survey of existing orchestration and observability work, the thesis derives a set of requirements and answers them with a proof of concept, the Quantum Circuit Controller (QCC).
-
 ## Motivation
 
-After a BSc in Applied Informatics and a dissertation on Cloud Computing (2012), I built my career in Systems and Site Reliability Engineering (SRE). In that discipline, orchestration, scheduling, and observability are foundational concerns, and their absence from quantum computing was conspicuous. The gap became apparent during the execution of Deutsch's algorithm on IBM Quantum hardware. A two-qubit circuit incurred approximately three seconds of wall-clock time, whereas the gate operations themselves accounted for only microseconds.
+After a BSc in Applied Informatics and a dissertation on Cloud Computing (2012), I built my career in Systems and Site Reliability Engineering (SRE). In that discipline orchestration, scheduling, and observability are foundational concerns, and their absence from quantum computing was conspicuous. Running Deutsch's algorithm on IBM Quantum hardware, a two-qubit circuit took approximately three seconds while the gates accounted for microseconds, and none of the classical overhead was observable. With Shor's algorithm, the choice of backend determined whether the computation yielded any usable signal, with no way to evaluate it in advance.
 
-The same behaviour recurred, more acutely, with Shor's algorithm, where the selection of backend determined whether the computation yielded any usable signal. On one device the output was indistinguishable from noise. On another it survived. No mechanism existed to evaluate that selection *a priori*, so it reduced to manual inspection of calibration data and the submission of trial jobs. Addressing this gap, and treating quantum circuits and backends as first-class, observable resources, is the objective of this thesis.
+This thesis surveys the quantum–classical literature across a five-layer interfacing model, from programming frameworks to hardware control, and closes the identified gap with an open-source prototype, the Quantum Circuit Controller (QCC). Quantum circuits and QPU backends become first-class, observable Kubernetes custom resources, execution emits standards-based telemetry, and the design is exercised end-to-end on real IBM Quantum hardware.
+
+- [Thesis manuscript](https://doi.org/10.5281/zenodo.22283450)
+- [QCC source code](https://github.com/ioaiaaii/quantum-circuit-controller)
+- [Defence presentation](./presentation.pdf)
 
 ## Quantum Circuit Controller (QCC)
 
@@ -38,9 +37,3 @@ Circuits and backends are modelled as Kubernetes custom resources, `Circuit` and
 The design follows IBM's Quantum-Centric Supercomputing (QCSC) reference architecture of [Seelam et al. (2026)](https://arxiv.org/abs/2603.10970), which identifies an orchestration and monitoring layer for hybrid workloads. QCC provides a cloud-native realisation of that layer on Kubernetes, occupying the System Orchestration layer and the management-and-monitoring cross-cut. It complements the Quantum Resource Management Interface (QRMI) of [Bacher et al. (2025)](https://arxiv.org/abs/2506.10052), the vendor-neutral middleware that treats a QPU as a schedulable resource. Where QRMI standardises provider-facing acquisition and execution beneath the scheduler, QCC models circuits and backends as first-class Kubernetes resources above it, and consumes such providers through adapters.
 
 The design was exercised end-to-end on a representative quantum workload, across both a simulator and real IBM hardware. It satisfies the requirements set out in the thesis and makes the computational cost and behaviour of the interface visible. The thesis also proposes two standardisation pathways: a vendor-neutral execution interface and a set of quantum observability conventions.
-
-## Resources
-
-- [Thesis manuscript (PDF)](./thesis.pdf)
-- [Defence presentation (PDF)](./presentation.pdf)
-- QCC source code on GitHub (coming soon)
