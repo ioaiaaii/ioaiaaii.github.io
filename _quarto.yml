@@ -1,5 +1,7 @@
 project:
   type: website
+  resources:
+    - fonts/
 
 execute:
   freeze: auto
@@ -18,16 +20,18 @@ website:
         href: notes.qmd
       - text: "Projects"
         href: projects.qmd
+
 format:
   html:
     toc: true
     theme:
       - styles.scss
+    css: fonts/fonts.css
     html-math-method: mathjax
     code-block-border-left: "#31BAE9"
     code-fold: false
     grid:
-      margin-width: 300px 
+      margin-width: 300px
     mermaid:
       theme: neutral
     include-in-header:
@@ -43,4 +47,3 @@ format:
           }
         };
         </script>
-    

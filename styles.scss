@@ -14,14 +14,11 @@
 
 /*-- scss:defaults --*/
 
-$navbar-bg: #ffffff;
-$navbar-fg: #212529;
-$navbar-hl: #2563a3;
-
+// Theme colors
 $theme-lightblue: #ffffffff;
 $theme-darkblue: #080808;
 $theme-blue: #3373c1ff;
-$theme-blue-rgb: 0.16 0.01 260;
+
 // Base document colors
 $body-bg: $theme-lightblue;
 $body-color: $theme-darkblue;
@@ -29,20 +26,27 @@ $body-color: $theme-darkblue;
 $link-color: $theme-blue;
 $link-hover-color: darken(saturate($link-color, 50%), 15%);
 
-// // Typography ------------------------------------------------------------------
-/*-- scss:defaults --*/
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap');
+// Navbar
+$navbar-bg: #ffffff;
+$navbar-fg: #212529;
+$navbar-hl: #2563a3;
 
+// Typography
 $font-family-base: "Newsreader", Georgia, serif;
 $font-size-base: 1.125rem;
 $line-height-base: 1.65;
 $font-family-monospace: ui-monospace, "SF Mono", SFMono-Regular, Menlo,
   Consolas, "Liberation Mono", monospace;
 $code-font-size: 0.875rem;
-$navbar-bg: #ffffff;      // or whatever you settled on
-$navbar-fg: #212529;
+
+// Code blocks
+$btn-code-copy-color-active: $theme-blue;
+$code-block-border-left-size: 4.5px;
 
 /*-- scss:rules --*/
+
+// Structural UI stays sans -----------------------------------------------------
+
 h1, h2, h3, h4, h5, h6,
 .navbar, .btn, .dropdown-menu, .form-control,
 .sidebar nav, #TOC, .pagination, .quarto-title-meta,
@@ -50,6 +54,8 @@ h1, h2, h3, h4, h5, h6,
 .about-link {
   font-family: $font-family-sans-serif;
 }
+
+// Navbar menu ------------------------------------------------------------------
 
 .menu-text {
   display: block;
@@ -78,12 +84,7 @@ h1, h2, h3, h4, h5, h6,
   }
 }
 
-// code blocks -----------------------------------------------------------------
-
-$btn-code-copy-color-active: $theme-blue;
-$code-block-border-left-size: 4.5px;
-
-/*-- scss:rules --*/
+// Layout -----------------------------------------------------------------------
 
 @media screen and (min-width: 60em) {
   .main {
@@ -104,7 +105,7 @@ $code-block-border-left-size: 4.5px;
   border-color: $theme-blue;
 }
 
-// blog ------------------------------------------------------------------------
+// Blog -------------------------------------------------------------------------
 
 div.quarto-post .listing-categories .listing-category,
 .quarto-title .quarto-categories .quarto-category {
@@ -118,7 +119,7 @@ div.quarto-post .listing-categories .listing-category,
   color: $theme-blue;
 }
 
-// project ---------------------------------------------------------------------
+// Project ----------------------------------------------------------------------
 
 .quarto-listing-container-grid:has(.quarto-grid-item:hover) .quarto-grid-item:not(:hover) {
   filter: brightness(95%);
@@ -144,7 +145,7 @@ div.quarto-post .listing-categories .listing-category,
   @include btn-inverse;
 }
 
-// reading rhythm ---------------------------------------------------------------
+// Reading rhythm ---------------------------------------------------------------
 
 p {
   margin-bottom: 1.15em;
