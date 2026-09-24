@@ -35,12 +35,11 @@ about:
 ---
 
 :::{#hero-heading}
+I’m a Computer Engineer focused on Site Reliability Engineering, with a BSc in Applied Informatics and an MSc in Quantum Computing.
 
-I’m a Computer Engineer focused on Site Reliability Engineering. For more than a decade, I’ve been designing and operating infrastructure across on-premises and cloud environments, building systems that behave *predictably* at scale.
+For more than a decade, I’ve been designing and operating infrastructure across on-premises and cloud environments, building systems that behave *predictably* at scale.
 
-My work centers on systems performance and observability engineering, with a particular interest in the *dynamics* of complex systems and software.
-
-That interest extends into my academic work, from a BSc dissertation on cloud computing to an MSc in Quantum Computing and Quantum Technologies, where my thesis explored the interface between quantum and classical computers from a systems engineering perspective.
+My work centers on systems performance and observability engineering, understanding how complex systems and software evolve.
 
 Alongside my engineering work, I compose electro-acoustic music. Although these fields may appear distant, they share a common *thread*. Each is, at its core, about understanding systems deeply enough to *compute* their *dynamics*.
 
