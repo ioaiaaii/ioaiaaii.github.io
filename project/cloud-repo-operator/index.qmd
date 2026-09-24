@@ -4,6 +4,7 @@ description: |
   A Make library that provides hermetic, containerised, and parameterised build operations as a versioned dependency shared across repositories.
 date: '2024-10-30'
 date-modified: '2026-09-24'
+draft: true
 categories:
   - Cloud Computing
   - Hermetic Builds
