@@ -1,357 +1,245 @@
 ---
 title: repo-operator
 description: |
-  A modular, hermetic repository management tool for Docker-based Makefile workflows.
+  A Make library that provides hermetic, containerised, and parameterised build operations as a versioned dependency shared across repositories.
 date: '2024-10-30'
+date-modified: '2026-09-24'
 categories:
   - Cloud Computing
   - Hermetic Builds
   - Makefile
+tbl-colwidths: [30, 70]
 
 image: "./media/logo.webp"
 ---
 
 
-::: {layout-nrow=1}
-![logo](./media/logo.webp){#fig-logo width="40%"}
-:::
+![](./media/logo.webp){fig-alt="repo-operator logo" width="40%" fig-align="center"}
 
-[`repo-operator`](https://github.com/ioaiaaii/repo-operator) is a modular and extensible repository management tool
-that streamlines development workflows by providing reusable,
-Docker-based, hermetic Makefile targets for common tasks. This ensures
-that all builds, tests, and operations are fully isolated and
-reproducible, regardless of the local environment. The project can be
-added as a Git submodule and used to manage operations like building,
-testing, and generating documentation across multiple repositories.
+[`repo-operator`](https://github.com/ioaiaaii/repo-operator) is a Make library that provides a single, versioned set of
+targets for operating a collection of repositories: container images, Go, Helm charts, changelogs, and repository
+hygiene. Targets execute their tooling in containers pinned by content digest, and consumer repositories incorporate the
+library as a Git submodule.
 
 
 ## Background
 
-The name and design of `repo-operator` draw from two concepts in mathematics and physics.
+The name and design draw on two concepts from mathematics and physics.
 
-**Hermeticity** (Hermitian operators) comes from linear algebra and quantum mechanics. A Hermitian operator is self-adjoint — equal to its own conjugate transpose. 
-In quantum mechanics, Hermitian operators represent observable quantities and carry a crucial property: they always produce real, stable eigenvalues. No matter how you apply them, the output is consistent and well-defined.
+**Hermitian operators.** In quantum mechanics, observables are represented by Hermitian operators, whose eigenvalues are
+real, so every measurement yields a well-defined value. The name plays on *hermetic* builds, a principle of
+[release engineering](https://sre.google/sre-book/release-engineering/) in which a target is a pure function of its
+declared inputs and produces the same output regardless of who runs it, where, or when.
 
-This maps directly to hermetic builds into the Site Reliability Engineering: a target that produces the same output regardless of who runs it, on what machine, at what time. The operator acts on the input and yields a predictable, stable result — self-contained, with no side-effects leaking in from the environment.
-
-**Non-locality** in quantum mechanics describes how entangled particles influence each other regardless of the distance between them. In mathematics, non-local operators act on a function's values across an *entire domain*, rather than at a single point.
-
-This is the submodule model: a single change to `repo-operator` propagates to every repository that includes it, regardless of where those repos live. The operator is defined once; its effects are non-locally *real*.
-
-
-## The Problem
-
-Every project ends up with the same boilerplate: `Makefile` targets for
-building, testing, linting, generating docs, managing Docker images. The
-targets accumulate organically, drift between repos, and quietly break
-when a tool version changes on someone's machine.
-
-`repo-operator` solves this by treating your development tooling as a
-versioned dependency. You pull it in as a Git submodule, `include` the
-Makefiles you need, and every target runs inside a pinned Docker
-container — identical on every machine, every time. In addition, repo-operator provides an *interface* to treat these targets as reusable and configurable functions across different projects.
+**Non-locality.** A non-local operator determines its value at a point from a function over its *entire domain*, rather
+than from that point's neighbourhood. Likewise, a target's behaviour in a repository is determined not by that
+repository's Makefile or host, but by a single shared definition.
 
 
-## Repository Structure
+## Motivation
 
-```
-repo-operator/
-├── makefiles/
-│   ├── base.mk           # Core variables, help, environment, gitignore, pre-commit sync
-│   ├── changelog.mk      # Conventional commit linting and changelog generation
-│   ├── golang.mk         # Go build, test, lint
-│   ├── helm.mk           # Helm chart testing
-│   ├── openapi.mk        # OpenAPI → Markdown doc generation
-│   ├── otel.mk           # OpenTelemetry collector for local CI
-│   ├── package.mk        # Docker build, push, run, Kaniko, Dive
-│   └── security.mk       # Trivy vulnerability scanning
-│
-├── pre-commit-hooks/
-│   ├── base.yaml         # General hooks (merge conflicts, line endings, private keys…)
-│   ├── helm.yaml         # helm-docs auto-documentation
-│   └── terragrunt.yaml   # Terraform/Terragrunt fmt, validate, tflint
-│
-├── gitignore/
-│   ├── Go.gitignore
-│   ├── macOS.gitignore
-│   └── terragrunt.gitignore
-│
-├── scripts/
-│   ├── gitignore_sync.sh     # Merges gitignore templates into your project's .gitignore
-│   └── precommit_sync.sh     # Merges pre-commit hook configs into .pre-commit-config.yaml
-│
-└── Makefile              # repo-operator's own Makefile (uses base.mk + openapi.mk)
-```
+Software projects accumulate a common layer of build and operational logic. When each repository maintains this layer
+independently, the implementations diverge, and their behaviour becomes coupled to the tool versions installed on
+individual machines. A correction to a security scan must then be repeated in every repository, and repositories that
+are updated less often continue to run outdated toolchains without any visible failure.
+
+`repo-operator` treats this layer as a versioned dependency. A change is made once, in the library, and each consumer
+adopts it by advancing its submodule reference on its own schedule.
 
 
-## Getting Started
+## Design
 
-### Prerequisites
+- **Hermeticity.** Tools run in containers pinned by `sha256` digest, so local and CI executions use identical tool
+  versions. The exceptions are `op-go-build` and `op-go-mod-*` (host Go), `op-precommit-install` (host
+  `pre-commit`), and `op-image-build` (host `buildx`). The outputs are tool-deterministic rather than bit-for-bit
+  reproducible, since the containers reach the network and artefacts carry the commit and build time.
+- **Targets as functions.** Targets take parameters at invocation, such as `make op-image-build IMAGE_NAME=my-app`, so
+  one target serves every image and every repository.
+- **Naming.** Targets are named `op-<domain>[-<action>]` after their module, and private variables carry the `OP_`
+  prefix. Public parameters are unprefixed and declared with `?=`, so a value from the consumer Makefile, the command
+  line, or the environment takes precedence over the default.
+- **Self-documentation.** `make op-help` renders every target and public parameter, with its declared default, from
+  `##v` and `##p` annotations kept next to the definitions.
 
-- `docker`
-- `make`
-- `git`
 
-### 1. Add as a submodule
+## Usage
 
-Add `repo-operator` at any path that fits your project. For Go projects following the [standard project layout](https://github.com/golang-standards/project-layout), `build/` is the conventional home for build/CI tooling:
+The host requires `docker` with `buildx`, `make`, and `git`. Add the library as a submodule, conventionally under
+`build/`:
 
 ``` bash
 git submodule add https://github.com/ioaiaaii/repo-operator.git build/repo-operator
 ```
 
-### 2. Initialise on a fresh clone
-
-``` bash
-git submodule update --init --recursive
-```
-
-### 3. Configure your root `Makefile`
-
-Include only the modules relevant to your project:
+Then set parameters, include the library, and define targets in terms of its interface. `all.mk` includes every
+module; a subset starts with `core.mk`.
 
 ``` makefile
-# --- Override repo-operator defaults ---
-override OPERATOR_PATH     := build/repo-operator
-override OPENAPI_FILE      := api/OpenAPI/openapi.yaml
-override OPENAPI_DOCS_PATH := docs/api
+OPERATOR_PATH  := build/repo-operator
+VERSION_PKG    := github.com/myorg/my-service/pkg/version
 
-# --- Include the modules you need ---
-include ${OPERATOR_PATH}/makefiles/base.mk
-include ${OPERATOR_PATH}/makefiles/golang.mk
-include ${OPERATOR_PATH}/makefiles/openapi.mk
-include ${OPERATOR_PATH}/makefiles/package.mk
-include ${OPERATOR_PATH}/makefiles/security.mk
-include ${OPERATOR_PATH}/makefiles/changelog.mk
+include $(OPERATOR_PATH)/makefiles/all.mk
+
+help: op-help
+
+##@ App
+
+.PHONY: app-image
+app-image: ## Build the application image.
+	@$(MAKE) --no-print-directory op-image-build IMAGE_NAME=my-app
 ```
 
-### 4. Explore available targets
+A complete example is in
+[`examples/basic`](https://github.com/ioaiaaii/repo-operator/blob/master/examples/basic/Makefile).
+
+### Extending
+
+Public parameters are overridden in the consumer Makefile before the `include`, or at invocation, because several are
+expanded when the library is parsed. `LD_FLAGS` is the exception and can be overridden only at invocation or after the
+`include`.
 
 ``` bash
-make help
+make op-image-build IMAGE_NAME=my-app IMAGE_TAG=dev
 ```
 
-### 5. Sync gitignore and pre-commit hooks
-
-``` bash
-make gitignore           # Merges Go, macOS, terragrunt templates into .gitignore
-make pre-commit-install  # Syncs hook configs into .pre-commit-config.yaml AND installs the git hook
-```
-
-`pre-commit-install` runs the sync step (same as `make pre-commit-hooks`) and then `pre-commit install` on the host to write `.git/hooks/pre-commit`. Without that second step, git won't actually invoke the hooks on commit.
-
-This requires the `pre-commit` binary on the host (it's the only target that breaks the hermetic-Docker pattern, since the installed hook references the host's `pre-commit` path). Install it once with `pip install pre-commit` or `brew install pre-commit`.
-
-### 6. Keep the submodule up to date
-
-Track the latest commit on `master`:
-
-``` bash
-git submodule update --remote build/repo-operator
-git add build/repo-operator
-git commit -m "chore: bump repo-operator submodule"
-```
-
-Or pin to a specific release tag instead:
-
-``` bash
-cd build/repo-operator
-git fetch --tags
-git checkout v1.2.3
-cd -
-git add build/repo-operator
-git commit -m "chore: pin repo-operator to v1.2.3"
-```
-
-The parent repo records the submodule's commit SHA — bumping the submodule and committing in the parent are two separate steps.
-
-
-## Makefile Modules
-
-All targets run inside **pinned Docker containers** — no local toolchain required beyond `docker` and `make`.
-
-### `base.mk`
-
-Core variables and shared utilities. **Always include this first.**
-
-| Target | Description |
-|---|---|
-| `help` | Auto-generated target list from all included `.mk` files |
-| `environment` | Print current Git tag, branch, version, Go path and version |
-| `gitignore` | Merge `gitignore/` templates into the project's `.gitignore` |
-| `pre-commit-hooks` | Merge `pre-commit-hooks/` configs into `.pre-commit-config.yaml` |
-| `pre-commit-install` | Run `pre-commit-hooks` then `pre-commit install` on the host to wire up `.git/hooks/pre-commit` |
-| `pre-commit-hooks-list` | List available pre-commit hook config files |
-
-
-Key variables set in `base.mk`: `MODULE`, `COMMIT`, `TAG`, `BRANCH`, `VERSION`, `SRC`, `BUILD_PATH`, `DEPLOY_PATH`, and shared Docker command wrappers (`UBUNTU_CMD`, `HELM_CONTAINER_CMD`, `CT_CONTAINER_CMD`).
-
----
-
-### `golang.mk`
-
-Hermetic Go build and quality targets. No local Go installation needed.
-
-| Target | Description |
-|---|---|
-| `go-mod-update` | Update all Go dependencies to latest |
-| `go-mod-sync` | Run `go mod tidy`, `vendor`, and `verify` |
-| `go-lint` | Run `golangci-lint` with your CI config |
-| `go-test` | Run the full test suite |
-| `go-build` | Build a Linux/amd64 binary with version ldflags injected |
-
-
-The binary is stamped at build time with `BuildVersion`, `BuildHash`, and `BuildTime` via ldflags — expects a `pkg/version` package in your module.
-
----
-
-### `changelog.mk`
-
-Conventional commit enforcement and automated changelog generation.
-
-| Target | Description |
-|---|---|
-| `conventional-commit-lint` | Lint commit messages from `origin/master` to `HEAD` |
-| `conventional-changelog` | Generate `CHANGELOG.md` (runs lint first) |
-| `conventional-changelog-release` | Generate changelog for a specific tag (for GitHub release notes) |
-
-
-Expects a commitlint config at `build/changelog/.commitlintrc.yml` and a git-chglog config at `build/changelog/config.yml`.
-
----
-
-### `helm.mk`
-
-Helm chart linting via `chart-testing`.
-
-| Target | Description |
-|---|---|
-| `chart-testing` | Run `ct lint` against all charts |
-
-
-Expects a chart-testing config at `build/ci/.chart-testing.yaml`. Charts should live under `deploy/`.
-
----
-
-### `openapi.mk`
-
-Generate human-readable API documentation from an OpenAPI spec.
-
-| Target | Description |
-|---|---|
-| `generate-docs` | Run `openapi-generator` to produce Markdown docs |
-
-
-| Variable | Description |
-|---|---|
-| `OPENAPI_FILE` | Path to your `openapi.yaml` spec file |
-| `OPENAPI_DOCS_PATH` | Output directory for generated Markdown |
-
-
----
-
-### `otel.mk`
-
-Spin up a local OpenTelemetry Collector for CI or local observability testing.
-
-| Target | Description |
-|---|---|
-| `otel-ci` | Start `otelcol-contrib` with your config, exposing standard OTLP ports |
-
-
-Expects a collector config at `build/ci/.otel-collector-config.yaml`. Ports exposed: `4317` (gRPC), `4318` (HTTP), `8888`, `8889`, `1888`, `13133`.
-
----
-
-### `package.mk`
-
-Full Docker image lifecycle management.
-
-| Target | Description |
-|---|---|
-| `image-lint` | Run `hadolint` on a Dockerfile |
-| `docker-image` | Build a Docker image tagged with the sanitised `VERSION` |
-| `docker-push` | Tag and push the image to a registry |
-| `docker-run` | Run a container, auto-detecting the exposed port and creating a named network |
-| `kaniko-docker-image` | Build and push via Kaniko (supports GCP Workload Identity and local gcloud credentials) |
-| `dive-ci` | Inspect image layers and efficiency with `dive` in CI mode |
-
-
-Dynamic arguments:
-
-``` bash
-make docker-image  DOCKER_IMAGE=my-service
-make docker-push   DOCKER_IMAGE=my-service DOCKER_IMAGE_REPO=registry.example.com/myorg
-make docker-run    DOCKER_IMAGE=my-service
-make kaniko-docker-image DOCKER_IMAGE=my-service DOCKER_IMAGE_REPO=gcr.io/my-project
-make dive-ci       DOCKER_IMAGE=my-service
-```
-
-Dockerfiles are expected at `${BUILD_PATH}/package/${DOCKER_IMAGE}/Dockerfile`. The `docker-image` target injects `LD_FLAGS` as a build arg for Go binary stamping.
-
----
-
-### `security.mk`
-
-Vulnerability scanning with Trivy.
-
-| Target | Description |
-|---|---|
-| `trivy-scan` | Run Trivy scanner, accepts arbitrary Trivy args |
-
-
-``` bash
-make trivy-scan TRIVY_ARGS="fs --exit-code 1 --severity HIGH,CRITICAL ."
-```
-
-
-## Pre-commit Hook Templates
-
-`repo-operator` ships three composable hook configs. Running `make pre-commit-hooks`
-merges them into your project's `.pre-commit-config.yaml`, skipping any entries
-already present.
-
-| File | Hooks included |
-|---|---|
-| `base.yaml` | Large file checks, merge conflict detection, private key detection, line ending normalisation, executable shebangs |
-| `helm.yaml` | `helm-docs` — auto-generates chart README from `values.yaml` |
-| `terragrunt.yaml` | `terraform-fmt`, `terraform-validate`, `tflint`, `shellcheck`, `terragrunt-hclfmt` |
-
-
-
-## Gitignore Templates
-
-Running `make gitignore` merges these templates into your project's `.gitignore`,
-skipping any lines already present:
-
-- `Go.gitignore`
-- `macOS.gitignore`
-- `terragrunt.gitignore`
-
-
-## Customisation
-
-Override any variable before the `include` statements:
+Consumer targets annotated with `##`, grouped under `##@` sections, appear in `make op-help` alongside the library
+targets. A recipe can enforce its own parameters with `$(call require,NAME)`, which stops with the name of the missing
+parameter:
 
 ``` makefile
-override OPERATOR_PATH     := build/repo-operator
-override SRC               := .
-override BUILD_PATH        := build
-override DEPLOY_PATH       := deploy
-override OPENAPI_FILE      := api/openapi.yaml
-override OPENAPI_DOCS_PATH := docs/api
-override KUBECONFIG        := path/to/kubeconfig  # optional, for helm targets
-```
+##@ Database
 
-### Adding your own targets
-
-Annotate with `##` and they appear automatically in `make help`:
-
-``` makefile
-include ${OPERATOR_PATH}/makefiles/base.mk
-
-## Run database migrations
-.PHONY: migrate
-migrate:
+.PHONY: db-migrate
+db-migrate: ## Run database migrations.
+	$(call require,DB_URL)
 	./scripts/migrate.sh
 ```
+
+### Versioning
+
+Consumers pin the submodule to a release, and an upgrade is committed in the parent repository:
+
+``` bash
+git -C build/repo-operator checkout v1.2.0
+git add build/repo-operator && git commit -m "chore: pin repo-operator to v1.2.0"
+```
+
+
+## Reference
+
+The tables list required parameters and those that change behaviour; `make op-help` lists all of them. `<repo>` denotes
+the name of the directory in which `make` runs.
+
+### Core
+
+| Target | Description |
+|---|---|
+| `op-help` | List every target and public parameter |
+| `op-env` | Print the resolved tag, branch, version, and commit |
+
+| Parameter | Description |
+|---|---|
+| `OPERATOR_PATH` | Path from the repository root to the submodule. Default: `.` |
+| `SRC` | Go source root. Default: `.` |
+| `BUILD_PATH` | Build tree containing `ci/` and `package/`. Default: `build` |
+| `DEPLOY_PATH` | Chart tree. Default: `deploy` |
+| `DEFAULT_BRANCH` | Release branch, for tag detection and commit linting. Default: `master` |
+| `VERSION` | Version for image tags and binary stamps. Default: the branch name, or on a detached HEAD the `vX.Y.Z` tag at the tip of `DEFAULT_BRANCH` |
+
+### Go
+
+| Target | Description |
+|---|---|
+| `op-go-lint` | Run `golangci-lint` with `$(BUILD_PATH)/ci/.golangci.yml` (v2 schema) |
+| `op-go-test` | Run `go test ./...` |
+| `op-go-build` | Build a static binary, using the host Go toolchain |
+| `op-go-mod-update` | Update dependencies, then run `go vet` |
+| `op-go-mod-sync` | Run `go mod tidy`, `vendor`, and `verify` |
+
+| Parameter | Description |
+|---|---|
+| `CMD_PATH` | Main package sources, relative to `SRC`. Default: `cmd/<repo>/*.go` |
+| `BINARY_PATH` | Output binary. Default: `$(BUILD_PATH)/<repo>` |
+| `GOOS`, `GOARCH` | Target platform. Default: `linux`, `amd64` |
+| `VERSION_PKG` | Package declaring `BuildVersion`, `BuildHash`, and `BuildTime`, stamped at link time. A wrong path yields an unstamped binary without an error |
+
+### Image
+
+| Target | Description |
+|---|---|
+| `op-image-lint` | Lint the Dockerfile with `hadolint` |
+| `op-image-build` | Build the image, or build and push it with `IMAGE_MODE=publish` |
+| `op-image-digest` | Print the digest recorded by the last build |
+| `op-image-run` | Run the image as the container `IMAGE_NAME`, publishing its exposed ports |
+| `op-image-inspect` | Analyse layer efficiency with `dive` |
+
+| Mode | Platforms | Output | Attestations |
+|---|---|---|---|
+| `local` (default) | Host architecture | Loaded into the daemon | None |
+| `publish` | `linux/amd64`, `linux/arm64` | Pushed to the registry | Provenance and SBOM |
+
+: {tbl-colwidths="[20,28,28,24]"}
+
+`publish` requires a `docker-container` builder with QEMU (`docker buildx create --use`).
+
+| Parameter | Description |
+|---|---|
+| `IMAGE_NAME` | **Required.** Image name. The Dockerfile defaults to `$(BUILD_PATH)/package/<IMAGE_NAME>/Dockerfile` |
+| `IMAGE_REPO` | Registry and namespace, e.g. `ghcr.io/myorg`, or a Docker Hub account name. Required for `publish` |
+| `IMAGE_TAG` | Default: `VERSION` with characters outside `[A-Za-z0-9.]` replaced by `-` |
+| `IMAGE_EXTRA_TAGS` | Additional `--tag` flags, e.g. `--tag ghcr.io/myorg/app:latest` |
+| `IMAGE_BUILD_ARGS` | `--build-arg` flags. The default passes `LD_FLAGS`, which an override must repeat |
+
+### Scan
+
+`op-scan` runs Trivy with the subcommand in `TRIVY_ARGS`. The cache must lie inside the mounted `SRC`, and images are
+scanned from a `docker save` archive:
+
+``` bash
+make op-scan TRIVY_ARGS="fs --cache-dir build/ci/.cache/trivy --exit-code 1 --severity HIGH,CRITICAL ."
+```
+
+### Chart
+
+| Target | Description |
+|---|---|
+| `op-chart-lint` | Run `ct lint --all` with `$(BUILD_PATH)/ci/.chart-testing.yaml`, whose `chart-dirs` lie under `DEPLOY_PATH` |
+| `op-chart-test` | Run `ct lint-and-install --all` against the current `~/.kube/config` context |
+| `op-chart-package` | Package a chart into `dist/` |
+| `op-chart-push` | Push a packaged chart to an OCI registry |
+
+| Parameter | Description |
+|---|---|
+| `CHART_DIR` | **Required** by `op-chart-package`. Chart directory, relative to `DEPLOY_PATH` |
+| `CHART_PACKAGE` | **Required** by `op-chart-push`. Package file name in `dist/` |
+| `CHART_OCI_REPO` | **Required** by `op-chart-push`. Target, e.g. `oci://ghcr.io/myorg/charts` |
+| `KUBECONFIG` | Mounted by `op-chart-package` and `op-chart-push`, relative to the repository root. Pass `KUBECONFIG=` if the shell exports an absolute path |
+
+### Changelog
+
+| Target | Description |
+|---|---|
+| `op-changelog-lint` | Lint commits from `origin/<DEFAULT_BRANCH>` to `HEAD` with commitlint |
+| `op-changelog` | Lint, then generate `CHANGELOG.md` with git-chglog |
+| `op-changelog-release` | Generate release notes for the required `TAG` |
+
+Configurations are read from `build/changelog/`. The library's own directory, including its two templates, serves as a
+starting point once `repository_url` is changed.
+
+### OpenAPI and OpenTelemetry
+
+| Target | Description |
+|---|---|
+| `op-openapi-docs` | Render the required `OPENAPI_FILE` as Markdown into the required `OPENAPI_DOCS_PATH` |
+| `op-otel-up` | Run a local OpenTelemetry Collector in the foreground with `build/ci/.otel-collector-config.yaml`, publishing OTLP on `4317` and `4318` |
+
+### Repository Hygiene
+
+| Target | Description |
+|---|---|
+| `op-gitignore-sync` | Append the Go, macOS, and Terragrunt templates to `.gitignore` |
+| `op-precommit-sync` | Append the `base`, `helm`, and `terragrunt` hook configurations to `.pre-commit-config.yaml` |
+| `op-precommit-install` | Sync, then run `pre-commit install` on the host |
+
+Both syncs append template lines without parsing the destination file, so they are run once, when a repository adopts
+the library.
