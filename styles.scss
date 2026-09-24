@@ -33,15 +33,23 @@ $navbar-hl: #2563a3;
 
 // Typography
 $font-family-base: "Newsreader", Georgia, serif;
-$font-size-base: 1.125rem;
-$line-height-base: 1.65;
+$font-size-base: 1.11rem;
+$line-height-base: 1.5;
 $font-family-monospace: ui-monospace, "SF Mono", SFMono-Regular, Menlo,
   Consolas, "Liberation Mono", monospace;
-$code-font-size: 0.875rem;
+$code-font-size: 0.8rem;
 
 // Code blocks
 $btn-code-copy-color-active: $theme-blue;
 $code-block-border-left-size: 4.5px;
+
+// Tables
+$table-cell-padding-y: 0.55rem;
+$table-cell-padding-x: 0.75rem;
+$table-border-color: #e3e8ef;
+$table-th-font-weight: 600;              // the heaviest Newsreader weight hosted
+$accent-blue: #31BAE9;                   // same as code-block-border-left in _quarto.yml
+$table-head-bg: $accent-blue;            // own variable; Bootstrap 5 defines none for the header
 
 /*-- scss:rules --*/
 
