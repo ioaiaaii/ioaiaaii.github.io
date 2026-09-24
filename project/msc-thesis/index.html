@@ -47,7 +47,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-05ed825754c580e5effa1d6fba11a4a8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-23fc4416c498e9d0fca891cec297d3ff.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-4bbcb33d5cb25d924a093292a5cb518a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -91,9 +91,7 @@ window.MathJax = {
 <link rel="stylesheet" href="../../fonts/fonts.css">
 <meta property="og:title" content="Interface between Quantum and Classical Computers">
 <meta property="og:description" content="MSc thesis and proof of concept, a Kubernetes-native control plane that treats quantum circuits and backends as managed, observable resources across the quantum–classical boundary.">
-<meta property="og:image" content="https://ioaiaaii.github.io/project/msc-thesis/media/qcc-architecture.png">
-<meta property="og:image:height" content="1700">
-<meta property="og:image:width" content="2530">
+<meta property="og:image" content="https://ioaiaaii.github.io/project/msc-thesis/media/qcc-architecture.webp">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -190,11 +188,11 @@ window.MathJax = {
 </header>
 
 
-<p>MSc in Quantum Computing &amp; Quantum Technologies, Democritus University of Thrace.</p>
+<p>MSc in Quantum Computing and Quantum Technologies, Democritus University of Thrace.</p>
 <section id="motivation" class="level2">
 <h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
-<p>After a BSc in Applied Informatics and a dissertation on Cloud Computing (2012), I built my career in Systems and Site Reliability Engineering (SRE). In that discipline orchestration, scheduling, and observability are foundational concerns, and their absence from quantum computing was conspicuous. Running Deutsch’s algorithm on IBM Quantum hardware, a two-qubit circuit took approximately three seconds while the gates accounted for microseconds, and none of the classical overhead was observable. With Shor’s algorithm, the choice of backend determined whether the computation yielded any usable signal, with no way to evaluate it in advance.</p>
-<p>This thesis surveys the quantum–classical literature across a five-layer interfacing model, from programming frameworks to hardware control, and closes the identified gap with an open-source prototype, the Quantum Circuit Controller (QCC). Quantum circuits and QPU backends become first-class, observable Kubernetes custom resources, execution emits standards-based telemetry, and the design is exercised end-to-end on real IBM Quantum hardware.</p>
+<p>After a BSc in Applied Informatics and a dissertation on Cloud Computing (2012), I built my career in Systems and Site Reliability Engineering (SRE). In that discipline, orchestration, scheduling, and observability are foundational concerns, yet they were largely absent from quantum computing.</p>
+<p>This thesis surveys the quantum–classical literature across a five-layer interfacing model, from programming frameworks to hardware control, and closes this gap with an open-source prototype, the Quantum Circuit Controller (QCC). Quantum circuits and QPU backends become observable Kubernetes custom resources, and execution emits standards-based telemetry.</p>
 <ul>
 <li><a href="https://doi.org/10.5281/zenodo.22283450">Thesis manuscript</a></li>
 <li><a href="https://github.com/ioaiaaii/quantum-circuit-controller">QCC source code</a></li>
@@ -203,16 +201,16 @@ window.MathJax = {
 </section>
 <section id="quantum-circuit-controller-qcc" class="level2">
 <h2 class="anchored" data-anchor-id="quantum-circuit-controller-qcc">Quantum Circuit Controller (QCC)</h2>
-<p>QCC is a control plane for the quantum–classical interface. It brings cloud-native orchestration and vendor-neutral, standards-based observability to quantum execution, so a backend becomes a managed, observable resource rather than an opaque remote endpoint.</p>
+<p>QCC is a control plane for the quantum–classical interface. It brings cloud-native orchestration and vendor-neutral observability to quantum execution, so a backend becomes a managed, observable resource rather than an opaque remote endpoint.</p>
 <p>Circuits and backends are modelled as Kubernetes custom resources, <code>Circuit</code> and <code>QPU</code>, under the <code>qcc.io</code> API group. A Go controller reconciles submitted circuits. A Python executor dispatches them through a provider adapter to either a simulator or IBM Quantum hardware. Execution emits OpenTelemetry metrics under a <code>qcc.*</code> namespace, exported through an OTel Collector to Prometheus and Grafana.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="./media/qcc-architecture.png" class="img-fluid figure-img"></p>
+<p><img src="./media/qcc-architecture.webp" class="img-fluid figure-img"></p>
 <figcaption>QCC system context: the <code>qcc</code> stack on Kubernetes, provider adapters to IBM Quantum and the Aer simulator, and the OpenTelemetry path to Prometheus and Grafana.</figcaption>
 </figure>
 </div>
-<p>The design follows IBM’s Quantum-Centric Supercomputing (QCSC) reference architecture of <a href="https://arxiv.org/abs/2603.10970">Seelam et al.&nbsp;(2026)</a>, which identifies an orchestration and monitoring layer for hybrid workloads. QCC provides a cloud-native realisation of that layer on Kubernetes, occupying the System Orchestration layer and the management-and-monitoring cross-cut. It complements the Quantum Resource Management Interface (QRMI) of <a href="https://arxiv.org/abs/2506.10052">Bacher et al.&nbsp;(2025)</a>, the vendor-neutral middleware that treats a QPU as a schedulable resource. Where QRMI standardises provider-facing acquisition and execution beneath the scheduler, QCC models circuits and backends as first-class Kubernetes resources above it, and consumes such providers through adapters.</p>
-<p>The design was exercised end-to-end on a representative quantum workload, across both a simulator and real IBM hardware. It satisfies the requirements set out in the thesis and makes the computational cost and behaviour of the interface visible. The thesis also proposes two standardisation pathways: a vendor-neutral execution interface and a set of quantum observability conventions.</p>
+<p>The design follows IBM’s Quantum-Centric Supercomputing (QCSC) reference architecture of <a href="https://arxiv.org/abs/2603.10970">Seelam et al.&nbsp;(2026)</a>, which identifies an orchestration and monitoring layer for hybrid workloads. QCC provides a cloud-native realisation of that layer on Kubernetes, occupying the System Orchestration layer and the management-and-monitoring cross-cut. It complements the Quantum Resource Management Interface (QRMI) of <a href="https://arxiv.org/abs/2506.10052">Bacher et al.&nbsp;(2025)</a>, the vendor-neutral middleware that treats a QPU as a schedulable resource. Where QRMI standardises provider-facing acquisition and execution beneath the scheduler, QCC models circuits and backends as Kubernetes resources above it, and consumes such providers through adapters.</p>
+<p>The design was exercised end-to-end on a representative quantum workload, across both a simulator and real IBM hardware, making the computational cost and behaviour of the interface visible. The thesis also proposes two standardisation pathways: a vendor-neutral execution interface and a set of quantum observability conventions.</p>
 
 
 </section>

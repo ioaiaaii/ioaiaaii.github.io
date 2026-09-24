@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2024-10-30">
-<meta name="description" content="A modular, hermetic repository management tool for Docker-based Makefile workflows.">
+<meta name="description" content="A Make library that provides hermetic, containerised, and parameterised build operations as a versioned dependency shared across repositories.">
 
 <title>repo-operator</title>
 <style>
@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-05ed825754c580e5effa1d6fba11a4a8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-23fc4416c498e9d0fca891cec297d3ff.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-4bbcb33d5cb25d924a093292a5cb518a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -125,7 +125,7 @@ window.MathJax = {
 
 <link rel="stylesheet" href="../../fonts/fonts.css">
 <meta property="og:title" content="repo-operator">
-<meta property="og:description" content="A modular, hermetic repository management tool for Docker-based Makefile workflows.">
+<meta property="og:description" content="A Make library that provides hermetic, containerised, and parameterised build operations as a versioned dependency shared across repositories.">
 <meta property="og:image" content="https://ioaiaaii.github.io/project/cloud-repo-operator/media/logo.webp">
 </head>
 
@@ -172,34 +172,23 @@ window.MathJax = {
    
   <ul>
   <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a></li>
-  <li><a href="#the-problem" id="toc-the-problem" class="nav-link" data-scroll-target="#the-problem">The Problem</a></li>
-  <li><a href="#repository-structure" id="toc-repository-structure" class="nav-link" data-scroll-target="#repository-structure">Repository Structure</a></li>
-  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started">Getting Started</a>
+  <li><a href="#motivation" id="toc-motivation" class="nav-link" data-scroll-target="#motivation">Motivation</a></li>
+  <li><a href="#design" id="toc-design" class="nav-link" data-scroll-target="#design">Design</a></li>
+  <li><a href="#usage" id="toc-usage" class="nav-link" data-scroll-target="#usage">Usage</a>
   <ul class="collapse">
-  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
-  <li><a href="#add-as-a-submodule" id="toc-add-as-a-submodule" class="nav-link" data-scroll-target="#add-as-a-submodule">1. Add as a submodule</a></li>
-  <li><a href="#initialise-on-a-fresh-clone" id="toc-initialise-on-a-fresh-clone" class="nav-link" data-scroll-target="#initialise-on-a-fresh-clone">2. Initialise on a fresh clone</a></li>
-  <li><a href="#configure-your-root-makefile" id="toc-configure-your-root-makefile" class="nav-link" data-scroll-target="#configure-your-root-makefile">3. Configure your root <code>Makefile</code></a></li>
-  <li><a href="#explore-available-targets" id="toc-explore-available-targets" class="nav-link" data-scroll-target="#explore-available-targets">4. Explore available targets</a></li>
-  <li><a href="#sync-gitignore-and-pre-commit-hooks" id="toc-sync-gitignore-and-pre-commit-hooks" class="nav-link" data-scroll-target="#sync-gitignore-and-pre-commit-hooks">5. Sync gitignore and pre-commit hooks</a></li>
-  <li><a href="#keep-the-submodule-up-to-date" id="toc-keep-the-submodule-up-to-date" class="nav-link" data-scroll-target="#keep-the-submodule-up-to-date">6. Keep the submodule up to date</a></li>
+  <li><a href="#extending" id="toc-extending" class="nav-link" data-scroll-target="#extending">Extending</a></li>
+  <li><a href="#versioning" id="toc-versioning" class="nav-link" data-scroll-target="#versioning">Versioning</a></li>
   </ul></li>
-  <li><a href="#makefile-modules" id="toc-makefile-modules" class="nav-link" data-scroll-target="#makefile-modules">Makefile Modules</a>
+  <li><a href="#reference" id="toc-reference" class="nav-link" data-scroll-target="#reference">Reference</a>
   <ul class="collapse">
-  <li><a href="#base.mk" id="toc-base.mk" class="nav-link" data-scroll-target="#base.mk"><code>base.mk</code></a></li>
-  <li><a href="#golang.mk" id="toc-golang.mk" class="nav-link" data-scroll-target="#golang.mk"><code>golang.mk</code></a></li>
-  <li><a href="#changelog.mk" id="toc-changelog.mk" class="nav-link" data-scroll-target="#changelog.mk"><code>changelog.mk</code></a></li>
-  <li><a href="#helm.mk" id="toc-helm.mk" class="nav-link" data-scroll-target="#helm.mk"><code>helm.mk</code></a></li>
-  <li><a href="#openapi.mk" id="toc-openapi.mk" class="nav-link" data-scroll-target="#openapi.mk"><code>openapi.mk</code></a></li>
-  <li><a href="#otel.mk" id="toc-otel.mk" class="nav-link" data-scroll-target="#otel.mk"><code>otel.mk</code></a></li>
-  <li><a href="#package.mk" id="toc-package.mk" class="nav-link" data-scroll-target="#package.mk"><code>package.mk</code></a></li>
-  <li><a href="#security.mk" id="toc-security.mk" class="nav-link" data-scroll-target="#security.mk"><code>security.mk</code></a></li>
-  </ul></li>
-  <li><a href="#pre-commit-hook-templates" id="toc-pre-commit-hook-templates" class="nav-link" data-scroll-target="#pre-commit-hook-templates">Pre-commit Hook Templates</a></li>
-  <li><a href="#gitignore-templates" id="toc-gitignore-templates" class="nav-link" data-scroll-target="#gitignore-templates">Gitignore Templates</a></li>
-  <li><a href="#customisation" id="toc-customisation" class="nav-link" data-scroll-target="#customisation">Customisation</a>
-  <ul class="collapse">
-  <li><a href="#adding-your-own-targets" id="toc-adding-your-own-targets" class="nav-link" data-scroll-target="#adding-your-own-targets">Adding your own targets</a></li>
+  <li><a href="#core" id="toc-core" class="nav-link" data-scroll-target="#core">Core</a></li>
+  <li><a href="#go" id="toc-go" class="nav-link" data-scroll-target="#go">Go</a></li>
+  <li><a href="#image" id="toc-image" class="nav-link" data-scroll-target="#image">Image</a></li>
+  <li><a href="#scan" id="toc-scan" class="nav-link" data-scroll-target="#scan">Scan</a></li>
+  <li><a href="#chart" id="toc-chart" class="nav-link" data-scroll-target="#chart">Chart</a></li>
+  <li><a href="#changelog" id="toc-changelog" class="nav-link" data-scroll-target="#changelog">Changelog</a></li>
+  <li><a href="#openapi-and-opentelemetry" id="toc-openapi-and-opentelemetry" class="nav-link" data-scroll-target="#openapi-and-opentelemetry">OpenAPI and OpenTelemetry</a></li>
+  <li><a href="#repository-hygiene" id="toc-repository-hygiene" class="nav-link" data-scroll-target="#repository-hygiene">Repository Hygiene</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -219,7 +208,7 @@ window.MathJax = {
 
 <div>
   <div class="description">
-    <p>A modular, hermetic repository management tool for Docker-based Makefile workflows.</p>
+    <p>A Make library that provides hermetic, containerised, and parameterised build operations as a versioned dependency shared across repositories.</p>
   </div>
 </div>
 
@@ -234,6 +223,12 @@ window.MathJax = {
     </div>
   </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">September 24, 2026</p>
+    </div>
+  </div>
     
   </div>
   
@@ -242,137 +237,78 @@ window.MathJax = {
 </header>
 
 
-<div class="quarto-layout-panel" data-layout-nrow="1">
-<div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
-<div id="fig-logo" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-logo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="./media/logo.webp" class="img-fluid figure-img" style="width:40.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-logo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: logo
-</figcaption>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./media/logo.webp" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:40.0%" alt="repo-operator logo"></p>
 </figure>
 </div>
-</div>
-</div>
-</div>
-<p><a href="https://github.com/ioaiaaii/repo-operator"><code>repo-operator</code></a> is a modular and extensible repository management tool that streamlines development workflows by providing reusable, Docker-based, hermetic Makefile targets for common tasks. This ensures that all builds, tests, and operations are fully isolated and reproducible, regardless of the local environment. The project can be added as a Git submodule and used to manage operations like building, testing, and generating documentation across multiple repositories.</p>
+<p><a href="https://github.com/ioaiaaii/repo-operator"><code>repo-operator</code></a> is a Make library that provides a single, versioned set of targets for operating a collection of repositories: container images, Go, Helm charts, changelogs, and repository hygiene. Targets execute their tooling in containers pinned by content digest, and consumer repositories incorporate the library as a Git submodule.</p>
 <section id="background" class="level2">
 <h2 class="anchored" data-anchor-id="background">Background</h2>
-<p>The name and design of <code>repo-operator</code> draw from two concepts in mathematics and physics.</p>
-<p><strong>Hermeticity</strong> (Hermitian operators) comes from linear algebra and quantum mechanics. A Hermitian operator is self-adjoint — equal to its own conjugate transpose. In quantum mechanics, Hermitian operators represent observable quantities and carry a crucial property: they always produce real, stable eigenvalues. No matter how you apply them, the output is consistent and well-defined.</p>
-<p>This maps directly to hermetic builds into the Site Reliability Engineering: a target that produces the same output regardless of who runs it, on what machine, at what time. The operator acts on the input and yields a predictable, stable result — self-contained, with no side-effects leaking in from the environment.</p>
-<p><strong>Non-locality</strong> in quantum mechanics describes how entangled particles influence each other regardless of the distance between them. In mathematics, non-local operators act on a function’s values across an <em>entire domain</em>, rather than at a single point.</p>
-<p>This is the submodule model: a single change to <code>repo-operator</code> propagates to every repository that includes it, regardless of where those repos live. The operator is defined once; its effects are non-locally <em>real</em>.</p>
+<p>The name and design draw on two concepts from mathematics and physics.</p>
+<p><strong>Hermitian operators.</strong> In quantum mechanics, observables are represented by Hermitian operators, whose eigenvalues are real, so every measurement yields a well-defined value. The name plays on <em>hermetic</em> builds, a principle of <a href="https://sre.google/sre-book/release-engineering/">release engineering</a> in which a target is a pure function of its declared inputs and produces the same output regardless of who runs it, where, or when.</p>
+<p><strong>Non-locality.</strong> A non-local operator determines its value at a point from a function over its <em>entire domain</em>, rather than from that point’s neighbourhood. Likewise, a target’s behaviour in a repository is determined not by that repository’s Makefile or host, but by a single shared definition.</p>
 </section>
-<section id="the-problem" class="level2">
-<h2 class="anchored" data-anchor-id="the-problem">The Problem</h2>
-<p>Every project ends up with the same boilerplate: <code>Makefile</code> targets for building, testing, linting, generating docs, managing Docker images. The targets accumulate organically, drift between repos, and quietly break when a tool version changes on someone’s machine.</p>
-<p><code>repo-operator</code> solves this by treating your development tooling as a versioned dependency. You pull it in as a Git submodule, <code>include</code> the Makefiles you need, and every target runs inside a pinned Docker container — identical on every machine, every time. In addition, repo-operator provides an <em>interface</em> to treat these targets as reusable and configurable functions across different projects.</p>
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
+<p>Software projects accumulate a common layer of build and operational logic. When each repository maintains this layer independently, the implementations diverge, and their behaviour becomes coupled to the tool versions installed on individual machines. A correction to a security scan must then be repeated in every repository, and repositories that are updated less often continue to run outdated toolchains without any visible failure.</p>
+<p><code>repo-operator</code> treats this layer as a versioned dependency. A change is made once, in the library, and each consumer adopts it by advancing its submodule reference on its own schedule.</p>
 </section>
-<section id="repository-structure" class="level2">
-<h2 class="anchored" data-anchor-id="repository-structure">Repository Structure</h2>
-<pre><code>repo-operator/
-├── makefiles/
-│   ├── base.mk           # Core variables, help, environment, gitignore, pre-commit sync
-│   ├── changelog.mk      # Conventional commit linting and changelog generation
-│   ├── golang.mk         # Go build, test, lint
-│   ├── helm.mk           # Helm chart testing
-│   ├── openapi.mk        # OpenAPI → Markdown doc generation
-│   ├── otel.mk           # OpenTelemetry collector for local CI
-│   ├── package.mk        # Docker build, push, run, Kaniko, Dive
-│   └── security.mk       # Trivy vulnerability scanning
-│
-├── pre-commit-hooks/
-│   ├── base.yaml         # General hooks (merge conflicts, line endings, private keys…)
-│   ├── helm.yaml         # helm-docs auto-documentation
-│   └── terragrunt.yaml   # Terraform/Terragrunt fmt, validate, tflint
-│
-├── gitignore/
-│   ├── Go.gitignore
-│   ├── macOS.gitignore
-│   └── terragrunt.gitignore
-│
-├── scripts/
-│   ├── gitignore_sync.sh     # Merges gitignore templates into your project's .gitignore
-│   └── precommit_sync.sh     # Merges pre-commit hook configs into .pre-commit-config.yaml
-│
-└── Makefile              # repo-operator's own Makefile (uses base.mk + openapi.mk)</code></pre>
-</section>
-<section id="getting-started" class="level2">
-<h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
-<section id="prerequisites" class="level3">
-<h3 class="anchored" data-anchor-id="prerequisites">Prerequisites</h3>
+<section id="design" class="level2">
+<h2 class="anchored" data-anchor-id="design">Design</h2>
 <ul>
-<li><code>docker</code></li>
-<li><code>make</code></li>
-<li><code>git</code></li>
+<li><strong>Hermeticity.</strong> Tools run in containers pinned by <code>sha256</code> digest, so local and CI executions use identical tool versions. The exceptions are <code>op-go-build</code> and <code>op-go-mod-*</code> (host Go), <code>op-precommit-install</code> (host <code>pre-commit</code>), and <code>op-image-build</code> (host <code>buildx</code>). The outputs are tool-deterministic rather than bit-for-bit reproducible, since the containers reach the network and artefacts carry the commit and build time.</li>
+<li><strong>Targets as functions.</strong> Targets take parameters at invocation, such as <code>make op-image-build IMAGE_NAME=my-app</code>, so one target serves every image and every repository.</li>
+<li><strong>Naming.</strong> Targets are named <code>op-&lt;domain&gt;[-&lt;action&gt;]</code> after their module, and private variables carry the <code>OP_</code> prefix. Public parameters are unprefixed and declared with <code>?=</code>, so a value from the consumer Makefile, the command line, or the environment takes precedence over the default.</li>
+<li><strong>Self-documentation.</strong> <code>make op-help</code> renders every target and public parameter, with its declared default, from <code>##v</code> and <code>##p</code> annotations kept next to the definitions.</li>
 </ul>
 </section>
-<section id="add-as-a-submodule" class="level3">
-<h3 class="anchored" data-anchor-id="add-as-a-submodule">1. Add as a submodule</h3>
-<p>Add <code>repo-operator</code> at any path that fits your project. For Go projects following the <a href="https://github.com/golang-standards/project-layout">standard project layout</a>, <code>build/</code> is the conventional home for build/CI tooling:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule add https://github.com/ioaiaaii/repo-operator.git build/repo-operator</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="usage" class="level2">
+<h2 class="anchored" data-anchor-id="usage">Usage</h2>
+<p>The host requires <code>docker</code> with <code>buildx</code>, <code>make</code>, and <code>git</code>. Add the library as a submodule, conventionally under <code>build/</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule add https://github.com/ioaiaaii/repo-operator.git build/repo-operator</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then set parameters, include the library, and define targets in terms of its interface. <code>all.mk</code> includes every module; a subset starts with <code>core.mk</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode makefile code-with-copy"><code class="sourceCode makefile"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">OPERATOR_PATH</span>  <span class="ch">:=</span><span class="st"> build/repo-operator</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">VERSION_PKG</span>    <span class="ch">:=</span><span class="st"> github.com/myorg/my-service/pkg/version</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">include</span> <span class="ch">$(</span><span class="dt">OPERATOR_PATH</span><span class="ch">)</span>/makefiles/all.mk</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="dv">help:</span><span class="dt"> op-help</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">##@ App</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ot">.PHONY:</span><span class="dt"> app-image</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="dv">app-image:</span><span class="dt"> </span><span class="co">## Build the application image.</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="er">    </span><span class="ch">@$(</span><span class="dt">MAKE</span><span class="ch">)</span><span class="fu"> --no-print-directory op-image-build IMAGE_NAME=my-app</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A complete example is in <a href="https://github.com/ioaiaaii/repo-operator/blob/master/examples/basic/Makefile"><code>examples/basic</code></a>.</p>
+<section id="extending" class="level3">
+<h3 class="anchored" data-anchor-id="extending">Extending</h3>
+<p>Public parameters are overridden in the consumer Makefile before the <code>include</code>, or at invocation, because several are expanded when the library is parsed. <code>LD_FLAGS</code> is the exception and can be overridden only at invocation or after the <code>include</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> op-image-build IMAGE_NAME=my-app IMAGE_TAG=dev</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Consumer targets annotated with <code>##</code>, grouped under <code>##@</code> sections, appear in <code>make op-help</code> alongside the library targets. A recipe can enforce its own parameters with <code>$(call require,NAME)</code>, which stops with the name of the missing parameter:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode makefile code-with-copy"><code class="sourceCode makefile"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">##@ Database</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ot">.PHONY:</span><span class="dt"> db-migrate</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dv">db-migrate:</span><span class="dt"> </span><span class="co">## Run database migrations.</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="er">    </span><span class="ch">$(</span><span class="kw">call</span><span class="st"> require</span><span class="kw">,</span><span class="st">DB_URL</span><span class="ch">)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    ./scripts/migrate.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="initialise-on-a-fresh-clone" class="level3">
-<h3 class="anchored" data-anchor-id="initialise-on-a-fresh-clone">2. Initialise on a fresh clone</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule update <span class="at">--init</span> <span class="at">--recursive</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="configure-your-root-makefile" class="level3">
-<h3 class="anchored" data-anchor-id="configure-your-root-makefile">3. Configure your root <code>Makefile</code></h3>
-<p>Include only the modules relevant to your project:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode makefile code-with-copy"><code class="sourceCode makefile"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Override repo-operator defaults ---</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">override</span> <span class="dt">OPERATOR_PATH     </span><span class="ch">:=</span><span class="st"> build/repo-operator</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">override</span> <span class="dt">OPENAPI_FILE      </span><span class="ch">:=</span><span class="st"> api/OpenAPI/openapi.yaml</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">override</span> <span class="dt">OPENAPI_DOCS_PATH </span><span class="ch">:=</span><span class="st"> docs/api</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Include the modules you need ---</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">include</span> <span class="ch">${</span><span class="dt">OPERATOR_PATH</span><span class="ch">}</span>/makefiles/base.mk</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="kw">include</span> <span class="ch">${</span><span class="dt">OPERATOR_PATH</span><span class="ch">}</span>/makefiles/golang.mk</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">include</span> <span class="ch">${</span><span class="dt">OPERATOR_PATH</span><span class="ch">}</span>/makefiles/openapi.mk</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="kw">include</span> <span class="ch">${</span><span class="dt">OPERATOR_PATH</span><span class="ch">}</span>/makefiles/package.mk</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="kw">include</span> <span class="ch">${</span><span class="dt">OPERATOR_PATH</span><span class="ch">}</span>/makefiles/security.mk</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="kw">include</span> <span class="ch">${</span><span class="dt">OPERATOR_PATH</span><span class="ch">}</span>/makefiles/changelog.mk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="explore-available-targets" class="level3">
-<h3 class="anchored" data-anchor-id="explore-available-targets">4. Explore available targets</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> help</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="sync-gitignore-and-pre-commit-hooks" class="level3">
-<h3 class="anchored" data-anchor-id="sync-gitignore-and-pre-commit-hooks">5. Sync gitignore and pre-commit hooks</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> gitignore           <span class="co"># Merges Go, macOS, terragrunt templates into .gitignore</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> pre-commit-install  <span class="co"># Syncs hook configs into .pre-commit-config.yaml AND installs the git hook</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>pre-commit-install</code> runs the sync step (same as <code>make pre-commit-hooks</code>) and then <code>pre-commit install</code> on the host to write <code>.git/hooks/pre-commit</code>. Without that second step, git won’t actually invoke the hooks on commit.</p>
-<p>This requires the <code>pre-commit</code> binary on the host (it’s the only target that breaks the hermetic-Docker pattern, since the installed hook references the host’s <code>pre-commit</code> path). Install it once with <code>pip install pre-commit</code> or <code>brew install pre-commit</code>.</p>
-</section>
-<section id="keep-the-submodule-up-to-date" class="level3">
-<h3 class="anchored" data-anchor-id="keep-the-submodule-up-to-date">6. Keep the submodule up to date</h3>
-<p>Track the latest commit on <code>master</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule update <span class="at">--remote</span> build/repo-operator</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add build/repo-operator</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"chore: bump repo-operator submodule"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Or pin to a specific release tag instead:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> build/repo-operator</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> fetch <span class="at">--tags</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout v1.2.3</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="at">-</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add build/repo-operator</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"chore: pin repo-operator to v1.2.3"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The parent repo records the submodule’s commit SHA — bumping the submodule and committing in the parent are two separate steps.</p>
+<section id="versioning" class="level3">
+<h3 class="anchored" data-anchor-id="versioning">Versioning</h3>
+<p>Consumers pin the submodule to a release, and an upgrade is committed in the parent repository:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">-C</span> build/repo-operator checkout v1.2.0</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add build/repo-operator <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"chore: pin repo-operator to v1.2.0"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
-<section id="makefile-modules" class="level2">
-<h2 class="anchored" data-anchor-id="makefile-modules">Makefile Modules</h2>
-<p>All targets run inside <strong>pinned Docker containers</strong> — no local toolchain required beyond <code>docker</code> and <code>make</code>.</p>
-<section id="base.mk" class="level3">
-<h3 class="anchored" data-anchor-id="base.mk"><code>base.mk</code></h3>
-<p>Core variables and shared utilities. <strong>Always include this first.</strong></p>
+<section id="reference" class="level2">
+<h2 class="anchored" data-anchor-id="reference">Reference</h2>
+<p>The tables list required parameters and those that change behaviour; <code>make op-help</code> lists all of them. <code>&lt;repo&gt;</code> denotes the name of the directory in which <code>make</code> runs.</p>
+<section id="core" class="level3">
+<h3 class="anchored" data-anchor-id="core">Core</h3>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 30%">
+<col style="width: 70%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -382,41 +318,60 @@ Figure&nbsp;1: logo
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>help</code></td>
-<td>Auto-generated target list from all included <code>.mk</code> files</td>
+<td><code>op-help</code></td>
+<td>List every target and public parameter</td>
 </tr>
 <tr class="even">
-<td><code>environment</code></td>
-<td>Print current Git tag, branch, version, Go path and version</td>
-</tr>
-<tr class="odd">
-<td><code>gitignore</code></td>
-<td>Merge <code>gitignore/</code> templates into the project’s <code>.gitignore</code></td>
-</tr>
-<tr class="even">
-<td><code>pre-commit-hooks</code></td>
-<td>Merge <code>pre-commit-hooks/</code> configs into <code>.pre-commit-config.yaml</code></td>
-</tr>
-<tr class="odd">
-<td><code>pre-commit-install</code></td>
-<td>Run <code>pre-commit-hooks</code> then <code>pre-commit install</code> on the host to wire up <code>.git/hooks/pre-commit</code></td>
-</tr>
-<tr class="even">
-<td><code>pre-commit-hooks-list</code></td>
-<td>List available pre-commit hook config files</td>
+<td><code>op-env</code></td>
+<td>Print the resolved tag, branch, version, and commit</td>
 </tr>
 </tbody>
 </table>
-<p>Key variables set in <code>base.mk</code>: <code>MODULE</code>, <code>COMMIT</code>, <code>TAG</code>, <code>BRANCH</code>, <code>VERSION</code>, <code>SRC</code>, <code>BUILD_PATH</code>, <code>DEPLOY_PATH</code>, and shared Docker command wrappers (<code>UBUNTU_CMD</code>, <code>HELM_CONTAINER_CMD</code>, <code>CT_CONTAINER_CMD</code>).</p>
-<hr>
-</section>
-<section id="golang.mk" class="level3">
-<h3 class="anchored" data-anchor-id="golang.mk"><code>golang.mk</code></h3>
-<p>Hermetic Go build and quality targets. No local Go installation needed.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 30%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>OPERATOR_PATH</code></td>
+<td>Path from the repository root to the submodule. Default: <code>.</code></td>
+</tr>
+<tr class="even">
+<td><code>SRC</code></td>
+<td>Go source root. Default: <code>.</code></td>
+</tr>
+<tr class="odd">
+<td><code>BUILD_PATH</code></td>
+<td>Build tree containing <code>ci/</code> and <code>package/</code>. Default: <code>build</code></td>
+</tr>
+<tr class="even">
+<td><code>DEPLOY_PATH</code></td>
+<td>Chart tree. Default: <code>deploy</code></td>
+</tr>
+<tr class="odd">
+<td><code>DEFAULT_BRANCH</code></td>
+<td>Release branch, for tag detection and commit linting. Default: <code>master</code></td>
+</tr>
+<tr class="even">
+<td><code>VERSION</code></td>
+<td>Version for image tags and binary stamps. Default: the branch name, or on a detached HEAD the <code>vX.Y.Z</code> tag at the tip of <code>DEFAULT_BRANCH</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="go" class="level3">
+<h3 class="anchored" data-anchor-id="go">Go</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 70%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -426,37 +381,64 @@ Figure&nbsp;1: logo
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>go-mod-update</code></td>
-<td>Update all Go dependencies to latest</td>
+<td><code>op-go-lint</code></td>
+<td>Run <code>golangci-lint</code> with <code>$(BUILD_PATH)/ci/.golangci.yml</code> (v2 schema)</td>
 </tr>
 <tr class="even">
-<td><code>go-mod-sync</code></td>
+<td><code>op-go-test</code></td>
+<td>Run <code>go test ./...</code></td>
+</tr>
+<tr class="odd">
+<td><code>op-go-build</code></td>
+<td>Build a static binary, using the host Go toolchain</td>
+</tr>
+<tr class="even">
+<td><code>op-go-mod-update</code></td>
+<td>Update dependencies, then run <code>go vet</code></td>
+</tr>
+<tr class="odd">
+<td><code>op-go-mod-sync</code></td>
 <td>Run <code>go mod tidy</code>, <code>vendor</code>, and <code>verify</code></td>
 </tr>
+</tbody>
+</table>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
 <tr class="odd">
-<td><code>go-lint</code></td>
-<td>Run <code>golangci-lint</code> with your CI config</td>
+<td><code>CMD_PATH</code></td>
+<td>Main package sources, relative to <code>SRC</code>. Default: <code>cmd/&lt;repo&gt;/*.go</code></td>
 </tr>
 <tr class="even">
-<td><code>go-test</code></td>
-<td>Run the full test suite</td>
+<td><code>BINARY_PATH</code></td>
+<td>Output binary. Default: <code>$(BUILD_PATH)/&lt;repo&gt;</code></td>
 </tr>
 <tr class="odd">
-<td><code>go-build</code></td>
-<td>Build a Linux/amd64 binary with version ldflags injected</td>
+<td><code>GOOS</code>, <code>GOARCH</code></td>
+<td>Target platform. Default: <code>linux</code>, <code>amd64</code></td>
+</tr>
+<tr class="even">
+<td><code>VERSION_PKG</code></td>
+<td>Package declaring <code>BuildVersion</code>, <code>BuildHash</code>, and <code>BuildTime</code>, stamped at link time. A wrong path yields an unstamped binary without an error</td>
 </tr>
 </tbody>
 </table>
-<p>The binary is stamped at build time with <code>BuildVersion</code>, <code>BuildHash</code>, and <code>BuildTime</code> via ldflags — expects a <code>pkg/version</code> package in your module.</p>
-<hr>
 </section>
-<section id="changelog.mk" class="level3">
-<h3 class="anchored" data-anchor-id="changelog.mk"><code>changelog.mk</code></h3>
-<p>Conventional commit enforcement and automated changelog generation.</p>
+<section id="image" class="level3">
+<h3 class="anchored" data-anchor-id="image">Image</h3>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 30%">
+<col style="width: 70%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -466,86 +448,104 @@ Figure&nbsp;1: logo
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>conventional-commit-lint</code></td>
-<td>Lint commit messages from <code>origin/master</code> to <code>HEAD</code></td>
+<td><code>op-image-lint</code></td>
+<td>Lint the Dockerfile with <code>hadolint</code></td>
 </tr>
 <tr class="even">
-<td><code>conventional-changelog</code></td>
-<td>Generate <code>CHANGELOG.md</code> (runs lint first)</td>
+<td><code>op-image-build</code></td>
+<td>Build the image, or build and push it with <code>IMAGE_MODE=publish</code></td>
 </tr>
 <tr class="odd">
-<td><code>conventional-changelog-release</code></td>
-<td>Generate changelog for a specific tag (for GitHub release notes)</td>
-</tr>
-</tbody>
-</table>
-<p>Expects a commitlint config at <code>build/changelog/.commitlintrc.yml</code> and a git-chglog config at <code>build/changelog/config.yml</code>.</p>
-<hr>
-</section>
-<section id="helm.mk" class="level3">
-<h3 class="anchored" data-anchor-id="helm.mk"><code>helm.mk</code></h3>
-<p>Helm chart linting via <code>chart-testing</code>.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Target</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>chart-testing</code></td>
-<td>Run <code>ct lint</code> against all charts</td>
-</tr>
-</tbody>
-</table>
-<p>Expects a chart-testing config at <code>build/ci/.chart-testing.yaml</code>. Charts should live under <code>deploy/</code>.</p>
-<hr>
-</section>
-<section id="openapi.mk" class="level3">
-<h3 class="anchored" data-anchor-id="openapi.mk"><code>openapi.mk</code></h3>
-<p>Generate human-readable API documentation from an OpenAPI spec.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Target</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>generate-docs</code></td>
-<td>Run <code>openapi-generator</code> to produce Markdown docs</td>
-</tr>
-</tbody>
-</table>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Variable</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>OPENAPI_FILE</code></td>
-<td>Path to your <code>openapi.yaml</code> spec file</td>
+<td><code>op-image-digest</code></td>
+<td>Print the digest recorded by the last build</td>
 </tr>
 <tr class="even">
-<td><code>OPENAPI_DOCS_PATH</code></td>
-<td>Output directory for generated Markdown</td>
+<td><code>op-image-run</code></td>
+<td>Run the image as the container <code>IMAGE_NAME</code>, publishing its exposed ports</td>
+</tr>
+<tr class="odd">
+<td><code>op-image-inspect</code></td>
+<td>Analyse layer efficiency with <code>dive</code></td>
 </tr>
 </tbody>
 </table>
-<hr>
-</section>
-<section id="otel.mk" class="level3">
-<h3 class="anchored" data-anchor-id="otel.mk"><code>otel.mk</code></h3>
-<p>Spin up a local OpenTelemetry Collector for CI or local observability testing.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 20%">
+<col style="width: 28%">
+<col style="width: 28%">
+<col style="width: 24%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Mode</th>
+<th>Platforms</th>
+<th>Output</th>
+<th>Attestations</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>local</code> (default)</td>
+<td>Host architecture</td>
+<td>Loaded into the daemon</td>
+<td>None</td>
+</tr>
+<tr class="even">
+<td><code>publish</code></td>
+<td><code>linux/amd64</code>, <code>linux/arm64</code></td>
+<td>Pushed to the registry</td>
+<td>Provenance and SBOM</td>
+</tr>
+</tbody>
+</table>
+<p><code>publish</code> requires a <code>docker-container</code> builder with QEMU (<code>docker buildx create --use</code>).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>IMAGE_NAME</code></td>
+<td><strong>Required.</strong> Image name. The Dockerfile defaults to <code>$(BUILD_PATH)/package/&lt;IMAGE_NAME&gt;/Dockerfile</code></td>
+</tr>
+<tr class="even">
+<td><code>IMAGE_REPO</code></td>
+<td>Registry and namespace, e.g.&nbsp;<code>ghcr.io/myorg</code>, or a Docker Hub account name. Required for <code>publish</code></td>
+</tr>
+<tr class="odd">
+<td><code>IMAGE_TAG</code></td>
+<td>Default: <code>VERSION</code> with characters outside <code>[A-Za-z0-9.]</code> replaced by <code>-</code></td>
+</tr>
+<tr class="even">
+<td><code>IMAGE_EXTRA_TAGS</code></td>
+<td>Additional <code>--tag</code> flags, e.g.&nbsp;<code>--tag ghcr.io/myorg/app:latest</code></td>
+</tr>
+<tr class="odd">
+<td><code>IMAGE_BUILD_ARGS</code></td>
+<td><code>--build-arg</code> flags. The default passes <code>LD_FLAGS</code>, which an override must repeat</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="scan" class="level3">
+<h3 class="anchored" data-anchor-id="scan">Scan</h3>
+<p><code>op-scan</code> runs Trivy with the subcommand in <code>TRIVY_ARGS</code>. The cache must lie inside the mounted <code>SRC</code>, and images are scanned from a <code>docker save</code> archive:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> op-scan TRIVY_ARGS=<span class="st">"fs --cache-dir build/ci/.cache/trivy --exit-code 1 --severity HIGH,CRITICAL ."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="chart" class="level3">
+<h3 class="anchored" data-anchor-id="chart">Chart</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 70%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -555,21 +555,60 @@ Figure&nbsp;1: logo
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>otel-ci</code></td>
-<td>Start <code>otelcol-contrib</code> with your config, exposing standard OTLP ports</td>
+<td><code>op-chart-lint</code></td>
+<td>Run <code>ct lint --all</code> with <code>$(BUILD_PATH)/ci/.chart-testing.yaml</code>, whose <code>chart-dirs</code> lie under <code>DEPLOY_PATH</code></td>
+</tr>
+<tr class="even">
+<td><code>op-chart-test</code></td>
+<td>Run <code>ct lint-and-install --all</code> against the current <code>~/.kube/config</code> context</td>
+</tr>
+<tr class="odd">
+<td><code>op-chart-package</code></td>
+<td>Package a chart into <code>dist/</code></td>
+</tr>
+<tr class="even">
+<td><code>op-chart-push</code></td>
+<td>Push a packaged chart to an OCI registry</td>
 </tr>
 </tbody>
 </table>
-<p>Expects a collector config at <code>build/ci/.otel-collector-config.yaml</code>. Ports exposed: <code>4317</code> (gRPC), <code>4318</code> (HTTP), <code>8888</code>, <code>8889</code>, <code>1888</code>, <code>13133</code>.</p>
-<hr>
-</section>
-<section id="package.mk" class="level3">
-<h3 class="anchored" data-anchor-id="package.mk"><code>package.mk</code></h3>
-<p>Full Docker image lifecycle management.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 30%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>CHART_DIR</code></td>
+<td><strong>Required</strong> by <code>op-chart-package</code>. Chart directory, relative to <code>DEPLOY_PATH</code></td>
+</tr>
+<tr class="even">
+<td><code>CHART_PACKAGE</code></td>
+<td><strong>Required</strong> by <code>op-chart-push</code>. Package file name in <code>dist/</code></td>
+</tr>
+<tr class="odd">
+<td><code>CHART_OCI_REPO</code></td>
+<td><strong>Required</strong> by <code>op-chart-push</code>. Target, e.g.&nbsp;<code>oci://ghcr.io/myorg/charts</code></td>
+</tr>
+<tr class="even">
+<td><code>KUBECONFIG</code></td>
+<td>Mounted by <code>op-chart-package</code> and <code>op-chart-push</code>, relative to the repository root. Pass <code>KUBECONFIG=</code> if the shell exports an absolute path</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="changelog" class="level3">
+<h3 class="anchored" data-anchor-id="changelog">Changelog</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 70%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -579,44 +618,28 @@ Figure&nbsp;1: logo
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>image-lint</code></td>
-<td>Run <code>hadolint</code> on a Dockerfile</td>
+<td><code>op-changelog-lint</code></td>
+<td>Lint commits from <code>origin/&lt;DEFAULT_BRANCH&gt;</code> to <code>HEAD</code> with commitlint</td>
 </tr>
 <tr class="even">
-<td><code>docker-image</code></td>
-<td>Build a Docker image tagged with the sanitised <code>VERSION</code></td>
+<td><code>op-changelog</code></td>
+<td>Lint, then generate <code>CHANGELOG.md</code> with git-chglog</td>
 </tr>
 <tr class="odd">
-<td><code>docker-push</code></td>
-<td>Tag and push the image to a registry</td>
-</tr>
-<tr class="even">
-<td><code>docker-run</code></td>
-<td>Run a container, auto-detecting the exposed port and creating a named network</td>
-</tr>
-<tr class="odd">
-<td><code>kaniko-docker-image</code></td>
-<td>Build and push via Kaniko (supports GCP Workload Identity and local gcloud credentials)</td>
-</tr>
-<tr class="even">
-<td><code>dive-ci</code></td>
-<td>Inspect image layers and efficiency with <code>dive</code> in CI mode</td>
+<td><code>op-changelog-release</code></td>
+<td>Generate release notes for the required <code>TAG</code></td>
 </tr>
 </tbody>
 </table>
-<p>Dynamic arguments:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> docker-image  DOCKER_IMAGE=my-service</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> docker-push   DOCKER_IMAGE=my-service DOCKER_IMAGE_REPO=registry.example.com/myorg</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> docker-run    DOCKER_IMAGE=my-service</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> kaniko-docker-image DOCKER_IMAGE=my-service DOCKER_IMAGE_REPO=gcr.io/my-project</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> dive-ci       DOCKER_IMAGE=my-service</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Dockerfiles are expected at <code>${BUILD_PATH}/package/${DOCKER_IMAGE}/Dockerfile</code>. The <code>docker-image</code> target injects <code>LD_FLAGS</code> as a build arg for Go binary stamping.</p>
-<hr>
+<p>Configurations are read from <code>build/changelog/</code>. The library’s own directory, including its two templates, serves as a starting point once <code>repository_url</code> is changed.</p>
 </section>
-<section id="security.mk" class="level3">
-<h3 class="anchored" data-anchor-id="security.mk"><code>security.mk</code></h3>
-<p>Vulnerability scanning with Trivy.</p>
+<section id="openapi-and-opentelemetry" class="level3">
+<h3 class="anchored" data-anchor-id="openapi-and-opentelemetry">OpenAPI and OpenTelemetry</h3>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 70%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Target</th>
@@ -625,72 +648,45 @@ Figure&nbsp;1: logo
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>trivy-scan</code></td>
-<td>Run Trivy scanner, accepts arbitrary Trivy args</td>
+<td><code>op-openapi-docs</code></td>
+<td>Render the required <code>OPENAPI_FILE</code> as Markdown into the required <code>OPENAPI_DOCS_PATH</code></td>
+</tr>
+<tr class="even">
+<td><code>op-otel-up</code></td>
+<td>Run a local OpenTelemetry Collector in the foreground with <code>build/ci/.otel-collector-config.yaml</code>, publishing OTLP on <code>4317</code> and <code>4318</code></td>
 </tr>
 </tbody>
 </table>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> trivy-scan TRIVY_ARGS=<span class="st">"fs --exit-code 1 --severity HIGH,CRITICAL ."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-</section>
-<section id="pre-commit-hook-templates" class="level2">
-<h2 class="anchored" data-anchor-id="pre-commit-hook-templates">Pre-commit Hook Templates</h2>
-<p><code>repo-operator</code> ships three composable hook configs. Running <code>make pre-commit-hooks</code> merges them into your project’s <code>.pre-commit-config.yaml</code>, skipping any entries already present.</p>
+<section id="repository-hygiene" class="level3">
+<h3 class="anchored" data-anchor-id="repository-hygiene">Repository Hygiene</h3>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 30%">
+<col style="width: 70%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>File</th>
-<th>Hooks included</th>
+<th>Target</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>base.yaml</code></td>
-<td>Large file checks, merge conflict detection, private key detection, line ending normalisation, executable shebangs</td>
+<td><code>op-gitignore-sync</code></td>
+<td>Append the Go, macOS, and Terragrunt templates to <code>.gitignore</code></td>
 </tr>
 <tr class="even">
-<td><code>helm.yaml</code></td>
-<td><code>helm-docs</code> — auto-generates chart README from <code>values.yaml</code></td>
+<td><code>op-precommit-sync</code></td>
+<td>Append the <code>base</code>, <code>helm</code>, and <code>terragrunt</code> hook configurations to <code>.pre-commit-config.yaml</code></td>
 </tr>
 <tr class="odd">
-<td><code>terragrunt.yaml</code></td>
-<td><code>terraform-fmt</code>, <code>terraform-validate</code>, <code>tflint</code>, <code>shellcheck</code>, <code>terragrunt-hclfmt</code></td>
+<td><code>op-precommit-install</code></td>
+<td>Sync, then run <code>pre-commit install</code> on the host</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="gitignore-templates" class="level2">
-<h2 class="anchored" data-anchor-id="gitignore-templates">Gitignore Templates</h2>
-<p>Running <code>make gitignore</code> merges these templates into your project’s <code>.gitignore</code>, skipping any lines already present:</p>
-<ul>
-<li><code>Go.gitignore</code></li>
-<li><code>macOS.gitignore</code></li>
-<li><code>terragrunt.gitignore</code></li>
-</ul>
-</section>
-<section id="customisation" class="level2">
-<h2 class="anchored" data-anchor-id="customisation">Customisation</h2>
-<p>Override any variable before the <code>include</code> statements:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode makefile code-with-copy"><code class="sourceCode makefile"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">override</span> <span class="dt">OPERATOR_PATH     </span><span class="ch">:=</span><span class="st"> build/repo-operator</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">override</span> <span class="dt">SRC               </span><span class="ch">:=</span><span class="st"> .</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">override</span> <span class="dt">BUILD_PATH        </span><span class="ch">:=</span><span class="st"> build</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">override</span> <span class="dt">DEPLOY_PATH       </span><span class="ch">:=</span><span class="st"> deploy</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="kw">override</span> <span class="dt">OPENAPI_FILE      </span><span class="ch">:=</span><span class="st"> api/openapi.yaml</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">override</span> <span class="dt">OPENAPI_DOCS_PATH </span><span class="ch">:=</span><span class="st"> docs/api</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="kw">override</span> <span class="dt">KUBECONFIG        </span><span class="ch">:=</span><span class="st"> path/to/kubeconfig  </span><span class="co"># optional, for helm targets</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<section id="adding-your-own-targets" class="level3">
-<h3 class="anchored" data-anchor-id="adding-your-own-targets">Adding your own targets</h3>
-<p>Annotate with <code>##</code> and they appear automatically in <code>make help</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode makefile code-with-copy"><code class="sourceCode makefile"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">include</span> <span class="ch">${</span><span class="dt">OPERATOR_PATH</span><span class="ch">}</span>/makefiles/base.mk</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">## Run database migrations</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ot">.PHONY:</span><span class="dt"> migrate</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="dv">migrate:</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="er">    </span>./scripts/migrate.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Both syncs append template lines without parsing the destination file, so they are run once, when a repository adopts the library.</p>
 
 
 </section>

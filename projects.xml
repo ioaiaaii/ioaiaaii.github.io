@@ -23,26 +23,12 @@
   <category>MSc Thesis</category>
   <guid>https://ioaiaaii.github.io/project/msc-thesis/</guid>
   <pubDate>Mon, 27 Jul 2026 00:00:00 GMT</pubDate>
-  <media:content url="https://ioaiaaii.github.io/project/msc-thesis/media/qcc-architecture.png" medium="image" type="image/png" height="97" width="144"/>
-</item>
-<item>
-  <title>micro-infra</title>
-  <link>https://ioaiaaii.github.io/project/cloud-micro-infra/</link>
-  <description><![CDATA[ A lightweight, production-grade, Kubernetes platform on GKE — fully automated from cluster provisioning to workload delivery. ]]></description>
-  <category>Cloud Computing</category>
-  <category>IaC</category>
-  <category>Kubernetes</category>
-  <category>GitOps</category>
-  <category>Observability</category>
-  <category>Security</category>
-  <guid>https://ioaiaaii.github.io/project/cloud-micro-infra/</guid>
-  <pubDate>Wed, 20 Nov 2024 00:00:00 GMT</pubDate>
-  <media:content url="https://ioaiaaii.github.io/project/cloud-micro-infra/media/logo.webp" medium="image" type="image/webp"/>
+  <media:content url="https://ioaiaaii.github.io/project/msc-thesis/media/qcc-architecture.webp" medium="image" type="image/webp"/>
 </item>
 <item>
   <title>repo-operator</title>
   <link>https://ioaiaaii.github.io/project/cloud-repo-operator/</link>
-  <description><![CDATA[ A modular, hermetic repository management tool for Docker-based Makefile workflows. ]]></description>
+  <description><![CDATA[ A Make library that provides hermetic, containerised, and parameterised build operations as a versioned dependency shared across repositories. ]]></description>
   <category>Cloud Computing</category>
   <category>Hermetic Builds</category>
   <category>Makefile</category>

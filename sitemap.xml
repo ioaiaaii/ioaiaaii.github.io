@@ -2,58 +2,54 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ioaiaaii.github.io/notes/pid1-dump/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.601Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/notes/quantum-teleportation/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.601Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/project/quantum-deutschs-algorithm/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.662Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/project/quantum-shors/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.667Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/project/msc-thesis/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.605Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/projects.html</loc>
-    <lastmod>2026-09-05T15:10:31.668Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.599Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/notes.html</loc>
-    <lastmod>2026-09-05T15:10:31.599Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/project/cloud-micro-infra/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.603Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/project/cloud-repo-operator/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.604Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/project/quantum-grovers-algorithm/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.663Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ioaiaaii.github.io/notes/observability/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.600Z</lastmod>
+    <lastmod>2026-09-24T13:35:23.405Z</lastmod>
   </url>
   <url>
     <loc>https://ioaiaaii.github.io/notes/uncomp/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.602Z</lastmod>
+    <lastmod>2026-09-24T13:35:23.406Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ioaiaaii.github.io/notes/quantum-teleportation/index.html</loc>
+    <lastmod>2026-09-24T13:35:23.406Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ioaiaaii.github.io/project/quantum-deutschs-algorithm/index.html</loc>
+    <lastmod>2026-09-24T13:35:23.465Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ioaiaaii.github.io/project/quantum-shors/index.html</loc>
+    <lastmod>2026-09-24T13:35:23.470Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ioaiaaii.github.io/index.html</loc>
+    <lastmod>2026-09-24T13:35:23.404Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ioaiaaii.github.io/projects.html</loc>
+    <lastmod>2026-09-24T13:35:23.472Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ioaiaaii.github.io/project/quantum-grovers-algorithm/index.html</loc>
+    <lastmod>2026-09-24T13:35:23.466Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ioaiaaii.github.io/project/msc-thesis/index.html</loc>
+    <lastmod>2026-09-24T13:35:23.410Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ioaiaaii.github.io/project/cloud-repo-operator/index.html</loc>
+    <lastmod>2026-09-24T13:35:23.409Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ioaiaaii.github.io/notes.html</loc>
+    <lastmod>2026-09-24T13:35:23.404Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ioaiaaii.github.io/notes/observability/index.html</loc>
+    <lastmod>2026-09-24T13:35:23.405Z</lastmod>
   </url>
   <url>
     <loc>https://ioaiaaii.github.io/notes/computing/index.html</loc>
-    <lastmod>2026-09-05T15:10:31.600Z</lastmod>
+    <lastmod>2026-09-24T13:35:23.405Z</lastmod>
   </url>
 </urlset>
