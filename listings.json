@@ -3,7 +3,6 @@
     "listing": "/projects.html",
     "items": [
       "/project/msc-thesis/index.html",
-      "/project/cloud-repo-operator/index.html",
       "/project/quantum-shors/index.html",
       "/project/quantum-grovers-algorithm/index.html",
       "/project/quantum-deutschs-algorithm/index.html"

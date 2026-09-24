@@ -26,17 +26,6 @@
   <media:content url="https://ioaiaaii.github.io/project/msc-thesis/media/qcc-architecture.webp" medium="image" type="image/webp"/>
 </item>
 <item>
-  <title>repo-operator</title>
-  <link>https://ioaiaaii.github.io/project/cloud-repo-operator/</link>
-  <description><![CDATA[ A Make library that provides hermetic, containerised, and parameterised build operations as a versioned dependency shared across repositories. ]]></description>
-  <category>Cloud Computing</category>
-  <category>Hermetic Builds</category>
-  <category>Makefile</category>
-  <guid>https://ioaiaaii.github.io/project/cloud-repo-operator/</guid>
-  <pubDate>Wed, 30 Oct 2024 00:00:00 GMT</pubDate>
-  <media:content url="https://ioaiaaii.github.io/project/cloud-repo-operator/media/logo.webp" medium="image" type="image/webp"/>
-</item>
-<item>
   <title>Shor’s Algorithm</title>
   <link>https://ioaiaaii.github.io/project/quantum-shors/</link>
   <description><![CDATA[ Exploring Shor’s algorithm through Qiskit. This post visualizes the algorithm’s circuit and its measurements, demonstrating how quantum states can be used to factor large integers. ]]></description>
