@@ -3,6 +3,7 @@ title: micro-infra
 description: |
   A lightweight, production-grade, Kubernetes platform on GKE — fully automated from cluster provisioning to workload delivery.
 date: '2024-11-20'
+draft: true
 categories:
   - Cloud Computing
   - IaC
