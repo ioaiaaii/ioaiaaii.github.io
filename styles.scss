@@ -16,7 +16,7 @@
 
 // Theme colors
 $theme-lightblue: #ffffffff;
-$theme-darkblue: #080808;
+$theme-darkblue: #222222;
 $theme-blue: #3373c1ff;
 
 // Base document colors
@@ -52,6 +52,13 @@ $accent-blue: #31BAE9;                   // same as code-block-border-left in _q
 $table-head-bg: $accent-blue;            // own variable; Bootstrap 5 defines none for the header
 
 /*-- scss:rules --*/
+
+// Font rendering ---------------------------------------------------------------
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 // Structural UI stays sans -----------------------------------------------------
 
