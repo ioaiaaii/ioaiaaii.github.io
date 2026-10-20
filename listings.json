@@ -1,14 +1,5 @@
 [
   {
-    "listing": "/projects.html",
-    "items": [
-      "/project/msc-thesis/index.html",
-      "/project/quantum-shors/index.html",
-      "/project/quantum-grovers-algorithm/index.html",
-      "/project/quantum-deutschs-algorithm/index.html"
-    ]
-  },
-  {
     "listing": "/notes.html",
     "items": [
       "/notes/quantum-teleportation/index.html",
@@ -16,6 +7,15 @@
       "/notes/uncomp/index.html",
       "/notes/pid1-dump/index.html",
       "/notes/observability/index.html"
+    ]
+  },
+  {
+    "listing": "/projects.html",
+    "items": [
+      "/project/msc-thesis/index.html",
+      "/project/quantum-shors/index.html",
+      "/project/quantum-grovers-algorithm/index.html",
+      "/project/quantum-deutschs-algorithm/index.html"
     ]
   }
 ]
