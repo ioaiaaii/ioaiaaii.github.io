@@ -29,7 +29,7 @@ about:
 
     - icon: globe
       text: Website
-      href: https://ioaiaaii.net
+      href: https://ioannissavvaidis.com
       target: _blank
       rel: noopener
 ---
