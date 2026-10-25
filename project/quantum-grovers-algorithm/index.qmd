@@ -324,15 +324,14 @@ The probability for |1001⟩ state is almost 1, thus we found the marked index:
 #| layout-nrow: 1
 from qiskit_aer import AerSimulator
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
-from qiskit_ibm_runtime import SamplerV2 as Sampler
+from qiskit_aer.primitives import SamplerV2 as Sampler
 from qiskit.visualization import plot_distribution
 
 backend = AerSimulator()
 pass_manager = generate_preset_pass_manager(optimization_level=0, backend=backend)
 transpiled_circuit = pass_manager.run(qc)
 
-sampler = Sampler(mode=backend)
-sampler.options.default_shots = 1024
+sampler = Sampler(default_shots=1024)
 result = sampler.run([transpiled_circuit]).result()
 counts = result[0].data.measurement.get_counts()
 plot_distribution(counts)

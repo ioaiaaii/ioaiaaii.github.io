@@ -170,7 +170,7 @@ Since $U = \text{SWAP}(\text{target}_0, \text{target}_2)$ and $U^2 = I$ (SWAP is
 #| layout-nrow: 1
 import math
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from qiskit.circuit.library import QFT
+from qiskit.circuit.library import QFTGate
 
 N = 15
 a = 4
@@ -197,7 +197,7 @@ qc.cswap(qr_ctrl[0], qr_tgt[0], qr_tgt[2])
 qc.barrier()
 
 # Inverse QFT on control register
-iqft = QFT(m, inverse=True)
+iqft = QFTGate(m).inverse()
 qc.append(iqft, qr_ctrl)
 qc.barrier()
 
@@ -226,15 +226,14 @@ The probability for $|0000\rangle$ and $|1000\rangle$ states is approximately eq
 #| echo: true
 from qiskit_aer import AerSimulator
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
-from qiskit_ibm_runtime import SamplerV2 as Sampler
+from qiskit_aer.primitives import SamplerV2 as Sampler
 from qiskit.visualization import plot_distribution
 
 backend = AerSimulator()
 pm = generate_preset_pass_manager(optimization_level=0, backend=backend)
 transpiled = pm.run(qc)
 
-sampler = Sampler(mode=backend)
-sampler.options.default_shots = 1024
+sampler = Sampler(default_shots=1024)
 result = sampler.run([transpiled]).result()
 counts = result[0].data.measure.get_counts()
 plot_distribution(counts)
