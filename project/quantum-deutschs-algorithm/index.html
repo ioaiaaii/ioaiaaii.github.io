@@ -79,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6c088807e03d94680920c79569b4959b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-66b2e94cab8089b6317222a6ab67b891.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-bf50be1ff8c8786e716a2677334b129e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-bb50d5190cdc22ca78470e3e0b0c8ee9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -118,6 +118,9 @@ window.MathJax = {
       bra: ["\\langle #1|", 1],
       braket: ["\\langle #1|#2\\rangle", 2]
     }
+  },
+  output: {
+    displayOverflow: "scroll"
   }
 };
 </script>
@@ -178,7 +181,7 @@ window.Quarto = {
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <a class="nav-link" href="../../notes.html"> 
-<span class="menu-text">Technical Notes</span></a>
+<span class="menu-text">Notes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../projects.html"> 
@@ -754,7 +757,7 @@ Table&nbsp;3: Final States
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>qc.h(<span class="dv">0</span>)<span class="op">;</span> qc.barrier()</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>qc.measure(<span class="dv">0</span>, <span class="dv">0</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>qc.draw(<span class="st">'mpl'</span>, initial_state<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="776040e2" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="2">
+<div id="652d5098" class="cell quarto-layout-panel" data-execution_count="2" data-layout-nrow="1">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-3-output-1.png" class="img-fluid" width="878"></p>
@@ -776,12 +779,13 @@ Note
 </div>
 <p>The statevector before measurement (Qiskit convention <span class="math inline">\(|q_1 q_0\rangle\)</span>, target first) is:</p>
 <p><span class="math display">\[|q_4\rangle = -\frac{1}{\sqrt{2}}|00\rangle + \frac{1}{\sqrt{2}}|10\rangle\]</span></p>
-<div id="tbl-sv-f1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="tbl-sv-f1" class="responsive quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sv-f1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;4: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <span class="math inline">\(U_{f_1}\)</span>
 </figcaption>
 <div aria-describedby="tbl-sv-f1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="table-responsive">
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -807,6 +811,7 @@ Table&nbsp;4: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <
 </tbody>
 </table>
 </div>
+</div>
 </figure>
 </div>
 <p>Both states have <span class="math inline">\(q_0 = 0\)</span>, so measurement always collapses to <span class="math inline">\(|0\rangle\)</span> — <strong>constant</strong> function detected.</p>
@@ -823,7 +828,7 @@ Table&nbsp;4: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>sv <span class="op">=</span> Statevector(qc2)</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plot_state_qsphere(sv)</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plot_bloch_multivector(sv)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="84f81bcb" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="3">
+<div id="0dd16388" class="cell quarto-layout-panel" data-execution_count="3" data-layout-nrow="1">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-4-output-1.png" class="img-fluid" width="426"></p>
@@ -895,7 +900,7 @@ Table&nbsp;4: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>qc.h(<span class="dv">0</span>)<span class="op">;</span> qc.barrier()</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>qc.measure(<span class="dv">0</span>, <span class="dv">0</span>)</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>qc.draw(<span class="st">'mpl'</span>, initial_state<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="28628900" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="4">
+<div id="990d3170" class="cell quarto-layout-panel" data-execution_count="4" data-layout-nrow="1">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-5-output-1.png" class="img-fluid" width="878"></p>
@@ -904,12 +909,13 @@ Table&nbsp;4: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <
 </div>
 <p>The statevector before measurement (Qiskit convention <span class="math inline">\(|q_1 q_0\rangle\)</span>, target first) is:</p>
 <p><span class="math display">\[|q_4\rangle = \frac{1}{\sqrt{2}}|01\rangle - \frac{1}{\sqrt{2}}|11\rangle\]</span></p>
-<div id="tbl-sv-f2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="tbl-sv-f2" class="responsive quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sv-f2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;5: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <span class="math inline">\(U_{f_2}\)</span>
 </figcaption>
 <div aria-describedby="tbl-sv-f2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="table-responsive">
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -935,6 +941,7 @@ Table&nbsp;5: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <
 </tbody>
 </table>
 </div>
+</div>
 </figure>
 </div>
 <p>Both states have <span class="math inline">\(q_0 = 1\)</span>, so measurement always collapses to <span class="math inline">\(|1\rangle\)</span> — <strong>balanced</strong> function detected.</p>
@@ -952,7 +959,7 @@ Table&nbsp;5: Statevector <span class="math inline">\(|q_4\rangle\)</span> for <
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>sv <span class="op">=</span> Statevector(qc2)</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>plot_state_qsphere(sv)</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>plot_bloch_multivector(sv)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="50c4ecb1" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="5">
+<div id="9c48c635" class="cell quarto-layout-panel" data-execution_count="5" data-layout-nrow="1">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-6-output-1.png" class="img-fluid" width="426"></p>
@@ -1017,14 +1024,14 @@ Note
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Draw with reverse_bits to match mathematical convention</span></span>
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>qc.draw(output<span class="op">=</span><span class="st">'mpl'</span>, reverse_bits<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="1daf5635" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="6">
+<div id="a1a5e95d" class="cell quarto-layout-panel" data-execution_count="6" data-layout-nrow="1">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-7-output-1.png" class="img-fluid" width="995"></p>
 </div>
 </div>
 </div>
-<div id="b23f0f57" class="cell" data-execution_count="7">
+<div id="00184743" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run on Aer simulator</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>simulator <span class="op">=</span> AerSimulator()</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>qc_t <span class="op">=</span> transpile(circuits<span class="op">=</span>qc, backend<span class="op">=</span>simulator)</span>
@@ -1042,7 +1049,7 @@ Note
 </div>
 </div>
 </div>
-<div id="3b7b366b" class="cell" data-execution_count="8">
+<div id="d90bdd11" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>plot_state_qsphere(state_vector, show_state_phases<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
 <div>
@@ -1074,7 +1081,7 @@ Note
 <li>Runs via <code>SamplerV2</code> with 4096 shots</li>
 <li>Passes results to <code>metrics()</code></li>
 </ul>
-<div id="c65f9f78" class="cell" data-execution_count="9">
+<div id="763624f0" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Imports</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> logging</span>
@@ -1090,7 +1097,7 @@ Note
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>logging.getLogger(<span class="st">'qiskit_ibm_runtime'</span>).setLevel(logging.WARN)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="3f30a3e6" class="cell" data-execution_count="10">
+<div id="59ae93c6" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>metrics() — diagnostic plots</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> metrics(circuit<span class="op">=</span>QuantumCircuit, transpiled_circuit<span class="op">=</span>QuantumCircuit, backend<span class="op">=</span>BackendV2, counts<span class="op">=</span><span class="va">None</span>):</span>
@@ -1170,7 +1177,7 @@ Note
 <span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>        plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="fc160c77" class="cell" data-execution_count="11">
+<div id="03a7ba44" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>aer_mimic_simulation() — transpile &amp; run</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> aer_mimic_simulation(circuit<span class="op">=</span>QuantumCircuit, backend<span class="op">=</span>BackendV2):</span>
@@ -1201,10 +1208,10 @@ Note
 </div>
 <p>The circuit is the same <span class="math inline">\(U_{f_2}\)</span> (balanced) implementation, built in Qiskit’s reversed bit ordering. It is run twice to compare ideal vs noisy behaviour:</p>
 <ul>
-<li><strong><code>AerSimulator()</code></strong> — ideal simulation, no noise</li>
-<li><strong><code>AerSimulator.from_backend(FakeSherbrooke())</code></strong> — mimics <code>ibm_sherbrooke</code> noise model and qubit connectivity</li>
+<li><p><strong><code>AerSimulator()</code></strong> — ideal simulation, no noise</p></li>
+<li><p><strong><code>AerSimulator.from_backend(FakeSherbrooke())</code></strong> — mimics <code>ibm_sherbrooke</code> noise model and qubit connectivity</p></li>
 </ul>
-<div id="1dc591ed" class="cell" data-execution_count="12">
+<div id="5b991242" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Circuit construction &amp; Aer simulation</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>qr <span class="op">=</span> QuantumRegister(<span class="dv">2</span>)</span>
@@ -1230,7 +1237,7 @@ Note
 <li>The transpilation pass manager targets <code>ibm_sherbrooke</code>’s native gate set and qubit topology</li>
 <li>Job retrieval decouples submission from result collection — useful when queue wait times are long</li>
 </ul>
-<div id="3bfa9b49" class="cell" data-execution_count="13">
+<div id="5bc732c7" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Real hardware execution</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>service <span class="op">=</span> QiskitRuntimeService(</span>

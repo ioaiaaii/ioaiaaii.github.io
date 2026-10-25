@@ -79,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6c088807e03d94680920c79569b4959b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-66b2e94cab8089b6317222a6ab67b891.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-bf50be1ff8c8786e716a2677334b129e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-bb50d5190cdc22ca78470e3e0b0c8ee9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -118,6 +118,9 @@ window.MathJax = {
       bra: ["\\langle #1|", 1],
       braket: ["\\langle #1|#2\\rangle", 2]
     }
+  },
+  output: {
+    displayOverflow: "scroll"
   }
 };
 </script>
@@ -178,7 +181,7 @@ window.Quarto = {
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <a class="nav-link" href="../../notes.html"> 
-<span class="menu-text">Technical Notes</span></a>
+<span class="menu-text">Notes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../projects.html"> 
@@ -448,15 +451,15 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>cr1 <span class="op">=</span> ClassicalRegister(<span class="dv">4</span>, <span class="st">'measurement'</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>qr2 <span class="op">=</span> QuantumRegister(<span class="dv">1</span>, <span class="st">'target'</span>)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>qc <span class="op">=</span> QuantumCircuit(qr1, qr2, cr1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="01cdb99c" class="cell quarto-layout-panel" data-execution_count="3" data-layout-nrow="1">
+<div id="2384c8f2" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="3">
 
 </div>
 <p>Calculate the needed iterations over O and G operators.</p>
-<div id="273f4968" class="cell" data-execution_count="4">
+<div id="57d58ed9" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="bu">round</span>((math.pi <span class="op">/</span> <span class="dv">4</span>) <span class="op">*</span> math.sqrt(<span class="dv">2</span> <span class="op">**</span> <span class="bu">len</span>(qr1)) <span class="op">-</span> <span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Initialise circuit with fliping target register to 1, and apply H gates to registers:</p>
-<div id="73c3eb93" class="cell" data-execution_count="5">
+<div id="228f99bb" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialise: flip target to |1⟩, apply H to all</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>qc.x(qr2)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>qc.barrier(label<span class="op">=</span><span class="st">'1'</span>)</span>
@@ -468,7 +471,7 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 </div>
 </div>
 <p>Build the Oracle Operator, applying I for <span class="math inline">\(|1⟩\)</span> and X for <span class="math inline">\(|0⟩\)</span>. qiskit tensors qubits in reverse. Encode <span class="math inline">\(|x_i⟩=|1001⟩\)</span> respectively:</p>
-<div id="e6319f2e" class="cell" data-execution_count="6">
+<div id="f75785e2" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Oracle for |1001⟩: I for |1⟩ bits, X for |0⟩ bits, MCX, undo</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>oracle <span class="op">=</span> QuantumCircuit(qr1, qr2)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>oracle.<span class="bu">id</span>(qr1[<span class="dv">3</span>])</span>
@@ -485,11 +488,11 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>oracle.x(qr1[<span class="dv">1</span>])</span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>oracle.<span class="bu">id</span>(qr1[<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-<pre><code>&lt;qiskit.circuit.instructionset.InstructionSet at 0x11d61c6d0&gt;</code></pre>
+<pre><code>&lt;qiskit.circuit.instructionset.InstructionSet at 0x11355cd90&gt;</code></pre>
 </div>
 </div>
 <p>Build Grover Diffusion Operator:</p>
-<div id="eac99bed" class="cell" data-execution_count="7">
+<div id="aaf528c2" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Grover diffusion: H·X·(multi-controlled Z)·X·H</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>grover <span class="op">=</span> QuantumCircuit(qr1, qr2)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>grover.h(qr1)</span>
@@ -504,7 +507,7 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>grover.x(qr1)</span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>grover.h(qr1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
-<pre><code>&lt;qiskit.circuit.instructionset.InstructionSet at 0x118d620b0&gt;</code></pre>
+<pre><code>&lt;qiskit.circuit.instructionset.InstructionSet at 0x1125222c0&gt;</code></pre>
 </div>
 </div>
 <p>Construct Circuit operators for k iterations, then measure control register:</p>
@@ -515,7 +518,7 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>qc.measure(qr1, cr1)</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>qc.draw(output<span class="op">=</span><span class="st">'mpl'</span>, style<span class="op">=</span><span class="st">'iqp'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="71632b19" class="cell quarto-layout-panel" data-execution_count="8" data-layout-nrow="1">
+<div id="3f7665ae" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="8">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-9-output-1.png" class="img-fluid" width="1833"></p>
@@ -523,7 +526,7 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 </div>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>qc.decompose().draw(output<span class="op">=</span><span class="st">"mpl"</span>, style<span class="op">=</span><span class="st">"iqp"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="6e9260e0" class="cell quarto-layout-panel" data-execution_count="9" data-layout-nrow="1">
+<div id="c98cfb13" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="9">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
 <p><img src="index_files/figure-html/cell-10-output-1.png" class="img-fluid" width="2219"></p>
@@ -533,22 +536,21 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 <p>The probability for |1001⟩ state is almost 1, thus we found the marked index:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit_aer <span class="im">import</span> AerSimulator</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.transpiler.preset_passmanagers <span class="im">import</span> generate_preset_pass_manager</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit_ibm_runtime <span class="im">import</span> SamplerV2 <span class="im">as</span> Sampler</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit_aer.primitives <span class="im">import</span> SamplerV2 <span class="im">as</span> Sampler</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.visualization <span class="im">import</span> plot_distribution</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>backend <span class="op">=</span> AerSimulator()</span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>pass_manager <span class="op">=</span> generate_preset_pass_manager(optimization_level<span class="op">=</span><span class="dv">0</span>, backend<span class="op">=</span>backend)</span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>transpiled_circuit <span class="op">=</span> pass_manager.run(qc)</span>
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>sampler <span class="op">=</span> Sampler(mode<span class="op">=</span>backend)</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>sampler.options.default_shots <span class="op">=</span> <span class="dv">1024</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> sampler.run([transpiled_circuit]).result()</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> result[<span class="dv">0</span>].data.measurement.get_counts()</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>plot_distribution(counts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="974708e7" class="cell quarto-layout-panel" data-execution_count="10" data-layout-nrow="1">
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>sampler <span class="op">=</span> Sampler(default_shots<span class="op">=</span><span class="dv">1024</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> sampler.run([transpiled_circuit]).result()</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> result[<span class="dv">0</span>].data.measurement.get_counts()</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>plot_distribution(counts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="c31bd115" class="cell quarto-layout-panel" data-layout-nrow="1" data-execution_count="10">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
-<p><img src="index_files/figure-html/cell-11-output-1.png" class="img-fluid" width="827"></p>
+<p><img src="index_files/figure-html/cell-11-output-1.png" class="img-fluid" width="826"></p>
 </div>
 </div>
 </div>
@@ -564,7 +566,7 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 </figure>
 </div>
 <p>Analyzing further and using only FakeSherbrooke, before executing on real ibm_sherbrooke, I’ve noticed that using the <strong><code>scheduling_method='alap'</code></strong> or <strong><code>scheduling_method='asap'</code></strong>, during transpilation, I could slightly observe the expected result, but with more noisy and less reliable results, leading me to a question on when and how to use these options. However, these transpilation options affect the reliability of the final result, and I left them empty. I noticed a more reliable result, with accepted noise.</p>
-<div id="54fd5fe2" class="cell" data-execution_count="12">
+<div id="d182bdee" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Helper — <code>job_metrics()</code></summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> job_metrics(job, backend):</span>
@@ -597,7 +599,7 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 <span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>            plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="f1825b35" class="cell" data-execution_count="13">
+<div id="cbfbd684" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Helper — <code>circuit_metrics()</code></summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> circuit_metrics(circuit, transpiled_circuit, backend):</span>
@@ -662,7 +664,7 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 <span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>        plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="4ab169c9" class="cell" data-execution_count="14">
+<div id="e51b6045" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Helper — <code>aer_mimic_simulation()</code></summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> aer_mimic_simulation(circuit, backend, shots, metrics<span class="op">=</span><span class="va">False</span>, run<span class="op">=</span><span class="va">False</span>):</span>
@@ -697,7 +699,7 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 <span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>        job_metrics(job<span class="op">=</span>job, backend<span class="op">=</span>backend)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="eda75b12" class="cell" data-execution_count="15">
+<div id="dd9d75eb" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate on FakeSherbrooke (noise model derived from real hardware)</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>backend <span class="op">=</span> AerSimulator.from_backend(FakeSherbrooke())</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>aer_mimic_simulation(circuit<span class="op">=</span>qc, backend<span class="op">=</span>backend, shots<span class="op">=</span><span class="dv">4096</span>, metrics<span class="op">=</span><span class="va">True</span>, run<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -744,7 +746,7 @@ Figure&nbsp;5: Grover Expanded Full Circuit
 </div>
 </div>
 <p>Since the result from my circuit was acceptable from FakeSherbrooke backend, I executed the circuit on real <code>ibm_sherbrooke</code>. The following graphs show the circuit and job metrics.</p>
-<div id="d1ed67b4" class="cell" data-execution_count="16">
+<div id="fd15a25b" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>service <span class="op">=</span> QiskitRuntimeService(</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    channel<span class="op">=</span><span class="st">'ibm_quantum'</span>,</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    instance<span class="op">=</span><span class="st">'ibm-q/open/main'</span>,</span>

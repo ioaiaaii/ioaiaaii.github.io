@@ -99,10 +99,10 @@ div.csl-indent {
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-6c088807e03d94680920c79569b4959b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-66b2e94cab8089b6317222a6ab67b891.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-bf50be1ff8c8786e716a2677334b129e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-bb50d5190cdc22ca78470e3e0b0c8ee9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -142,6 +142,9 @@ window.MathJax = {
       bra: ["\\langle #1|", 1],
       braket: ["\\langle #1|#2\\rangle", 2]
     }
+  },
+  output: {
+    displayOverflow: "scroll"
   }
 };
 </script>
@@ -173,7 +176,7 @@ window.MathJax = {
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <a class="nav-link" href="../../notes.html"> 
-<span class="menu-text">Technical Notes</span></a>
+<span class="menu-text">Notes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../projects.html"> 
@@ -449,6 +452,7 @@ Process      --&gt; Process    : signals (via kernel)</code></pre>
 </section>
 <section id="results" class="level2">
 <h2 class="anchored" data-anchor-id="results">Results</h2>
+<div class="table-responsive">
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -491,6 +495,7 @@ Process      --&gt; Process    : signals (via kernel)</code></pre>
 </tr>
 </tbody>
 </table>
+</div>
 <p>Two independent conditions must both be true for a core dump to be produced:</p>
 <ol type="1">
 <li>The Go runtime must re-raise the signal as <code>SIGABRT</code> (<code>GOTRACEBACK=crash</code>)</li>
