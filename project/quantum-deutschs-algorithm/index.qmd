@@ -432,7 +432,7 @@ $$|q_4\rangle = -\frac{1}{\sqrt{2}}|00\rangle + \frac{1}{\sqrt{2}}|10\rangle$$
 | $|00\rangle$ | $-1/\sqrt{2}$ | $0.5$ | $\pi$ |
 | $|10\rangle$ | $+1/\sqrt{2}$ | $0.5$ | $0$ |
 
-: Statevector $|q_4\rangle$ for $U_{f_1}$ {#tbl-sv-f1}
+: Statevector $|q_4\rangle$ for $U_{f_1}$ {#tbl-sv-f1 .responsive}
 
 Both states have $q_0 = 0$, so measurement always collapses to $|0\rangle$ — **constant** function detected.
 
@@ -534,7 +534,7 @@ $$|q_4\rangle = \frac{1}{\sqrt{2}}|01\rangle - \frac{1}{\sqrt{2}}|11\rangle$$
 | $|01\rangle$ | $+1/\sqrt{2}$ | $0.5$ | $0$ |
 | $|11\rangle$ | $-1/\sqrt{2}$ | $0.5$ | $\pi$ |
 
-: Statevector $|q_4\rangle$ for $U_{f_2}$ {#tbl-sv-f2}
+: Statevector $|q_4\rangle$ for $U_{f_2}$ {#tbl-sv-f2 .responsive}
 
 Both states have $q_0 = 1$, so measurement always collapses to $|1\rangle$ — **balanced** function detected.
 
@@ -778,6 +778,7 @@ def aer_mimic_simulation(circuit=QuantumCircuit, backend=BackendV2):
 The circuit is the same $U_{f_2}$ (balanced) implementation, built in Qiskit's reversed bit ordering. It is run twice to compare ideal vs noisy behaviour:
 
 - **`AerSimulator()`** — ideal simulation, no noise
+
 - **`AerSimulator.from_backend(FakeSherbrooke())`** — mimics `ibm_sherbrooke` noise model and qubit connectivity
 
 ```{python}

@@ -225,6 +225,7 @@ No upload. Compared to experiment 4, the container was killed immediately — Ku
 
 ## Results
 
+::: {.table-responsive}
 | Experiment | PID position | `GOTRACEBACK` | Core dump |
 |---|---|---|---|
 | 1 | non-PID-1 (`/bin/bash`) | default | produced |
@@ -232,6 +233,7 @@ No upload. Compared to experiment 4, the container was killed immediately — Ku
 | 3 | non-PID-1 (Go binary) | default | suppressed |
 | 4 | non-PID-1 (Go binary) | `crash` | produced |
 | 5 | PID 1 (Go binary) | `crash` | suppressed |
+:::
 
 Two independent conditions must both be true for a core dump to be produced:
 
