@@ -1,172 +1,49 @@
-/*-- scss:mixins --*/
-
-@mixin btn-inverse {
-  transition-delay: 0s;
-  transition-duration: 0.15s;
-  transition-property: color;
-  transition-timing-function: ease-in;
-
-  &:hover {
-    background-color: $theme-blue;
-    color: rgb(250, 249, 240);
-  }
-}
-
 /*-- scss:defaults --*/
 
-// Theme colors
-$theme-lightblue: #ffffffff;
-$theme-darkblue: #222222;
-$theme-blue: #3373c1ff;
-
-// Base document colors
-$body-bg: $theme-lightblue;
-$body-color: $theme-darkblue;
-
-$link-color: $theme-blue;
-$link-hover-color: darken(saturate($link-color, 50%), 15%);
+// Colors
+$primary: #3373c1;
 
 // Navbar
 $navbar-bg: #ffffff;
-$navbar-fg: #212529;
-$navbar-hl: #2563a3;
 
 // Typography
-$font-family-base: "Newsreader", Georgia, serif;
-$font-size-base: 1.11rem;
-$line-height-base: 1.5;
-$font-family-monospace: ui-monospace, "SF Mono", SFMono-Regular, Menlo,
-  Consolas, "Liberation Mono", monospace;
+$font-family-sans-serif: "Mona Sans", system-ui, sans-serif;
+$font-family-monospace: "Monaspace Neon", ui-monospace, monospace;
+$font-size-root: 16px;
 $code-font-size: 0.8rem;
 
-// Code blocks
-$btn-code-copy-color-active: $theme-blue;
-$code-block-border-left-size: 4.5px;
-
-// Tables
-$table-cell-padding-y: 0.55rem;
-$table-cell-padding-x: 0.75rem;
-$table-border-color: #e3e8ef;
-$table-th-font-weight: 600;              // the heaviest Newsreader weight hosted
-$accent-blue: #31BAE9;                   // same as code-block-border-left in _quarto.yml
-$table-head-bg: $accent-blue;            // own variable; Bootstrap 5 defines none for the header
-
 /*-- scss:rules --*/
-
-// Font rendering ---------------------------------------------------------------
-
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-// Structural UI stays sans -----------------------------------------------------
-
-h1, h2, h3, h4, h5, h6,
-.navbar, .btn, .dropdown-menu, .form-control,
-.sidebar nav, #TOC, .pagination, .quarto-title-meta,
-.quarto-category, .listing-category,
-.about-link {
-  font-family: $font-family-sans-serif;
-}
 
 // Navbar menu ------------------------------------------------------------------
 
 .menu-text {
-  display: block;
-  position: relative;
   text-transform: uppercase;
-  border-bottom: unset;
-  font-weight: 400;
-  font-size: large;
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 0.1em;
-    background-color: $theme-blue;
-    transition: opacity 100ms, transform 300ms;
-    opacity: 1;
-    transform: scale(0);
-    transform-origin: center;
-  }
-  &:hover::after,
-  &:focus::after {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
-// Layout -----------------------------------------------------------------------
-
-@media screen and (min-width: 60em) {
-  .main {
-    display: flex
-  }
-
-  .left {
-    width: 50%;
-  }
-
-  .right {
-    width: 50%;
-  }
-}
-
-.page-item.active .page-link {
-  background-color: $theme-blue;
-  border-color: $theme-blue;
-}
-
-// Blog -------------------------------------------------------------------------
+// Categories -------------------------------------------------------------------
 
 div.quarto-post .listing-categories .listing-category,
-.quarto-title .quarto-categories .quarto-category {
-  color: $theme-blue;
-  border: solid 1px $theme-blue;
-
-  @include btn-inverse;
-}
-
-.quarto-listing-category-title {
-  color: $theme-blue;
+.quarto-title .quarto-categories .quarto-category,
+.quarto-grid-item .listing-categories .listing-category {
+  color: $primary;
+  border: solid 1px $primary;
 }
 
 // Project ----------------------------------------------------------------------
 
-.quarto-listing-container-grid:has(.quarto-grid-item:hover) .quarto-grid-item:not(:hover) {
-  filter: brightness(95%);
+.quarto-grid-item p.card-img-top > img {
+  object-fit: contain;
 }
 
-.quarto-grid-item {
-  transition: all 0.25s;
+// Figures ----------------------------------------------------------------------
 
-  &:hover {
-    border-color: $theme-blue;
-    box-shadow: 0 12px 16px rgba($theme-blue, 0.2);
-  }
-
-  p.card-img-top>img {
-    object-fit: contain;
-  }
+.cell-output-display img {
+  max-width: 100%;
+  height: auto;
 }
 
-.quarto-grid-item .listing-categories .listing-category {
-  color: $theme-blue;
-  border-color: $theme-blue;
+// References -------------------------------------------------------------------
 
-  @include btn-inverse;
-}
-
-// Reading rhythm ---------------------------------------------------------------
-
-p {
-  margin-bottom: 1.15em;
-}
-
-h2,
-h3 {
-  margin-top: 1.8em;
+.csl-entry {
+  overflow-wrap: break-word;
 }

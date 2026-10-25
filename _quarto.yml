@@ -16,7 +16,7 @@ website:
       - text: "ioaiaaii"
         href: index.qmd
     right:
-      - text: "Technical Notes"
+      - text: "Notes"
         href: notes.qmd
       - text: "Projects"
         href: projects.qmd
@@ -27,13 +27,12 @@ format:
     theme:
       - styles.scss
     css: fonts/fonts.css
-    html-math-method: mathjax
-    code-block-border-left: "#31BAE9"
-    code-fold: false
     grid:
       margin-width: 300px
     mermaid:
       theme: neutral
+    syntax-highlighting: github
+    code-block-border-left: "#31BAE9"
     include-in-header:
       text: |
         <script>
@@ -44,6 +43,9 @@ format:
               bra: ["\\langle #1|", 1],
               braket: ["\\langle #1|#2\\rangle", 2]
             }
+          },
+          output: {
+            displayOverflow: "scroll"
           }
         };
         </script>
